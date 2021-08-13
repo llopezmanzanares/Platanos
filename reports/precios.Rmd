@@ -1,0 +1,40 @@
+---
+title: "Precios del plátano en Tenerife"
+author: "Luis López-Manzanares"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: flatly
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = F,
+  message = F,
+  options(OutDec = ","),
+  fig.dim = c(6, 5) # width = 6, height = 5 
+  )
+library(tidyverse)
+library(lubridate)
+```
+
+```{r data-load}
+ds <- read_delim("../data/raw/dataset-ISTAC-C00014A_000012-1.2-observations.tsv") %>% 
+  rename_all(tolower) %>% 
+  filter(
+    territorio == "Tenerife",
+    !is.na(obs_value)
+    ) %>% 
+  select(1,3,6) %>% 
+  pivot_wider(
+    names_from = medidas,
+    values_from = obs_value
+  ) %>% 
+  select(1,2)
+
+```
+
