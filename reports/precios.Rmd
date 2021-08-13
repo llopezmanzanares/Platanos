@@ -23,7 +23,8 @@ library(lubridate)
 ```
 
 ```{r data-load}
-ds <- read_delim("../data/raw/dataset-ISTAC-C00014A_000012-1.2-observations.tsv") %>% 
+ds <- read_delim("../data/raw/dataset-ISTAC-C00014A_000012-1.2-observations.tsv",
+                 show_col_types = FALSE) %>% 
   rename_all(tolower) %>% 
   filter(
     territorio == "Tenerife",
@@ -34,7 +35,11 @@ ds <- read_delim("../data/raw/dataset-ISTAC-C00014A_000012-1.2-observations.tsv"
     names_from = medidas,
     values_from = obs_value
   ) %>% 
-  select(1,2)
+  select(1,2) %>% 
+  mutate(
+    year = str_sub(time_period, 1, 4),
+    week = str_sub(time_period, length(time_period)-2, length(time_period)) #esto no va
+  )
 
 ```
 
