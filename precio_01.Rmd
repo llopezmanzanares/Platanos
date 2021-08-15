@@ -1,0 +1,91 @@
+---
+title: "Precios del plátano en Tenerife"
+#author: "Luis López-Manzanares"
+date: "15/8/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = F,
+  message = F,
+  options(OutDec = ","),
+  fig.dim = c(6, 5) # width = 6, height = 5 
+  )
+library(tidyverse)
+library(lubridate)
+```
+
+```{r dataload-and-variables}
+ds <- read_delim("data/raw/dataset-ISTAC-C00014A_000012-1.3-observations.tsv",
+                 show_col_types = FALSE) %>% 
+  rename_all(tolower) %>% 
+  filter(
+    territorio == "Tenerife",
+    !is.na(obs_value)
+    ) %>% 
+  select(1,3,6) %>% 
+  pivot_wider(
+    names_from = medidas,
+    values_from = obs_value
+  )
+
+#-- solo los precios medios ponderados --
+pr <- ds %>% 
+  select(1,2) %>% 
+  rename(
+    pmp = `Precio medio ponderado`
+  ) %>% 
+  mutate(
+    year = str_sub(time_period, 1, 4),
+    n_sem = as.numeric(str_extract(time_period, "\\d+$")),
+    .before = 1
+  )
+pr_sm <- pr %>% 
+  filter(
+    year != "2021",
+    year != "2018"
+  )
+```
+
+
+# Variación del precio del plátano
+
+```{r gr-precio-semanal}
+ggplot(pr,
+       aes(n_sem, pmp,
+           color = year)) +
+  geom_smooth(
+    se = F,
+    span = 0.8
+  ) +
+  labs(
+    title = "Evolución mensual del precio del plátano, €/Kg",
+    subtitle = "Precio medio ponderado",
+    x = NULL,
+    y = NULL,
+    color = NULL
+  ) +
+  theme_light()
+```
+
+Se puede ver cómo los años 2018 y 2021 tienen un comportamiento diferenciado del resto de la secuencia. Si los eliminamos obtenemos
+
+```{r gr-precio-sem-small}
+ggplot(pr,
+       aes(n_sem, pmp,
+           color = year)) +
+  geom_smooth(
+    se = F,
+    span = 0.8
+  ) +
+  labs(
+    title = "Evolución mensual del precio del plátano, €/Kg",
+    subtitle = "Precio medio ponderado",
+    x = NULL,
+    y = NULL,
+    color = NULL
+  ) +
+  theme_light()
+```
+
