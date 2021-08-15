@@ -1,8 +1,14 @@
 ---
 title: "Precios del plátano en Tenerife"
 #author: "Luis López-Manzanares"
-date: "15/8/2021"
-output: html_document
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: flatly
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
 ---
 
 ```{r setup, include=FALSE}
@@ -10,7 +16,7 @@ knitr::opts_chunk$set(
   echo = F,
   message = F,
   options(OutDec = ","),
-  fig.dim = c(6, 5) # width = 6, height = 5 
+  fig.dim = c(10, 5) # width = 6, height = 5 
   )
 library(tidyverse)
 library(lubridate)
@@ -51,6 +57,10 @@ pr_sm <- pr %>%
 
 # Variación del precio del plátano
 
+Los datos que incluyen van desde la semana 1 de 2016 hasta la semana 21 de 2021.
+
+La fuente de los datos es la [Consejería de Agricultura del Gobierno de Canarias](https://www3.gobiernodecanarias.org/agricultura/statistical-visualizer/data.html?resourceType=dataset&agencyId=ISTAC&resourceId=C00014A_000011&version=1.5&multidatasetId=ISTAC:C00014A_000002#visualization/table)
+
 ```{r gr-precio-semanal}
 ggplot(pr,
        aes(n_sem, pmp,
@@ -72,7 +82,7 @@ ggplot(pr,
 Se puede ver cómo los años 2018 y 2021 tienen un comportamiento diferenciado del resto de la secuencia. Si los eliminamos obtenemos
 
 ```{r gr-precio-sem-small}
-ggplot(pr,
+ggplot(pr_sm,
        aes(n_sem, pmp,
            color = year)) +
   geom_smooth(
@@ -89,3 +99,4 @@ ggplot(pr,
   theme_light()
 ```
 
+Se aprecia un claro descenso desde comienzo de año hasta mediados. El máximo suele encontrarse en torno a la semana 40 del año.
