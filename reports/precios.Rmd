@@ -37,11 +37,14 @@ ds <- read_delim("../data/raw/dataset-ISTAC-C00014A_000012-1.3-observations.tsv"
   ) %>% 
   select(1,2) %>% 
   mutate(
-    year = as.numeric(str_sub(time_period, 1, 4)),
+    year = str_sub(time_period, 1, 4),
+#    year = factor(year, ordered = T),
+    c_sem = str_extract(time_period, "\\d+$"),
+    n_sem = as.numeric(c_sem),
     sem = str_c(
-      str_extract(time_period, "\\d+"),
-      str_extract(time_period, "\\d+$")
-#      "1" 
+      year,
+      c_sem
+#      "1"  #dias, por si se lía lo de la semana
     ),
 #    sem = factor(sem, levels = unique(sem)),
     .before = 1
@@ -49,12 +52,28 @@ ds <- read_delim("../data/raw/dataset-ISTAC-C00014A_000012-1.3-observations.tsv"
   rename(
     pmp = `Precio medio ponderado`
   )
+
+
 ```
 
 # Precio del plátano
 
 ```{r gr-precio-linea}
-ggplot(ds, aes(sem, pmp, fill = year)) +
-  geom_col(position = "dodge")
+ggplot(ds, aes(n_sem, pmp, color = year)) +
+#  geom_point(alpha = 0.3) +
+#  geom_line()+
+  geom_smooth(
+    se = F,
+    span = 0.8
+    ) +
+  labs(
+    title = "Variación semanal del precio del plátano, ???/Kg",
+    subtitle = "Precio medio ponderado",
+    x = NULL,
+    y = NULL,
+    color = NULL
+  ) +
+  theme_light()
+
 ```
 
