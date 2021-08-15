@@ -53,7 +53,13 @@ ds <- read_delim("../data/raw/dataset-ISTAC-C00014A_000012-1.3-observations.tsv"
     pmp = `Precio medio ponderado`
   )
 
-
+#---- Datos ----
+precios <- ds %>% 
+  select(1, 3, 6) %>% 
+  filter(
+    year != "2021",
+    year != "2018"
+  )
 ```
 
 # Precio del plátano
@@ -77,3 +83,25 @@ ggplot(ds, aes(n_sem, pmp, color = year)) +
 
 ```
 
+Los años 2018 y 2021 han tenido unos comportamientos anómalos, si los quitamos de la serie, tenemos
+
+```{r gr-precio-menos-aa}
+ggplot(precios, aes(n_sem, pmp, color = year)) +
+#  geom_point(alpha = 0.3) +
+#  geom_line()+
+  geom_smooth(
+    se = F,
+    span = 0.8
+    ) +
+  labs(
+    title = "Variación semanal del precio del plátano, ???/Kg",
+    subtitle = "Precio medio ponderado",
+    caption = "Se han eliminado los años 2018 y 2021",
+    x = NULL,
+    y = NULL,
+    color = NULL
+  ) +
+  theme_light()
+```
+
+Se aprecia un claro descenso desde comienzo de año hasta mediados. El máximo suele encontrarse en torno a la semana 40 del año.
