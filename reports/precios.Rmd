@@ -1,6 +1,6 @@
 ---
-title: "Precios del plátano en Tenerife"
-author: "Luis López-Manzanares"
+title: "Precios del platano en Tenerife"
+#author: "Luis Lopez-Manzanares"
 date: "`r Sys.Date()`"
 output:
   html_document:
@@ -62,7 +62,7 @@ precios <- ds %>%
   )
 ```
 
-# Precio del pl�tano
+# Precio del platano
 
 ```{r gr-precio-linea}
 ggplot(ds, aes(n_sem, pmp, color = year)) +
