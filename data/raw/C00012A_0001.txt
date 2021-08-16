@@ -1,0 +1,86 @@
+Sector primario > Agricultura; ganadería; pesca y caza > Agricultura
+    Exportación de plátanos según destinos de exportación por islas de Canarias y periodos.
+Exportación de plátanos según destinos de exportación por islas de Canarias y periodos.
+Unidad de medida:Toneladas
+
+
+,Península,Extranjero
+Tenerife,,
+   2021 Junio (p),"6.944,180","0,476"
+   2021 Mayo (p),"10.497,266","154,746"
+   2021 Abril (p),"17.646,596","118,830"
+   2021 Marzo (p),"14.773,334","143,912"
+   2021 Febrero (p),"16.897,048","129,190"
+   2021 Enero (p),"13.746,797","61,254"
+   2020 Diciembre,"14.587,590","59,840"
+   2020 Noviembre,"14.832,719","33,420"
+   2020 Octubre,"14.817,226","18,580"
+   2020 Septiembre,"9.189,384","3,240"
+   2020 Agosto,"7.958,468","2,700"
+   2020 Julio,"7.497,125","1,080"
+   2020 Junio,"7.826,349","115,188"
+   2020 Mayo,"11.466,742","163,102"
+   2020 Abril,"17.942,361","121,318"
+   2020 Marzo,"15.484,544","56,150"
+   2020 Febrero,"15.679,878","61,876"
+   2020 Enero,"18.471,302","90,360"
+   2019 Diciembre,"12.264,660","49,480"
+   2019 Noviembre,"12.724,725","23,160"
+   2019 Octubre,"12.000,400","32,044"
+   2019 Septiembre,"8.279,271","14,322"
+   2019 Agosto,"8.565,709","116,118"
+   2019 Julio,"6.558,014","70,199"
+   2019 Junio,"9.119,947","56,623"
+   2019 Mayo,"15.290,039","78,035"
+   2019 Abril,"13.113,314","80,192"
+   2019 Marzo,"16.236,407","62,092"
+   2019 Febrero,"13.841,180","58,745"
+   2019 Enero,"16.250,567","77,586"
+   2018 Diciembre,"11.442,738","71,574"
+   2018 Noviembre,"13.467,058","104,070"
+   2018 Octubre,"10.373,245","41,474"
+   2018 Septiembre,"9.316,369","43,824"
+   2018 Agosto,"7.289,745","44,613"
+   2018 Julio,"4.919,298","22,226"
+   2018 Junio,"5.511,744","30,852"
+   2018 Mayo,"10.588,653","72,655"
+   2018 Abril,"13.018,644","80,775"
+   2018 Marzo,"19.928,083","55,413"
+   2018 Febrero,"16.404,670","111,816"
+   2018 Enero,"15.194,582","119,381"
+   2017 Diciembre,"13.014,249","180,431"
+   2017 Noviembre,"19.233,536","47,755"
+   2017 Octubre,"12.504,950","49,095"
+   2017 Septiembre,"10.816,468","40,797"
+   2017 Agosto,"10.528,219","68,598"
+   2017 Julio,"6.290,682","80,035"
+   2017 Junio,"11.509,955","85,671"
+   2017 Mayo,"13.879,435","31,482"
+   2017 Abril,"13.855,058","28,449"
+   2017 Marzo,"19.265,914","14,265"
+   2017 Febrero,"14.825,857","2,727"
+   2017 Enero,"13.267,425","0,000"
+   2016 Diciembre,"17.262,730","0,000"
+   2016 Noviembre,"13.127,096","0,000"
+   2016 Octubre,"11.450,104","0,000"
+   2016 Septiembre,"13.338,500","0,000"
+   2016 Agosto,"7.695,708","0,000"
+   2016 Julio,"6.541,893","0,000"
+   2016 Junio,"11.565,690","0,000"
+   2016 Mayo,"12.706,196","0,000"
+   2016 Abril,"15.755,709","0,000"
+   2016 Marzo,"19.430,785","0,000"
+   2016 Febrero,"15.414,890","0,000"
+   2016 Enero,"14.109,096","0,000"
+
+Notas:
+
+Notas de tabla
+  1.- (p) Dato provisional.
+
+Fuente:Instituto Canario de Estadística (ISTAC).
+
+Copyright: 2021
+
+
+Instituto Canario de Estadística (ISTAC) www.gobiernodecanarias.org/istac
