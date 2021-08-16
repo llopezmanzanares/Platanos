@@ -1,5 +1,8 @@
 library(tidyverse)
 
+# Los datos del último año son provisionales y vienen marcadas las fechas
+# con un (p) que es necesario eliminar (líneas 16 y 17)
+
 ds <- read_delim("data/raw/C00012A_0001.txt",
                  skip = 7,
                  col_names = c("fecha", "pen", "extr"),
