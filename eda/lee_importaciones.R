@@ -23,7 +23,7 @@ ds <- read_delim("data/raw/C00012A_0001.txt",
       mes == "Septiembre" ~ "09", mes == "Octubre" ~ "10",
       mes == "Noviembre" ~ "11", mes == "Diciembre" ~ "12"
     ),
-    fecha = str_c("01", mes, año, sep = "-"),
+    fecha = str_c(año, mes, "01", sep = "-"),
     .before = 1
   ) %>%
   select(-1,-2) %>% 
