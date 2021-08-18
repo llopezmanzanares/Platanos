@@ -1,5 +1,4 @@
 library(tidyverse)
-library(lubridate)
 
 # Los datos del último año son provisionales y vienen marcadas las fechas
 # con un (p) que es necesario eliminar (líneas 16 y 17)
@@ -28,5 +27,8 @@ ds <- read_delim("data/raw/C00012A_0001.txt",
     .before = 1
   ) %>%
   select(-1,-2) %>% 
+  mutate(
+    extr = as.numeric(str_replace(extr, ",", "."))
+  ) %>% 
   write_csv("data/processed/imp_tfe.csv")
 
