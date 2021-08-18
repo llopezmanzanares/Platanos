@@ -14,7 +14,7 @@ ds <- read_delim("data/raw/dataset-ISTAC-C00014A_000012-1.3-observations.tsv",
     pmp = obs_value
   ) %>%
   mutate(
-    año = str_extract(fecha, "\\d+"),
+    anualidad = str_extract(fecha, "\\d+"),
     sem = str_extract(fecha, "\\d+$"),
     .before = 1
   ) %>%
