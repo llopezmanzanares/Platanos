@@ -27,8 +27,8 @@ meses %>%
   filter(
     tipo %in% c("pmp", "pd_tot")
   ) %>% 
-ggplot(aes(fecha, valor)) +
-  geom_line() +
+ggplot(aes(fecha, valor, color = year(fecha))) +
+  geom_line(size = 1.2) +
   facet_wrap(~tipo, 
              ncol = 1,
              scales = "free_y")
