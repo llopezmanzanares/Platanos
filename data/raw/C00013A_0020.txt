@@ -1,0 +1,29 @@
+Sector primario > Agricultura; ganadería; pesca y caza > Agricultura
+    Producción agrícola según cultivos por islas de Canarias y años.
+Producción agrícola según cultivos por islas de Canarias y años.
+Unidad de medida:Toneladas
+
+
+, Tenerife
+ Plátano,
+   2019,"167.774,6"
+   2018,"159.814,6"
+   2017,"180.180,1"
+   2016,"178.088,0"
+   2015,"170.375,0"
+   2014,"151.758,0"
+   2013,"150.536,0"
+   2012,"157.887,0"
+
+Notas:
+
+Notas de tabla
+  1.- (..) Dato no disponible.
+(p) Dato provisional.
+
+Fuente:Instituto Canario de Estadística (ISTAC) y Consejería de Agricultura, Ganadería y Pesca.
+
+Copyright: 2021
+
+
+Instituto Canario de Estadística (ISTAC) www.gobiernodecanarias.org/istac
