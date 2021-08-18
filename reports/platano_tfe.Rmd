@@ -1,0 +1,105 @@
+---
+title: "Plátano de Tenerife"
+#author: "Luis López-Manzanares"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: flatly
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = F,
+  message = F,
+  options(OutDec = ","),
+  fig.dim = c(6, 5) # width = 6, height = 5 
+  )
+library(tidyverse)
+library(lubridate)
+```
+
+```{r CargaDatos}
+#---- Precio ponderado y exportaciones mensuales ----
+pmp_imp <- left_join(
+  read_csv("../data/processed/pr_tfe_mes.csv", #pmp en Tfe, mensual
+           show_col_types = F),
+  read_csv("../data/processed/imp_tfe.csv",    #imports Tfe, mensual
+           show_col_types = F),
+  by = "fecha"
+) %>% 
+  mutate(
+    fecha = as.Date(fecha),
+    prod = pen + extr
+  )
+
+#---- Precio ponderado semanal ----
+pmp_sem <- read_csv("../data/processed/pr_tfe.csv",
+                    col_types = "cid",
+                    show_col_types = F)
+```
+
+# Objetivo
+
+Análisis de la evolución del precio del plátano en la isla de Tenerife. Para ello se usarán las diferentes fuentes de datos disponibles.
+
+## Fuente de datos
+
+Los datos de los precios y producciones se obtienen del Instituto de Estadística de Canarias, ([ISTAC](http://www.gobiernodecanarias.org/istac/temas_estadisticos/)).
+
+Los *datos disponibles* son los siguientes:
+
+* Precio Medio Ponderado (pmp) semanal y mensual, obtenidos desde [aquí](https://www3.gobiernodecanarias.org/istac/statistical-visualizer/visualizer/data.html?resourceType=dataset&agencyId=ISTAC&resourceId=C00014A_000011&version=1.5&multidatasetId=ISTAC:C00014A_000002#)
+
+* Producción anual, hasta 2019 de momento (¡¡ estamos en 2021 !!), obtenido desde [aquí](http://www.gobiernodecanarias.org/istac/jaxi-istac/menu.do?uripub=urn:uuid:ef5f2e5c-e2c4-4c1d-b5ed-c20fe946ce6f)
+
+* Exportaciones mensuales, obtenido desde [aquí](http://www.gobiernodecanarias.org/istac/jaxi-istac/tabla.do?uripx=urn:uuid:d59e3afa-c7fb-49f6-bea1-696d59e216fd&uripub=urn:uuid:7c4f58dd-4a11-47a3-8105-5cba881b8a3f)
+
+# Evolución semanal del precio del plátano
+
+```{r pmp-semanal}
+ggplot(pmp_sem,
+       aes(sem, pmp, color = anualidad)) +
+  geom_smooth(
+    se = F,
+    span = 0.8
+    ) +
+  labs(
+    title = "Variación semanal del precio del plátano, €/Kg",
+    subtitle = "Precio medio ponderado",
+    x = NULL,
+    y = NULL,
+    color = NULL
+  ) +
+  theme_light()    
+```
+
+Los años 2018 y 2021 han tenido un comportamiento anómalo, comparado con el resto de la serie temporal. Si los eliminamos del conjunto de datos, tendremos
+
+```{r pmp-sem-sm}
+pmp_sem %>% 
+  filter(
+    anualidad != "2018",
+    anualidad != "2021"
+  ) %>% 
+ggplot(aes(sem, pmp, color = anualidad)) +
+  geom_smooth(
+    se = F,
+    span = 0.8
+    ) +
+  labs(
+    title = "Variación semanal del precio del plátano, €/Kg",
+    subtitle = "Precio medio ponderado",
+    x = NULL,
+    y = NULL,
+    color = NULL
+  ) +
+  theme_light()
+```
+
+Se aprecia un claro descenso desde comienzo de año hasta mediados. El máximo suele encontrarse en torno a la semana 40 del año. Además, los precios más bajos y altos se han obtenido en los dos últimos años de la serie (2019 y 2017).
+
+Comparando con la gráfica anterior, podemos ver que los precios del año 2021 se encuentran en un punto intermedio de la serie temporal.
