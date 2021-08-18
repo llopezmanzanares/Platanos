@@ -16,13 +16,17 @@ ds <- read_delim("data/raw/C00012A_0001.txt",
   mutate(
     año = str_extract(fecha, "\\d+"),
     mes = str_extract(fecha, "[A-Z][a-z]+"),
-    fecha = str_c("01", mes, año, sep = "-"), #esto no me funciona
-    mes1 = month(fecha),
-    # fecha = str_c(str_extract(fecha, "\\d+"),  # saco el año
-    #               str_extract(fecha, "[A-Z][a-z]+"), #saco el mes, sin (p)
-    #               sep = " "),
-    # fecha = guess_formats(fecha, "Y B"),
+    mes = case_when(
+      mes == "Enero" ~ "01", mes == "Febrero" ~ "02",
+      mes == "Marzo" ~ "03", mes == "Abril" ~ "04",
+      mes == "Mayo" ~ "05", mes == "Junio" ~ "06",
+      mes == "Julio" ~ "07", mes == "Agosto" ~ "08",
+      mes == "Septiembre" ~ "09", mes == "Octubre" ~ "10",
+      mes == "Noviembre" ~ "11", mes == "Diciembre" ~ "12"
+    ),
+    fecha = str_c("01", mes, año, sep = "-"),
     .before = 1
-  ) %>% 
+  ) %>%
+  select(-1,-2) %>% 
   write_csv("data/processed/imp_tfe.csv")
 
