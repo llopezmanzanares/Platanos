@@ -20,10 +20,18 @@ knitr::opts_chunk$set(
   )
 library(tidyverse)
 library(lubridate)
+library(kableExtra)
 ```
 
 ```{r CargaDatos}
-#---- Precio ponderado y exportaciones mensuales ----
+#---- Producciones anuales ----
+ pr_tn<- read_csv("../data/processed/prod_tfe.csv",
+                 show_col_types = F) %>% 
+  mutate(
+    prod = 1000 * prod #se lía con los decimales como puntos
+  )
+
+#---- Precio ponderado y exportaciones mensuales (toneladas) ----
 pmp_imp <- left_join(
   read_csv("../data/processed/pr_tfe_mes.csv", #pmp en Tfe, mensual
            show_col_types = F),
@@ -33,7 +41,8 @@ pmp_imp <- left_join(
 ) %>% 
   mutate(
     fecha = as.Date(fecha),
-    prod = pen + extr
+    pen = 1000 * pen,
+    imp = pen + extr
   )
 
 #---- Precio ponderado semanal ----
@@ -54,7 +63,7 @@ Los *datos disponibles* son los siguientes:
 
 * Precio Medio Ponderado (pmp) semanal y mensual, obtenidos desde [aquí](https://www3.gobiernodecanarias.org/istac/statistical-visualizer/visualizer/data.html?resourceType=dataset&agencyId=ISTAC&resourceId=C00014A_000011&version=1.5&multidatasetId=ISTAC:C00014A_000002#)
 
-* Producción anual, hasta 2019 de momento (¡¡ estamos en 2021 !!), obtenido desde [aquí](http://www.gobiernodecanarias.org/istac/jaxi-istac/menu.do?uripub=urn:uuid:ef5f2e5c-e2c4-4c1d-b5ed-c20fe946ce6f)
+* Producción anual, hasta 2019 de momento ( estamos en 2021 !!), obtenido desde [aquí](http://www.gobiernodecanarias.org/istac/jaxi-istac/menu.do?uripub=urn:uuid:ef5f2e5c-e2c4-4c1d-b5ed-c20fe946ce6f)
 
 * Exportaciones mensuales, obtenido desde [aquí](http://www.gobiernodecanarias.org/istac/jaxi-istac/tabla.do?uripx=urn:uuid:d59e3afa-c7fb-49f6-bea1-696d59e216fd&uripub=urn:uuid:7c4f58dd-4a11-47a3-8105-5cba881b8a3f)
 
@@ -103,3 +112,35 @@ ggplot(aes(sem, pmp, color = anualidad)) +
 Se aprecia un claro descenso desde comienzo de año hasta mediados. El máximo suele encontrarse en torno a la semana 40 del año. Además, los precios más bajos y altos se han obtenido en los dos últimos años de la serie (2019 y 2017).
 
 Comparando con la gráfica anterior, podemos ver que los precios del año 2021 se encuentran en un punto intermedio de la serie temporal.
+
+# Producciones anuales
+
+Los acumulados anuales de la producción de plátanos en la isla de Tenerife es la que se muestra en la tabla siguiente. Lamentablemente no se dispone de un desglose mensual de la producción, por lo que no es posible realizar un desglose mayor de la información.
+
+```{r comp-prods-importaciones}
+imp_an <- pmp_imp %>% 
+  select(1,5) %>% 
+  group_by(anualidad = year(fecha)) %>% 
+  summarise(
+    imp_tn = sum(imp)
+  )
+
+left_join(pr_tn, imp_an, by="anualidad") %>% 
+  filter(
+    !is.na(imp_tn)
+  ) %>% 
+  mutate(
+    dif = prod - imp_tn
+  ) %>% 
+  kbl(
+    caption = "Producción e Importación de toneladas de plátanos",
+    col.names = c("Anualidad", "Producción", "Importación", "Cons. Interno"),
+    format.args = list(big.mark = ".", decimal.mark = ",")
+  ) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
+  
+```
+
+En la tabla anterior se ha considerado que la diferencia entre la producción y la importación corresponde al consumo interno.
+
+Con este nivel de agregación de datos, no es posible realizar una comparativa entre la evolución del precio y la producción.
