@@ -15,8 +15,9 @@ output:
 knitr::opts_chunk$set(
   echo = F,
   message = F,
+  warning = F,
   options(OutDec = ","),
-  fig.dim = c(6, 5) # width = 6, height = 5 
+  fig.dim = c(8, 5) # width = 8, height = 5 
   )
 library(tidyverse)
 library(lubridate)
@@ -28,7 +29,7 @@ library(kableExtra)
 pr_tn<- read_csv("../data/processed/prod_tfe.csv",
                  show_col_types = F) %>% 
   mutate(
-    prod = 1000 * prod #se lía con los decimales como puntos
+    prod = 1000 * prod #se lia con los decimales como puntos
   )
 
 #---- Superficie cultivada ----
@@ -53,8 +54,14 @@ pmp_imp <- left_join(
 
 #---- Precio ponderado semanal ----
 pmp_sem <- read_csv("../data/processed/pr_tfe.csv",
-                    col_types = "cid",
-                    show_col_types = F)
+                    col_types = "ccd") %>% #cid
+  mutate(fecha = str_c(anualidad, sem, "0",
+                  sep = ""
+                  ),
+         fecha = as.Date(fecha, format = "%Y%W%w"), #saco fecha de la semana anual
+         .before = 1,
+         sem = as.integer(sem)
+    )
 ```
 
 # Objetivo
@@ -74,6 +81,21 @@ Los *datos disponibles* son los siguientes:
 * Exportaciones mensuales, obtenido desde [aquí](http://www.gobiernodecanarias.org/istac/jaxi-istac/tabla.do?uripx=urn:uuid:d59e3afa-c7fb-49f6-bea1-696d59e216fd&uripub=urn:uuid:7c4f58dd-4a11-47a3-8105-5cba881b8a3f)
 
 # Evolución semanal del precio del plátano
+
+```{r pmp-completa}
+ggplot(pmp_sem,
+       aes(fecha, pmp, color = as.integer(anualidad))) +
+  geom_line(size = 1.2) +
+  labs(
+    title = "Evolución del precio medio ponderado del plátano, €/kg",
+    x = NULL,
+    y = NULL,
+    color = NULL
+  ) +
+  theme_light()
+```
+
+Si representamos los valores agrupados por semanas / anualidad, podemos contrastar la evolución en los mismos periodos de tiempo.
 
 ```{r pmp-semanal}
 ggplot(pmp_sem,
@@ -115,9 +137,9 @@ ggplot(aes(sem, pmp, color = anualidad)) +
   theme_light()
 ```
 
-Se aprecia un claro descenso desde comienzo de año hasta mediados. El máximo suele encontrarse en torno a la semana 40 del año. Además, los precios más bajos y altos se han obtenido en los dos últimos años de la serie (2019 y 2017).
+Se aprecia un claro descenso desde comienzo de año hasta mediados. El máximo suele encontrarse en torno a la semana 40 del año. Además, los precios más bajos y altos se han obtenido en el año 2019, en el que el máximo se alcanzó a comienzo del año.
 
-Comparando con la gráfica anterior, podemos ver que los precios del año 2021 se encuentran en un punto intermedio de la serie temporal.
+Comparando con la gráfica anterior, podemos ver que, hasta el momento, los precios del año 2021 se encuentran en un punto intermedio de la serie temporal.
 
 # Producciones anuales
 
@@ -153,4 +175,21 @@ Con este nivel de agregación de datos, no es posible realizar una comparativa e
 
 ## Producción y superficie cultivada
 
-La superficie cultivada apenas ha variado, tal y como muestran los datos disponibles
+La superficie cultivada apenas ha variado, tal y como muestran los datos disponibles.
+
+```{r prod-vs-superficie}
+left_join(pr_tn, sup, by = "anualidad") %>% 
+  arrange(anualidad) %>% 
+  mutate(
+    tn_hect = prod / hectareas,
+    dif = tn_hect - lag(tn_hect, n = 1),
+    dif = if_else(is.na(dif), 0, dif)
+    ) %>% 
+  kbl(
+    caption = "Relación entre la producción y la superficie cultivada",
+    col.names = c("Anualidad", "Producción (Tn)", "Superficie (ha)", "Tn / ha", "Diferencia"),
+    format.args = list(big.mark = ".", decimal.mark = ",")
+  ) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
+```
+
