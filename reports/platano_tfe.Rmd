@@ -25,11 +25,14 @@ library(kableExtra)
 
 ```{r CargaDatos}
 #---- Producciones anuales ----
- pr_tn<- read_csv("../data/processed/prod_tfe.csv",
+pr_tn<- read_csv("../data/processed/prod_tfe.csv",
                  show_col_types = F) %>% 
   mutate(
     prod = 1000 * prod #se lía con los decimales como puntos
   )
+
+#---- Superficie cultivada ----
+sup <- read_csv2("../data/processed/supcult_tfe.csv")
 
 #---- Precio ponderado y exportaciones mensuales (toneladas) ----
 pmp_imp <- left_join(
@@ -144,3 +147,7 @@ left_join(pr_tn, imp_an, by="anualidad") %>%
 En la tabla anterior se ha considerado que la diferencia entre la producción y la importación corresponde al consumo interno.
 
 Con este nivel de agregación de datos, no es posible realizar una comparativa entre la evolución del precio y la producción.
+
+## Producción y superficie cultivada
+
+La superficie cultivada apenas ha variado, tal y como muestran los datos disponibles
