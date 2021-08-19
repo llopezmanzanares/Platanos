@@ -32,7 +32,10 @@ pr_tn<- read_csv("../data/processed/prod_tfe.csv",
   )
 
 #---- Superficie cultivada ----
-sup <- read_csv2("../data/processed/supcult_tfe.csv")
+sup <- read_csv("../data/processed/supcult_tfe.csv") %>% 
+  mutate(
+    hectareas = 1000 * hectareas
+  )
 
 #---- Precio ponderado y exportaciones mensuales (toneladas) ----
 pmp_imp <- left_join(
