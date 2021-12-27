@@ -3,3 +3,4 @@ data/raw/*.zip
 data/raw/*.tsv
 
 .Rproj.user
+reports/platano_tfe.html
