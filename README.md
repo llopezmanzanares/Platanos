@@ -10,3 +10,5 @@ Se pueden desacargar tanto series semanales como mensuales. Los datos se selecci
 * Columnas -> Territorio / Indicador / Posición Comercial / Producto
 
 Se genera el archivo: 
+
+2.- Ver [aqui](https://agriculture.ec.europa.eu/data-and-analysis/markets/overviews/market-observatories/fruit-and-vegetables/bananas-statistics_en)
