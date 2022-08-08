@@ -20,6 +20,14 @@ precios_sem <- read_xlsx(
     names_to = "territorio",
     values_to = "precio"
   ) %>% 
-  filter(!is.na(precio)) 
+  filter(!is.na(precio)) %>% 
+  mutate(
+    period = str_replace(periodo, pattern = "Semana", replacement = "week"),
+    semana = as_date(period, format = "%Y week %V")
+    # semana = ceiling_date(period, unit = "week")
+    # anualidad = str_extract(periodo, pattern = "\\d+"),
+    # semana = str_extract(periodo, pattern = "\\d+$")
+  )
 
-tfe_precios_sem <- precios_sem
+tfe_precios_sem <- 
+  filter(precios_sem, territorio == "Tenerife")
