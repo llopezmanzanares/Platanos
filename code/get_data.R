@@ -56,7 +56,6 @@ exportaciones <- read_xlsx(
   here("data/raw", "exportaciones_mensuales.xlsx"),
   skip = 7
 ) %>% 
-  rename(isla = "...1", periodo = "...2") %>% 
   mutate(
     anualidad = str_extract(periodo, pattern = "\\d+$"),
     mes = str_extract(periodo, pattern = "\\d{2}(?=/)")
