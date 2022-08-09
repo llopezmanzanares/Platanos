@@ -29,3 +29,23 @@ precios_sem <- read_xlsx(
 
 tfe_precios_sem <- 
   filter(precios_sem, territorio == "Tenerife")
+
+# Toneladas anuales -------------------------------------------------------
+
+toneladas <- read_xls(
+  here("data/raw", "toneladas_anuales_islas.xls"),
+  skip = 7,
+  n_max = 11
+) %>% 
+  rename(anualidad = "...1") %>% 
+  filter(anualidad != "Plátano") %>% 
+  pivot_longer(
+    !anualidad,
+    names_to = "territorio",
+    values_to = "tn"
+  ) %>% 
+  mutate(
+    tn = str_replace(tn, pattern = "\\.", replacement = "") %>% 
+      str_replace(pattern = ",", replacement = "\\.") %>% 
+      as.numeric()
+  )
