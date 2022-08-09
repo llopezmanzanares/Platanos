@@ -22,11 +22,9 @@ precios_sem <- read_xlsx(
   ) %>% 
   filter(!is.na(precio)) %>% 
   mutate(
-    period = str_replace(periodo, pattern = "Semana", replacement = "week"),
-    semana = as_date(periodo, format = "%Y Semana %V")
-    # semana = ceiling_date(period, unit = "week")
-    # anualidad = str_extract(periodo, pattern = "\\d+"),
-    # semana = str_extract(periodo, pattern = "\\d+$")
+    semana = str_replace(periodo,
+                         pattern = "(\\d+)(\\s\\w+\\s)(\\d+)",
+                         replacement = "\\1S\\3")
   )
 
 tfe_precios_sem <- 
