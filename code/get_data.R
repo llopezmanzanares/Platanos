@@ -56,8 +56,9 @@ exportaciones <- read_xlsx(
   skip = 7
 ) %>% 
   mutate(
-    anualidad = str_extract(periodo, pattern = "\\d+$"),
-    mes = str_extract(periodo, pattern = "\\d{2}(?=/)")
+    mes = str_c("01/", periodo, sep = "") %>% 
+      dmy(quiet = T) %>% 
+      rollforward()
   ) %>% 
   filter(!is.na(mes))
 
