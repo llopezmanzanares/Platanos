@@ -14,8 +14,9 @@ library(ISOweek)
 
 precios_sem <- read_xlsx(
   here("data/raw", "precios_medios_percibidos.xlsx"),
-  skip = 9) %>% 
-  rename(periodo = "...1") %>% 
+  skip = 10,
+  col_names = c("periodo", "canarias", "gran.canaria", "tenerife", "la.palma")
+  ) %>% 
   pivot_longer(
     !periodo,
     names_to = "territorio",
@@ -26,7 +27,11 @@ precios_sem <- read_xlsx(
     semana = str_replace(periodo,
                          pattern = "(\\d+)(\\s\\w+\\s)(\\d+)",
                          replacement = "\\1-W\\3-1") %>% 
-      ISOweek2date()
+      ISOweek2date(),
+    anualidad = year(semana),
+    mes = month(semana, label = T),
+    trimestre = quarter(semana, type = "date_last"),
+    .after = 1
   )
 
 # Toneladas anuales -------------------------------------------------------
