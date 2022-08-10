@@ -38,10 +38,11 @@ precios_sem <- read_xlsx(
 
 toneladas <- read_xls(
   here("data/raw", "toneladas_anuales_islas.xls"),
-  skip = 7,
-  n_max = 11
+  skip = 8,
+  n_max = 11,
+  col_names = c("anualidad", "canarias", "lanzarote", "fuerteventura", "gran.canaria",
+                "tenerife", "la.gomera", "la.palma", "el.hierro")
 ) %>% 
-  rename(anualidad = "...1") %>% 
   filter(anualidad != "Plátano") %>% 
   pivot_longer(
     !anualidad,
