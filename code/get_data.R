@@ -7,6 +7,7 @@ library(tidyverse)
 library(here)
 library(lubridate)
 library(readxl)
+library(ISOweek)
 
 
 # Precios -----------------------------------------------------------------
@@ -24,11 +25,9 @@ precios_sem <- read_xlsx(
   mutate(
     semana = str_replace(periodo,
                          pattern = "(\\d+)(\\s\\w+\\s)(\\d+)",
-                         replacement = "\\1S\\3")
+                         replacement = "\\1-W\\3-1") %>% 
+      ISOweek2date()
   )
-
-tfe_precios_sem <- 
-  filter(precios_sem, territorio == "Tenerife")
 
 # Toneladas anuales -------------------------------------------------------
 
