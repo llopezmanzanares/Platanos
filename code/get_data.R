@@ -59,14 +59,21 @@ toneladas <- read_xls(
 
 exportaciones <- read_xlsx(
   here("data/raw", "exportaciones_mensuales.xlsx"),
-  skip = 7
+  skip = 7,
+  .name_repair = tolower
 ) %>% 
   mutate(
     mes = str_c("01/", periodo, sep = "") %>% 
       dmy(quiet = T) %>% 
       rollforward()
   ) %>% 
-  filter(!is.na(mes))
+  filter(!is.na(mes)) %>% 
+  select(periodo, mes, isla, total, peninsula = `españa (excluida canarias)`, extranjero) %>% 
+  mutate(
+    anualidad = year(mes),
+    trimestre = quarter(mes, type = "date_last"),
+    .after = 2
+  )
 
 # Guardo los datos --------------------------------------------------------
 
