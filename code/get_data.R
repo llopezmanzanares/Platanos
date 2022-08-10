@@ -61,3 +61,8 @@ exportaciones <- read_xlsx(
     mes = str_extract(periodo, pattern = "\\d{2}(?=/)")
   ) %>% 
   filter(!is.na(mes))
+
+# Guardo los datos --------------------------------------------------------
+
+save(exportaciones, precios_sem, toneladas, 
+     file = here("data/processed", "platanos.RData"))
