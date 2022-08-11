@@ -7,15 +7,49 @@ if (file.exists(here("data/processed", "platanos.RData")))
   load(here("data/processed", "platanos.RData"))
 
 
-precios_sem %>% 
+# modifico el dataset -----------------------------------------------------
+
+precios_sem <- precios_sem %>% 
   mutate(
     sem = str_extract(periodo, pattern = "\\d{2}$") %>% 
       tolower() %>% 
       as.numeric(),
     .after = 1
+  )
+
+# precios todas las islas -------------------------------------------------
+
+precios_sem %>% 
+  filter(territorio != "canarias") %>% 
+  mutate(
+    territorio = case_when(
+      territorio == "gran.canaria" ~ "Gran Canaria",
+      territorio == "la.palma" ~ "La Palma",
+      territorio == "tenerife" ~ "Tenerife"
+    )
   ) %>% 
-  filter(territorio == "tenerife") %>% 
-  ggplot(aes(sem, precio, color = as.factor(anualidad))) +
-  # geom_smooth(se = F, span = 0.8) +
+  ggplot(aes(semana, precio, color = territorio)) +
   geom_line() +
+  labs(
+    title = "Precios medios percibidos, €/kg",
+    color = "Isla",
+    x = "Semana del año",
+    y = NULL
+  ) +
+  theme_light()
+
+# precios Tenerife --------------------------------------------------------
+
+precios_sem %>% 
+  filter(territorio == "tenerife") %>% 
+  ggplot(aes(sem, precio, color = as_factor(anualidad))) +
+  geom_line(size = 1) +
+  labs(
+    title = "Precios medios percibidos, €/kg",
+    subtitle = "Isla de Tenerife",
+    x = "Semana",
+    y = NULL,
+    color = "Año"
+  ) +
+  scale_y_continuous(position = "right") +
   theme_light()
