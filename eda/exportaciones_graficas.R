@@ -24,7 +24,7 @@ ggsave(
 
 exportaciones %>% 
   filter(isla == "Tenerife") %>% 
-  select(mes, peninsula, extranjero) %>% 
+  select(mes, total, peninsula, extranjero) %>% 
   pivot_longer(
     !mes,
     names_to = "destino",
