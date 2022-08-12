@@ -1,12 +1,5 @@
 # Análisis de la temporalidad de los precios
 
-library(tidyverse)
-library(here)
-
-if (file.exists(here("data/processed", "platanos.RData")))
-  load(here("data/processed", "platanos.RData"))
-
-
 # modifico el dataset -----------------------------------------------------
 
 precios_sem <- precios_sem %>% 
@@ -38,6 +31,10 @@ precios_sem %>%
   ) +
   theme_light()
 
+ggsave(
+  here("report/graphs", "precio_islas.pdf")
+    )
+
 # precios Tenerife --------------------------------------------------------
 
 precios_sem %>% 
@@ -53,3 +50,8 @@ precios_sem %>%
   ) +
   scale_y_continuous(position = "right") +
   theme_light()
+
+ggsave(
+  here("report/graphs", "precio_tfe.pdf")
+)
+
