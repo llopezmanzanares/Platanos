@@ -8,5 +8,8 @@ if (file.exists(here("data/processed", "platanos.RData")))
 
 # Gráficas de precios -----------------------------------------------------
 
-
 source(here("eda", "precios_graficas.R"))
+
+# Gráficas de exportaciones -----------------------------------------------
+
+source(here("eda", "exportaciones_graficas.R"))
