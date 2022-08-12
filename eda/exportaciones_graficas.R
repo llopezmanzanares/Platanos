@@ -33,11 +33,14 @@ exportaciones %>%
   ggplot(aes(mes, tn, color = destino)) +
   geom_line(size = 1) +
   labs(
-    title = "Exportaciones de plátanos. Tn",
+    title = "Exportaciones de plátanos, Tn",
     subtitle = "Isla de Tenerife",
     x = NULL,
     y = NULL
   ) +
   theme_light()
-    
+
+ggsave(
+  here("reports/graph", "expor_tfe.pdf")
+)
 
