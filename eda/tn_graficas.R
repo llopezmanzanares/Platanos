@@ -24,3 +24,7 @@ Tn %>%
   ) +
   scale_y_continuous(position = "right") +
   theme_light()
+
+ggsave(
+  here("report/graphs", "prod_islas.pdf")
+)
