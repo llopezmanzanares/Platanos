@@ -15,11 +15,8 @@ precios_sem <- precios_sem %>%
 precios_sem %>% 
   filter(territorio != "canarias") %>% 
   mutate(
-    territorio = case_when(
-      territorio == "gran.canaria" ~ "Gran Canaria",
-      territorio == "la.palma" ~ "La Palma",
-      territorio == "tenerife" ~ "Tenerife"
-    )
+    territorio = str_replace(territorio, pattern = "\\.", replacement = " ") %>% 
+      str_to_title()
   ) %>% 
   ggplot(aes(semana, precio, color = territorio)) +
   geom_line() +
