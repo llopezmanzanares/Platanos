@@ -13,3 +13,7 @@ source(here("eda", "precios_graficas.R"))
 # Gráficas de exportaciones -----------------------------------------------
 
 source(here("eda", "exportaciones_graficas.R"))
+
+# Gráficas de producción anual --------------------------------------------
+
+source(here("eda", "tn_graficas.R"))
