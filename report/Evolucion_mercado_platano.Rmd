@@ -1,0 +1,44 @@
+---
+title: "Plátanos"
+author: "Luis López-Manzanares"
+date: "Agosto 2022"
+output:
+  html_document:
+    theme: flatly
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = F,
+  message = F,
+  options(OutDec = ",")
+#  fig.dim = c(9, 7) # width = 6, height = 5 
+  )
+
+library(tidyverse)
+library(here)
+library(kableExtra)
+library(lubridate)
+
+theme_set(theme_light())
+```
+
+# Objetivo
+
+Análisis de los datos disponibles sobre evolución de las plantaciones de plátanos en Canarias.
+
+# Precio medio percibido
+
+```{r precio-islas}
+# knitr::include_graphics(here("report/graphs", "precio_islas.pdf"))
+knitr::include_graphics("graphs/precio_islas.pdf")
+```
+
+```{r precio-Tenerife}
+knitr::include_graphics(here("report/graphs", "precio_tfe.pdf"))
+```
+
