@@ -16,7 +16,8 @@ knitr::opts_chunk$set(
   echo = F,
   message = F,
   options(OutDec = ","),
-  fig.dim = c(9, 7) # width = 6, height = 5 
+  fig.show = "asis",
+  fig.dim = c(18, 14) # width = 6, height = 5 
   )
 
 library(tidyverse)
@@ -33,7 +34,7 @@ Análisis de los datos disponibles sobre evolución de las plantaciones de plát
 
 # Precio medio percibido
 
-```{r precio-islas}
+```{r precio-islas, fig.dim=c(10, 10)}
 # knitr::include_graphics(here("report/graphs", "precio_islas.pdf"))
 knitr::include_graphics("graphs/precio_islas.pdf")
 ```
