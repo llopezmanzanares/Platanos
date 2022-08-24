@@ -53,8 +53,8 @@ precios_sem %>%
 
 ggsave(
   here("report/graphs", "precio_tfe.pdf"),
-  width = 9,
-  height = 7,
+  width = 11,
+  height = 9,
   units = "in"
 )
 
