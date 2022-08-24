@@ -48,7 +48,7 @@ Evolución semanal del precio medio percibido en cada una de las islas principal
 knitr::include_graphics("graphs/precio_islas.pdf")
 ```
 
-```{r precio-Tenerife,fig.show='asis', fig.align='center'}
+```{r precio-Tenerife, fig.show='asis', fig.align='center'}
 knitr::include_graphics(here("report/graphs", "precio_tfe.pdf"))
 ```
 
