@@ -29,7 +29,10 @@ precios_sem %>%
   theme_light()
 
 ggsave(
-  here("report/graphs", "precio_islas.pdf")
+  here("report/graphs", "precio_islas.pdf"),
+  width = 18,
+  height = 14,
+  units = "cm"
     )
 
 # precios Tenerife --------------------------------------------------------
@@ -49,6 +52,9 @@ precios_sem %>%
   theme_light()
 
 ggsave(
-  here("report/graphs", "precio_tfe.pdf")
+  here("report/graphs", "precio_tfe.pdf"),
+  width = 9,
+  height = 7,
+  units = "in"
 )
 
