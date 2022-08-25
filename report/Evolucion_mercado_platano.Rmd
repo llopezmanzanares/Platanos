@@ -4,7 +4,7 @@ author: "Luis López-Manzanares"
 date: "Agosto 2022"
 output:
   html_document:
-    theme: flatly
+#    theme: flatly
     toc: true
     toc_depth: 2
     toc_float: true
@@ -14,8 +14,8 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   echo = F,
-  message = F,
-  options(OutDec = ",")
+  message = F
+  # options(OutDec = ",")
   # fig.show = "asis",
   # fig.dim = c(18, 14) # width = 6, height = 5 
   )
@@ -34,16 +34,16 @@ if (file.exists(here("data/processed", "platanos.RData")))
 
 ```
 
-
+<!--
 # Objetivo
 
 Análisis de los datos disponibles sobre evolución de las plantaciones de plátanos en Canarias.
 
 # Precio medio percibido
 
-Evolución semanal del precio medio percibido en cada una de las islas principales.
+Evolución semanal del precio medio percibido en cada una de las islas principales. -->
 
-```{r precio-islas, fig.dim=c(10, 15)}
+```{r precio-islas, fig.width=15, fig.height=15}
 # knitr::include_graphics(here("report/graphs", "precio_islas.pdf"))
 knitr::include_graphics("graphs/precio_islas.pdf")
 ```
