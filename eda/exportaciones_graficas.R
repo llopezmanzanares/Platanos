@@ -16,7 +16,7 @@ exportaciones %>%
   theme_light()
 
 ggsave(
-  here("reports/graph", "expor_islas.pdf"),
+  here("report/graphs", "expor_islas.pdf"),
   width = 11,
   height = 9,
   units = "in"
@@ -44,7 +44,7 @@ exportaciones %>%
   theme_light()
 
 ggsave(
-  here("reports/graph", "expor_tfe.pdf"),
+  here("report/graphs", "expor_tfe.pdf"),
   width = 11,
   height = 9,
   units = "in"
