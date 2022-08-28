@@ -58,3 +58,10 @@ ggsave(
   units = "in"
 )
 
+# heatmap test
+precios_sem %>% 
+  filter(territorio == "tenerife") %>% 
+  ggplot(aes(x = sem, y = anualidad, fill = precio)) +
+  geom_tile() +
+  scale_fill_gradient(low = "white", high = "steelblue4") +
+  theme_light()
