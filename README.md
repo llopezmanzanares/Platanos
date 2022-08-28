@@ -24,3 +24,5 @@ Se genera el archivo: exportaciones_mensuales.xlsx (cambio el nombre del archivo
 ## Notas
 
 Ver [aqui](https://agriculture.ec.europa.eu/data-and-analysis/markets/overviews/market-observatories/fruit-and-vegetables/bananas-statistics_en)
+
+Ver los [Boletines Mensuales de Estadística] (https://www.mapa.gob.es/es/estadistica/temas/publicaciones/boletin-mensual/default.aspx)
