@@ -26,5 +26,8 @@ Tn %>%
   theme_light()
 
 ggsave(
-  here("report/graphs", "prod_islas.pdf")
+  here("report/graphs", "prod_islas.pdf"),
+  width = 11,
+  height = 9,
+  units = "in"
 )
