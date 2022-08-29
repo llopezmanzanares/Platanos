@@ -63,5 +63,13 @@ precios_sem %>%
   filter(territorio == "tenerife") %>% 
   ggplot(aes(x = sem, y = anualidad, fill = precio)) +
   geom_tile() +
+  geom_vline(xintercept = 34) +
   scale_fill_gradient(low = "white", high = "steelblue4") +
   theme_light()
+
+ggsave(
+  here("report/graphs", "precio_tfe_hm.pdf"),
+  width = 11,
+  height = 9,
+  units = "in"
+)
