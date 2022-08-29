@@ -16,3 +16,7 @@ ds <-
   str_split(pattern = "\\n") %>% 
   unlist() %>% 
   as_tibble()
+
+cosa <- ds %>% 
+  filter(
+    str_detect(value, "Semana|Fecha|PREMIUM|P. SU|SEGUNDA"))
