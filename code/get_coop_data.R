@@ -19,4 +19,9 @@ ds <-
 
 cosa <- ds %>% 
   filter(
-    str_detect(value, "Semana|Fecha|PREMIUM|P. SU|SEGUNDA"))
+    str_detect(value, "Semana|Fecha|PREMIUM|P. SU|SEGUNDA")
+    ) %>% 
+  mutate(
+    medida1 = str_extract(value, pattern = "^[:graph:]+"),
+    .before = 1
+  )
