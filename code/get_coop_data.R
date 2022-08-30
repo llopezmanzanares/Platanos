@@ -5,7 +5,16 @@ library(lubridate)
 library(pdftools)
 library(here)
 
-# funciones de ayuda
+# Constantes --------------------------------------------------------------
+
+patrones <- list(
+  kg    = "\\d+",              # es un número entero de varias cifras
+  prc   = "\\d{1,2},\\d{1,2}", # número de 2 decimales
+  eurkg = "\\d,\\d{4}",        # número con 4 decimales
+  eur   = "\\d+,\\d{2}$"       # último número, tiene 2 decimales
+)
+
+# Funciones ---------------------------------------------------------------
 xtr_num <- function(txt, patron){
   numero <- str_extract(txt, patron) %>% 
     str_replace(",", ".") %>% 
@@ -14,6 +23,7 @@ xtr_num <- function(txt, patron){
   return(numero)
 }
 
+# Leo y transformo --------------------------------------------------------
 
 data_files <- list.files(
   path = here("data/raw", "coop"),
@@ -51,20 +61,20 @@ ds <-
     pesomedio   = xtr_num(pesomedio, "\\d+,\\d{2}"),
     preciomedio = xtr_num(preciomedio, "\\d,\\d{1,4}"),
     # categoría premium
-    premium_kg = xtr_num(premium, "\\d+"),
-    premium_pc = xtr_num(premium, "\\d{1,2},\\d{1,2}"),
-    premium_eurkg = xtr_num(premium, "\\d,\\d{4}"),
-    premium_eur = xtr_num(premium, "\\d+,\\d{2}$"),
+    premium_kg =    xtr_num(premium, patrones$kg),
+    premium_pc =    xtr_num(premium, patrones$prc),
+    premium_eurkg = xtr_num(premium, patrones$eurkg),
+    premium_eur =   xtr_num(premium, patrones$eur),
     # categoría superior
-    psup_kg = xtr_num(psup, "\\d+"),
-    psup_pc = xtr_num(psup, "\\d{1,2},\\d{1,2}"),
-    psup_eurkg = xtr_num(psup, "\\d,\\d{4}"),
-    psup_eur = xtr_num(psup, "\\d+,\\d{2}$"),
+    psup_kg =    xtr_num(psup, patrones$kg),
+    psup_pc =    xtr_num(psup, patrones$prc),
+    psup_eurkg = xtr_num(psup, patrones$eurkg),
+    psup_eur =   xtr_num(psup, patrones$eur),
     # categoría segunda
-    segunda_kg = xtr_num(segunda, "\\d+"),
-    segunda_pc = xtr_num(segunda, "\\d{1,2},\\d{1,2}"),
-    segunda_eurkg = xtr_num(segunda, "\\d,\\d{4}"),
-    segunda_eur = xtr_num(segunda, "\\d+,\\d{2}$"),
+    segunda_kg =    xtr_num(segunda, patrones$kg),
+    segunda_pc =    xtr_num(segunda, patrones$prc),
+    segunda_eurkg = xtr_num(segunda, patrones$eurkg),
+    segunda_eur =   xtr_num(segunda, patrones$eur),
     .keep = "unused"
   )
 
