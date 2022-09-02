@@ -49,54 +49,6 @@ ds <-
     medida = str_extract(value, pattern = "[:graph:]+")
   ) 
 
-
-
-ds <- 
-  map(here(dir$raw, "coop", data_files), pdf_text) %>% 
-  str_split(pattern = "\\n") %>% 
-  unlist() %>% 
-  as_tibble() %>% 
-  filter(str_detect(value, pattern = "Fecha|Semana|PREMIUM|P\\. SUPER|SEGUNDA|racimos|medio")) %>% 
-  mutate(
-    value  = str_to_lower(value),
-    medida = str_extract(value, pattern = "[:graph:]+")
-  ) %>% 
-  pivot_wider(
-    names_from  = medida,
-    values_from = value
-  ) %>% 
-  rename(
-    psup        = p.,
-    racimos     = total,
-    pesomedio   = peso,
-    preciomedio = precio
-  ) %>% 
-  mutate(
-    # info gral
-    fecha = str_extract(fecha, pattern = "(\\d{2}\\.?){3}") %>% 
-      str_replace(pattern = "\\.", replacement = "-") %>% 
-      dmy(),
-    semana = xtr_num(semana, "\\d{1,2}"),
-    racimos = xtr_num(racimos, "\\d{1,2}"),
-    pesomedio   = xtr_num(pesomedio, "\\d+,\\d{2}"),
-    preciomedio = xtr_num(preciomedio, "\\d,\\d{1,4}"),
-    # categoría premium
-    premium_kg =    xtr_num(premium, patrones$kg),
-    premium_pc =    xtr_num(premium, patrones$prc),
-    premium_eurkg = xtr_num(premium, patrones$eurkg),ds <- 
-  map(
-    here(dir$raw, data_files),
-    pdf_text
-  ) %>% 
-  str_split(pattern = "\\n") %>% 
-  unlist() %>% 
-  as_tibble() %>% 
-  filter(str_detect(value, pattern = "Fecha|Semana|PREMIUM|P\\. SUPER|SEGUNDA|racimos|medio")) %>% 
-  mutate(
-    value  = str_to_lower(value),
-    medida = str_extract(value, pattern = "[:graph:]+")
-  ) 
-
 # voy extrayendo los subconjuntos de datos
 fechas <- filter(ds, medida == "fecha") %>% 
   mutate(
