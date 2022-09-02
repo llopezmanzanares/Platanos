@@ -36,6 +36,22 @@ data_files <- list.files(
   )
 
 ds <- 
+  map(
+    here(dir$raw, data_files),
+    pdf_text
+  ) %>% 
+  str_split(pattern = "\\n") %>% 
+  unlist() %>% 
+  as_tibble() %>% 
+  filter(str_detect(value, pattern = "Fecha|Semana|PREMIUM|P\\. SUPER|SEGUNDA|racimos|medio")) %>% 
+  mutate(
+    value  = str_to_lower(value),
+    medida = str_extract(value, pattern = "[:graph:]+")
+  ) 
+
+
+
+ds <- 
   map(here(dir$raw, "coop", data_files), pdf_text) %>% 
   str_split(pattern = "\\n") %>% 
   unlist() %>% 
