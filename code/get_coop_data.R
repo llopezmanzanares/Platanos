@@ -31,13 +31,13 @@ xtr_num <- function(txt, patron){
 # Leo y transformo --------------------------------------------------------
 
 data_files <- list.files(
-  path = here(dir%raw, "coop"),
+  path = here(dir$raw, "coop"),
   pattern = "^L"
   )
 
 ds <- 
   map(
-    here(dir$raw, data_files),
+    here(dir$raw, "coop", data_files),
     pdf_text
   ) %>% 
   str_split(pattern = "\\n") %>% 
