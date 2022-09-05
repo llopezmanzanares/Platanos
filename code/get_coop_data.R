@@ -13,15 +13,16 @@ dir <- list(
 )
 
 patrones <- list(
-  kg    = "\\d+",              # es un número entero de varias cifras
-  prc   = "\\d{1,2},\\d{1,2}", # número de 2 decimales
-  eurkg = "\\d,\\d{4}",        # número con 4 decimales
-  eur   = "\\d+,\\d{2}$"       # último número, tiene 2 decimales
+  kg    = "(\\d\\.)?\\d+",         # los miles con un punto
+  prc   = "\\d{1,2},\\d{1,2}",     # número de 2 decimales
+  eurkg = "\\d,\\d{4}",            # número con 4 decimales
+  eur   = "(\\d\\.)?\\d+,\\d{2}$"  # último número, tiene 2 decimales
 )
 
 # Funciones ---------------------------------------------------------------
 xtr_num <- function(txt, patron){
   numero <- str_extract(txt, patron) %>% 
+    str_replace("\\.", "") %>%   # en el caso de que sea > 1000 tiene un punto
     str_replace(",", ".") %>% 
     as.numeric()
   
@@ -75,13 +76,13 @@ semanas <- filter(ds, medida == "semana") %>%
   )
 totales <- filter(ds, medida == "totales") %>% 
   mutate(
-    total_kg = xtr_num(value, "\\d+"),
+    total_kg = xtr_num(value, "(\\d\\.)?\\d+"),
     total_eur = xtr_num(value, "\\d{1,3},\\d{2}$"),
     .keep = "none"
   )
 total_factura <- filter(ds, medida == "total_euros") %>% 
   mutate(
-    total_fac = xtr_num(value, "\\d{1,3},\\d{2}"),
+    total_fac = xtr_num(value, "(\\d\\.)?\\d{1,3},\\d{2}"),
     .keep = "none"
   )
 racimos <- filter(ds, medida == "racimos") %>% 
