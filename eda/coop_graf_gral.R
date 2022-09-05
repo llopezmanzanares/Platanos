@@ -1,6 +1,8 @@
 library(tidyverse)
 library(here)
 
+# TODO actualizar con el nuevo conjunto de datos
+
 dir <- list(
   pro = "data/processed"
 )
