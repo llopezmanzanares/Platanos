@@ -73,7 +73,18 @@ semanas <- filter(ds, medida == "semana") %>%
     semana = xtr_num(value, "\\d{1,2}"),
     .keep = "none"
   )
-racimos <- filter(ds, medida == "total") %>% 
+totales <- filter(ds, medida == "totales") %>% 
+  mutate(
+    total_kg = xtr_num(value, "\\d+"),
+    total_eur = xtr_num(value, "\\d{1,3},\\d{2}$"),
+    .keep = "none"
+  )
+total_factura <- filter(ds, medida == "total_euros") %>% 
+  mutate(
+    total_fac = xtr_num(value, "\\d{1,3},\\d{2}"),
+    .keep = "none"
+  )
+racimos <- filter(ds, medida == "racimos") %>% 
   mutate(
     racimos = xtr_num(value, "\\d{1,2}"),
     .keep = "none"
@@ -96,7 +107,7 @@ premium <- filter(ds, medida == "premium") %>%
     premium_eur =   xtr_num(value, patrones$eur),
     .keep = "none"
   )
-psup <- filter(ds, medida == "p.") %>% 
+psup <- filter(ds, medida == "psup") %>% 
   mutate(
     psup_kg =    xtr_num(value, patrones$kg),
     psup_pc =    xtr_num(value, patrones$prc),
@@ -114,13 +125,13 @@ segunda <- filter(ds, medida == "segunda") %>%
   )
 
 
-datos_sem <- bind_cols(fechas, semanas, racimos, peso_med, prec_med, premium, psup, segunda)
+datos_sem <- bind_cols(fechas, semanas, racimos, totales, total_factura, peso_med, prec_med, premium, psup, segunda)
 
-rm(ds, fechas, semanas, racimos, peso_med, prec_med, premium, psup, segunda)
+rm(ds, fechas, semanas, racimos, totales, total_factura, peso_med, prec_med, premium, psup, segunda)
 
 
 # Guardo el conjunto de datos ---------------------------------------------
 
-save(datos, file = here(dir$pro, "datos_finca.RData"))
+save(datos_sem, file = here(dir$pro, "datos_finca.RData"))
 
-write_csv2(datos, file = here(dir$pro, "datos_finca.csv"))
+write_csv2(datos_sem, file = here(dir$pro, "datos_finca.csv"))
