@@ -33,6 +33,18 @@ options(OutDec = ",")
 
 ```{r dataload}
 load(here("data/processed", "ds_cooperativa.RData"))
+
+peso_mes_cat <- datos_mes %>% 
+  select(mes, ends_with("_kg")) %>% 
+  pivot_longer(
+    -mes,
+    names_to = "categoria",
+    values_to = "valor"
+  ) %>% 
+  filter(categoria != "total_kg") %>% 
+  mutate(
+    categoria = str_remove(categoria, "_kg") %>% str_to_sentence()
+  )
 ```
 
 # Evolución mensual
@@ -53,26 +65,43 @@ datos_mes %>%
   ggplot(aes(x = mes)) +
   geom_bar(aes(weight = valor)) +
   facet_wrap(~tipo, ncol = 1, scales = "free_y") +
-  labs(x = NULL)
+  labs(y = NULL)
 ```
 
 Evolución del peso mensual por categoría
 
 ```{r peso-mensual}
-datos_mes %>% select(mes, ends_with("_kg")) %>% 
-  pivot_longer(
-    -mes,
-    names_to = "categoria",
-    values_to = "valor"
-  ) %>% 
-  filter(categoria != "total_kg") %>% 
-  mutate(
-    categoria = str_remove(categoria, "_kg") %>% str_to_sentence()
-  ) %>% 
+ peso_mes_cat %>% 
   ggplot(aes(mes, valor)) +
   geom_line() +
   facet_wrap(~categoria, ncol = 1) +
   labs(y = "Kg")
   
+```
+
+Evolución del porcentaje de cada categoría
+
+```{r peso-mensual-prc}
+peso_mes_cat %>% 
+  pivot_wider(
+    names_from = "categoria",
+    values_from = "valor"
+  ) %>% 
+  mutate(
+    total = Premium + Psup + Segunda,
+    across(Premium:Segunda, ~.x / total * 100, .names = "{.col}_prc")
+  ) %>% 
+  select(mes, ends_with("_prc")) %>% 
+  pivot_longer(
+    -mes,
+    names_to = "cat",
+    values_to = "valor"
+  ) %>% 
+  mutate(
+    cat = str_remove(cat, "_prc")
+  ) %>% 
+  ggplot(aes(x = mes, y = valor, color = cat)) +
+  geom_line(size = 1) +
+  labs(y = "Porcentaje")
 ```
 
