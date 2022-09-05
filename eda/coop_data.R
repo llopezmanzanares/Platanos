@@ -17,4 +17,4 @@ datos_mes <- datos_sem %>%
   summarise(
     across(racimos:segunda_eur, ~sum(.x, na.rm = T))
   ) %>% 
-  select(!ends_with("_pc"))
+  select(!ends_with(c("_pc", "_eurkg", "prec_med")))
