@@ -1,0 +1,78 @@
+---
+title: "Producción de la finca"
+output: html_document
+date: "Agosto 2022"
+output:
+  html_document:
+    theme: yeti
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F,
+                      message = F,
+                      warning = F)
+
+library(tidyverse)
+# library(lubridate)
+# library(kableExtra)
+# library(glue)
+library(here)
+
+### standardize ggplot theme
+#theme_set(theme_classic())
+#theme_set(theme_minimal())
+theme_set(theme_light())
+
+# los decimales con comas, de forma general
+options(OutDec = ",")
+```
+
+```{r dataload}
+load(here("data/processed", "ds_cooperativa.RData"))
+```
+
+# Evolución mensual
+
+Evolución del acumulado mensual de las variables generales
+
+```{r totales-mes}
+datos_mes %>% 
+  select(mes:total_fac) %>% 
+  pivot_longer(
+    -mes,
+    names_to = "tipo",
+    values_to = "valor"
+  ) %>% 
+  mutate(
+    tipo = str_replace(tipo, "_", " ") %>% str_to_title()
+  ) %>% 
+  ggplot(aes(x = mes)) +
+  geom_bar(aes(weight = valor)) +
+  facet_wrap(~tipo, ncol = 1, scales = "free_y") +
+  labs(x = NULL)
+```
+
+Evolución del peso mensual por categoría
+
+```{r peso-mensual}
+datos_mes %>% select(mes, ends_with("_kg")) %>% 
+  pivot_longer(
+    -mes,
+    names_to = "categoria",
+    values_to = "valor"
+  ) %>% 
+  filter(categoria != "total_kg") %>% 
+  mutate(
+    categoria = str_remove(categoria, "_kg") %>% str_to_sentence()
+  ) %>% 
+  ggplot(aes(mes, valor)) +
+  geom_line() +
+  facet_wrap(~categoria, ncol = 1) +
+  labs(y = "Kg")
+  
+```
+
