@@ -43,10 +43,21 @@ ds <-
   str_split(pattern = "\\n") %>% 
   unlist() %>% 
   as_tibble() %>% 
-  filter(str_detect(value, pattern = "Fecha|Semana|PREMIUM|P\\. SUPER|SEGUNDA|racimos|medio")) %>% 
+  filter(str_detect(value, pattern = "Fecha|Semana|PREMIUM|P\\. SUPER|SEGUNDA|Total|racimos|medio")) %>% 
   mutate(
     value  = str_to_lower(value),
-    medida = str_extract(value, pattern = "[:graph:]+")
+    medida = case_when(
+      str_detect(value, "fecha")         ~ "fecha",
+      str_detect(value, "semana")        ~ "semana",
+      str_detect(value, "premium")       ~ "premium",
+      str_detect(value, "p\\. super")    ~ "psup",
+      str_detect(value, "segunda")       ~ "segunda",
+      str_detect(value, "total \\.")     ~ "totales",
+      str_detect(value, "total racimos") ~ "racimos",
+      str_detect(value, "peso medio")    ~ "peso",
+      str_detect(value, "precio medio")  ~ "precio",
+      str_detect(value, "total eu")      ~ "total_euros"
+    )
   ) 
 
 # voy extrayendo los subconjuntos de datos
@@ -103,7 +114,7 @@ segunda <- filter(ds, medida == "segunda") %>%
   )
 
 
-datos <- bind_cols(fechas, semanas, racimos, peso_med, prec_med, premium, psup, segunda)
+datos_sem <- bind_cols(fechas, semanas, racimos, peso_med, prec_med, premium, psup, segunda)
 
 rm(ds, fechas, semanas, racimos, peso_med, prec_med, premium, psup, segunda)
 
