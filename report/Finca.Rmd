@@ -60,11 +60,14 @@ datos_mes %>%
     values_to = "valor"
   ) %>% 
   mutate(
-    tipo = str_replace(tipo, "_", " ") %>% str_to_title()
-  ) %>% 
+    tipo = if_else(str_detect(tipo, "fac"), "total_factura", tipo) %>%
+      str_replace("_", " ") %>% str_to_title()
+  ) %>%
   ggplot(aes(x = mes)) +
   geom_bar(aes(weight = valor)) +
-  facet_wrap(~tipo, ncol = 1, scales = "free_y") +
+  facet_wrap(
+    ~factor(tipo, c("Racimos", "Total Kg", "Total Eur", "Total Factura")), 
+    ncol = 1, scales = "free_y") +
   labs(y = NULL)
 ```
 
@@ -89,7 +92,7 @@ peso_mes_cat %>%
   ) %>% 
   mutate(
     total = Premium + Psup + Segunda,
-    across(Premium:Segunda, ~.x / total * 100, .names = "{.col}_prc")
+    across(Premium:Segunda, ~round(.x / total * 100, digits = 2), .names = "{.col}_prc")
   ) %>% 
   select(mes, ends_with("_prc")) %>% 
   pivot_longer(
@@ -102,6 +105,14 @@ peso_mes_cat %>%
   ) %>% 
   ggplot(aes(x = mes, y = valor, color = cat)) +
   geom_line(size = 1) +
-  labs(y = "Porcentaje")
+  labs(
+    y = "Porcentaje",
+    color = "Categoría")
+```
+
+Evolución del precio en cada categoría
+
+```{r precio-mes}
+
 ```
 
