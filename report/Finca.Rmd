@@ -131,6 +131,10 @@ precios_mes_cat %>%
   ) %>% 
   ggplot(aes(x = mes, y = valor)) +
   geom_line(aes(color = cat)) +
-  geom_line(data = select(precios_mes_cat, mes, total), aes(x = mes, y = total))
+  geom_line(data = select(precios_mes_cat, mes, total), aes(x = mes, y = total)) +
+  labs(
+    y = "€ / Kg",
+    color = "categoría"
+  )
 ```
 
