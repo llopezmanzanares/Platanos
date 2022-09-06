@@ -1,6 +1,5 @@
 ---
 title: "Producción de la finca"
-output: html_document
 date: "Agosto 2022"
 output:
   html_document:
@@ -38,12 +37,22 @@ peso_mes_cat <- datos_mes %>%
   select(mes, ends_with("_kg")) %>% 
   pivot_longer(
     -mes,
-    names_to = "categoria",
+    names_to  = "categoria",
     values_to = "valor"
   ) %>% 
   filter(categoria != "total_kg") %>% 
   mutate(
     categoria = str_remove(categoria, "_kg") %>% str_to_sentence()
+  )
+
+precios_mes_cat <- datos_mes %>% 
+  select(mes, ends_with(c("_kg", "_eur"))) %>% 
+  mutate(
+    total   = total_eur / total_kg,
+    premium = premium_eur / premium_kg,
+    psup    = psup_eur / psup_kg,
+    segunda = segunda_eur / segunda_kg,
+    .keep   = "unused"
   )
 ```
 
@@ -110,9 +119,18 @@ peso_mes_cat %>%
     color = "Categoría")
 ```
 
-Evolución del precio en cada categoría
+Evolución del precio en cada categoría, en negro la media del precio percibido.
 
 ```{r precio-mes}
-
+precios_mes_cat %>% 
+  select(-total) %>% 
+  pivot_longer(
+    -mes,
+    names_to  = "cat",
+    values_to = "valor"
+  ) %>% 
+  ggplot(aes(x = mes, y = valor)) +
+  geom_line(aes(color = cat)) +
+  geom_line(data = select(precios_mes_cat, mes, total), aes(x = mes, y = total))
 ```
 
