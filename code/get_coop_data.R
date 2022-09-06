@@ -77,7 +77,7 @@ semanas <- filter(ds, medida == "semana") %>%
 totales <- filter(ds, medida == "totales") %>% 
   mutate(
     total_kg = xtr_num(value, "(\\d\\.)?\\d+"),
-    total_eur = xtr_num(value, "\\d{1,3},\\d{2}$"),
+    total_eur = xtr_num(value, "(\\d\\.)?\\d{1,3},\\d{2}$"),
     .keep = "none"
   )
 total_factura <- filter(ds, medida == "total_euros") %>% 
