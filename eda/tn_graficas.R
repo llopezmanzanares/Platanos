@@ -15,7 +15,7 @@ Tn <- toneladas %>%
 
 Tn %>% 
   ggplot(aes(anualidad, tn, color = territorio)) +
-  geom_line(size = 1) +
+  geom_line() +
   labs(
     title = "Producción agrícola por islas, Tn",
     x = NULL,
@@ -26,8 +26,6 @@ Tn %>%
   theme_light()
 
 ggsave(
-  here("report/graphs", "prod_islas.pdf"),
-  width = 11,
-  height = 9,
-  units = "in"
+  here("report/graphs", "prod_islas.png"),
+  device = "png"
 )
