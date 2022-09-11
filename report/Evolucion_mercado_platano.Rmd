@@ -14,9 +14,9 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   echo = F,
-  message = F
-  # options(OutDec = ",")
-  # fig.show = "asis",
+  message = F,
+  options(OutDec = ","),
+  fig.show = "asis"
   # fig.dim = c(18, 14) # width = 6, height = 5 
   )
 
@@ -43,36 +43,16 @@ Análisis de los datos disponibles sobre evolución de las plantaciones de plát
 
 Evolución semanal del precio medio percibido en cada una de las islas principales. -->
 
-```{r precio-islas, fig.width=15, fig.height=15}
+```{r precio-islas}
 # knitr::include_graphics(here("report/graphs", "precio_islas.pdf"))
-knitr::include_graphics("graphs/precio_islas.pdf")
+knitr::include_graphics("graphs/precio_islas.png")
 ```
 
-```{r precio-Tenerife, fig.show='asis', fig.align='center'}
-knitr::include_graphics(here("report/graphs", "precio_tfe.pdf"))
+```{r precio-Tenerife}
+knitr::include_graphics(here("report/graphs", "precio_tfe.png"))
 ```
 
-```{r precio-aqui}
-precios_sem %>% 
-  mutate(
-    sem = str_extract(periodo, pattern = "\\d{2}$") %>% 
-      tolower() %>% 
-      as.numeric(),
-    .after = 1
-  ) %>% 
-  filter(territorio != "canarias") %>% 
-  mutate(
-    territorio = str_replace(territorio, pattern = "\\.", replacement = " ") %>% 
-      str_to_title()
-  ) %>% 
-  ggplot(aes(semana, precio, color = territorio)) +
-  geom_line() +
-  labs(
-    title = "Precios medios percibidos, €/kg",
-    color = "Isla",
-    x = "Semana del año",
-    y = NULL
-  ) +
-  theme_light()
+```{r precio-aqui, fig.width=7, fig.asp=0.8}
+knitr::include_graphics(here("report/graphs", "precio_tfe_hm.png"))
 ```
 
