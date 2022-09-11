@@ -29,11 +29,9 @@ precios_sem %>%
   theme_light()
 
 ggsave(
-  here("report/graphs", "precio_islas.pdf"),
-  width = 18,
-  height = 14,
-  units = "cm"
-    )
+  here("report/graphs", "precio_islas.png"),
+  device = "png"
+  )
 
 # precios Tenerife --------------------------------------------------------
 
@@ -52,10 +50,8 @@ precios_sem %>%
   theme_light()
 
 ggsave(
-  here("report/graphs", "precio_tfe.pdf"),
-  width = 11,
-  height = 9,
-  units = "in"
+  here("report/graphs", "precio_tfe.png"),
+  device = "png"
 )
 
 # heatmap test
@@ -68,8 +64,6 @@ precios_sem %>%
   theme_light()
 
 ggsave(
-  here("report/graphs", "precio_tfe_hm.pdf"),
-  width = 11,
-  height = 9,
-  units = "in"
+  here("report/graphs", "precio_tfe_hm.png"),
+  device = "png"
 )
