@@ -28,11 +28,6 @@ library(lubridate)
 theme_set(theme_light())
 ```
 
-```{r data-load}
-if (file.exists(here("data/processed", "platanos.RData")))
-  load(here("data/processed", "platanos.RData"))
-
-```
 
 <!--
 # Objetivo
