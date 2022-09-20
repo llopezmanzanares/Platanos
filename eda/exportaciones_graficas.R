@@ -6,7 +6,7 @@
 exportaciones %>% 
   filter(isla != "Canarias") %>% 
   ggplot(aes(mes, total, color = isla)) +
-  geom_line(size = 1) +
+  geom_line() +
   labs(
     title = "Exportaciones de plátanos, Tn",
     y = NULL,
@@ -16,10 +16,8 @@ exportaciones %>%
   theme_light()
 
 ggsave(
-  here("report/graphs", "expor_islas.pdf"),
-  width = 11,
-  height = 9,
-  units = "in"
+  here("report/graphs", "expor_islas.png"),
+  device = "png"
 )
 
 
@@ -34,7 +32,7 @@ exportaciones %>%
     values_to = "tn"
   ) %>% 
   ggplot(aes(mes, tn, color = destino)) +
-  geom_line(size = 1) +
+  geom_line() +
   labs(
     title = "Exportaciones de plátanos, Tn",
     subtitle = "Isla de Tenerife",
@@ -44,9 +42,7 @@ exportaciones %>%
   theme_light()
 
 ggsave(
-  here("report/graphs", "expor_tfe.pdf"),
-  width = 11,
-  height = 9,
-  units = "in"
+  here("report/graphs", "expor_tfe.png"),
+  device = "png"
 )
 
