@@ -1,33 +1,65 @@
 library(tidyverse)
 library(here)
 
-# TODO actualizar con el nuevo conjunto de datos
+# Variables ---------------------------------------------------------------
 
 dir <- list(
-  pro = "data/processed"
+  pro = "data/processed",
+  grf = "report/graphs"
 )
+
+sufijos <- c("_med", "_kg", "_eur", "_eurkg")
+prefijos <- c("cat_")
 
 load(here(dir$pro, "datos_finca.RData")) # objeto datos_sem
 
+# para las gráficas
+theme_set(theme_minimal())
+scale_color_brewer(palette = "Pastel2")
 
 # Gráficas generales ------------------------------------------------------
 
-# evolución temporal de la media de precios, pesos y racimos
-gral <- select(datos, fecha, racimos, ends_with("med")) %>% 
+ds_gral <- select(datos_sem, fecha, semana, racimos, ends_with(sufijos)) %>% 
   pivot_longer(
-    -fecha,
+    -c(fecha, semana),
     names_to = "tipo",
     values_to = "valor"
+  ) %>% 
+  mutate(
+    tipo = case_when(
+      str_detect(tipo, "premium") ~ str_c(prefijos[1], tipo),
+      str_detect(tipo, "psup")    ~ str_c(prefijos[1], tipo),
+      str_detect(tipo, "segunda") ~ str_c(prefijos[1], tipo),
+      TRUE ~ tipo
+    ),
+    alias = case_when(
+      tipo == "total_kg"  ~ "Cortes (Kg)",
+      tipo == "total_eur" ~ "Ingresos (€)",
+      tipo == "peso_med"  ~ "Kg (media)",
+      tipo == "prec_med"  ~ "€ (media)",
+      str_detect(tipo, prefijos[1]) ~ str_to_sentence(str_extract(tipo, "(?<=_)[a-z]+")),
+      TRUE ~ str_to_sentence(tipo)
+    )
   )
 
-ggplot(
-  data = gral,
-  aes(x = fecha, y = valor)
-) +
+graf <- 
+  ggplot(
+    data = filter(ds_gral, str_detect(tipo, pattern = sufijos[2])),
+    aes(
+      x = fecha, y = valor
+      # color = as_factor(lubridate::year(fecha))
+      )
+  ) +
   geom_point() +
-  geom_line() +
-  facet_wrap(~tipo, ncol = 1, scales = "free_y") +
-  theme_light()
+#  geom_line() +
+  geom_smooth(se = FALSE) +
+  facet_wrap(~alias, ncol = 1, scales = "free_y") +
+  theme(legend.position = "none") +
+  labs(
+    subtitle = "Evolución semanal",
+    x = NULL, y = NULL
+  ) +
+  scale_color_brewer(palette = "Dark2")
 
 ggsave(
   here("finca_general.pdf"),
