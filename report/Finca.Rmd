@@ -58,7 +58,11 @@ precios_mes_cat <- datos_mes %>%
 
 # Evolución mensual
 
-Evolución del acumulado mensual de las variables generales
+Para la evolución mensual se han agregado los datos en función de la fecha del mes del documento de liquidación.
+
+## Acumulado mensual de las variables generales
+
+Evolución mensual del acumulado semanal del número de racimos, peso total, importe total y el total de las facturas.
 
 ```{r totales-mes}
 datos_mes %>% 
@@ -83,7 +87,9 @@ datos_mes %>%
     )
 ```
 
-Evolución del peso mensual por categoría
+## Peso mensual por categoría
+
+Evolución del peso mensual (Kg), por categoría
 
 ```{r peso-mensual}
  peso_mes_cat %>% 
@@ -94,7 +100,7 @@ Evolución del peso mensual por categoría
   
 ```
 
-Evolución del porcentaje de cada categoría
+Evolución del porcentaje, en peso, de cada categoría
 
 ```{r peso-mensual-prc}
 peso_mes_cat %>% 
@@ -122,7 +128,9 @@ peso_mes_cat %>%
     color = "Categoría")
 ```
 
-Evolución del precio en cada categoría, en negro la media del precio percibido.
+## Precios por categorías
+
+Evolución mensual del precio en cada categoría, en negro la media del precio percibido.
 
 ```{r precio-mes}
 precios_mes_cat %>% 
@@ -197,20 +205,6 @@ peso_mes_cat %>%
 
 Respecto al peso total, la comparativa es la siguiente
 
-```{r peso-mes-anyo}
-peso_mes_cat %>% 
-  group_by(aa = year(mes), mm = month(mes, label = TRUE)) %>% 
-  summarise(
-    peso = sum(valor),
-    .groups = "drop"
-  ) %>% 
-  ggplot(
-    aes(x = mm, y = peso, fill = as_factor(aa))
-  ) +
-  geom_col(position = "dodge") +
-  labs(x = NULL, y = "Kg", fill = "Anualidades")
-```
-
 ```{r dif-peso-mes}
 peso_mes_cat %>% 
   group_by(aa = year(mes), mm = month(mes, label = TRUE)) %>% 
@@ -224,8 +218,54 @@ peso_mes_cat %>%
   ) %>% 
   arrange(mm) %>% 
   rename(Mes = mm) %>% 
-  kbl() %>%
+  kbl(
+    format.args = list(big.mark = '.')
+  ) %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = FALSE)
   
+```
+
+```{r peso-mes-anyo}
+peso_mes_cat %>% 
+  group_by(aa = year(mes), mm = month(mes, label = TRUE)) %>% 
+  summarise(
+    peso = sum(valor),
+    .groups = "drop"
+  ) %>% 
+  ggplot(
+    aes(x = mm, y = as_factor(aa), fill = peso)
+  ) +
+  geom_tile() +
+  labs(x = NULL, y = NULL, fill = "Kg")
+```
+
+## Precios
+
+```{r precios-mes-anyo}
+precios_mes_cat %>% 
+  select(-total) %>% 
+  pivot_longer(
+    cols      = -mes,
+    names_to  = "cat",
+    values_to = "precio"
+  ) %>% 
+  ggplot(
+    aes(x = month(mes, label = TRUE), y = precio, fill = as_factor(year(mes)))
+  ) +
+  geom_col(position = "dodge") +
+  facet_wrap(~cat, ncol = 1) +
+  labs(x = NULL, y = NULL, fill = "Anualidades")
+```
+
+Considerando el precio total de cada corte, es decir, la relación entre el total de kg y el del importe de las liquidaciones, tenemos
+
+```{r precios-totales-anyo}
+precios_mes_cat %>% 
+  select(mes, total) %>% 
+  ggplot(
+    aes(x = month(mes, label = TRUE), y = total, fill = as_factor(year(mes)))
+  ) +
+  geom_col(position = "dodge") +
+  labs(x = NULL, y = NULL, fill = "Anualidades")
 ```
 
