@@ -67,7 +67,21 @@ ggsave(
 # Kg por meses ------------------------------------------------------------
 
 datos_mes_kg <- datos_mes %>% 
-  select(fecha, ends_with("kg"))
+  select(fecha, ends_with("kg")) %>% 
+  pivot_longer(
+    cols = !fecha,
+    names_to = "cat",
+    values_to = "kg"
+  ) %>% 
+  mutate(
+    aa = year(fecha),
+    mm = month(fecha, label = TRUE),
+    # tengo que encontrar una mejor manera de hacer esto
+    kg_2021 = ifelse(aa == 2021, kg, NA),
+    kg_2022 = ifelse(aa == 2022, kg, NA)
+  ) %>% 
+  # me estoy liando
+  select(fecha, cat, starts_with("kg_"))
 
 # los totales mensuales comparados
 datos_mes_kg %>% 
@@ -88,6 +102,17 @@ datos_mes_kg %>%
 ggsave(
   filename = here("report/graphs", "mes_aa_total_kg.png")
 )
+
+# el acumulado de los totales
+datos_mes_kg %>% 
+  select(fecha, total_kg_acum) %>% 
+  mutate(
+    aa = year(fecha),
+    mm = month(fecha, label = TRUE)
+  ) %>% 
+  ggplot(aes(x= mm, y = total_kg_acum, color = as_factor(aa))) +
+  geom_point()
+  geom_line()
 
 # los kg por categorías, comparados
 datos_mes_kg %>% 
