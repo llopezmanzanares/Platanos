@@ -9,7 +9,7 @@ output:
     toc_float: true
     number_sections: true
 params:
-  new_coop: TRUE
+  new_coop: FALSE
 ---
 
 ```{r setup, include=FALSE}
