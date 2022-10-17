@@ -68,21 +68,12 @@ ggsave(
 
 datos_mes_kg <- datos_mes %>% 
   select(fecha, ends_with("kg")) %>% 
-  pivot_longer(
-    cols = !fecha,
-    names_to = "cat",
-    values_to = "kg"
-  ) %>% 
+  group_by(aa = year(fecha)) %>% 
   mutate(
-    aa = year(fecha),
-    mm = month(fecha, label = TRUE),
-    # tengo que encontrar una mejor manera de hacer esto
-    kg_2021 = ifelse(aa == 2021, kg, NA),
-    kg_2022 = ifelse(aa == 2022, kg, NA)
-  ) %>% 
-  # me estoy liando
-  select(fecha, cat, starts_with("kg_"))
+    across(ends_with("_kg"), cumsum, .names = "{.col}_acum")
+    )
 
+  
 # los totales mensuales comparados
 datos_mes_kg %>% 
   select(fecha, total_kg) %>% 
