@@ -71,7 +71,8 @@ datos_mes_kg <- datos_mes %>%
   group_by(aa = year(fecha)) %>% 
   mutate(
     across(ends_with("_kg"), cumsum, .names = "{.col}_acum")
-    )
+    ) %>% 
+  ungroup()
 
   
 # los totales mensuales comparados
@@ -102,12 +103,18 @@ datos_mes_kg %>%
     mm = month(fecha, label = TRUE)
   ) %>% 
   ggplot(aes(x= mm, y = total_kg_acum, color = as_factor(aa))) +
-  geom_point()
-  geom_line()
+  geom_point() +
+  geom_line(aes(group = aa)) +
+  labs(
+    title = "Acumulados mensuales de la producción total (Kg)",
+    x = NULL, y = NULL, color = "Anualidades"
+  )
+ggsave(filename = here("report/graphs", "mes_aa_total_kg_acum.png")
+       )
 
 # los kg por categorías, comparados
 datos_mes_kg %>% 
-  select(-total_kg) %>% 
+  select(!c(total_kg, ends_with("acum"))) %>% 
   mutate(
     aa = year(fecha),
     mm = month(fecha, label = TRUE),
@@ -135,6 +142,36 @@ datos_mes_kg %>%
   ) +
   scale_fill_brewer(palette = "Paired")
 
+ggsave(
+  filename = here("report/graphs", "mes_aa_total_kg_cat.png")
+)
+
+# acumulados de los kg por categorías
+datos_mes_kg %>% 
+  select(!c(ends_with("kg"), total_kg_acum, aa)) %>% 
+  pivot_longer(
+    cols = -fecha,
+    names_to = "cat",
+    values_to = "peso"
+  ) %>% 
+  mutate(
+    aa = year(fecha),
+    mm = month(fecha, label = TRUE),
+    cat = case_when(
+      str_detect(cat, "psup") ~ "Psup",
+      str_detect(cat, "segu") ~ "Segunda",
+      TRUE                    ~ "Premium"
+    )
+  ) %>% 
+  ggplot(aes(x = mm, y = peso, color = as_factor(aa))) +
+  geom_line(aes(group = aa)) +
+  facet_wrap(~cat, ncol = 1) +
+  labs(
+    title = "Acumulados de la producción mensual (Kg)",
+    subtitle = "Producción de cada una de las categorías",
+    x = NULL, y = NULL, color = "Anualidades"
+  ) 
+  # scale_color_brewer(palette = "Paired")
 ggsave(
   filename = here("report/graphs", "mes_aa_total_kg_cat.png")
 )
