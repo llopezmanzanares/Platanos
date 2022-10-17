@@ -114,18 +114,15 @@ ggsave(filename = here("report/graphs", "mes_aa_total_kg_acum.png")
 
 # los kg por categorías, comparados
 datos_mes_kg %>% 
-  select(!c(total_kg, ends_with("acum"))) %>% 
-  mutate(
-    aa = year(fecha),
-    mm = month(fecha, label = TRUE),
-    .keep = "unused"
-  ) %>% 
+  select(!c(total_kg, ends_with("acum"),aa)) %>% 
   pivot_longer(
-    cols = !c(aa, mm),
+    cols = -fecha,
     names_to  = "cat",
     values_to = "peso"
   ) %>% 
   mutate(
+    aa = year(fecha),
+    mm = month(fecha, label = TRUE),
     cat = case_when(
       str_detect(cat, "psup") ~ "Psup",
       str_detect(cat, "segu") ~ "Segunda",
