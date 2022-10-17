@@ -130,6 +130,7 @@ datos_mes_kg %>%
     )
   ) %>% 
   ggplot(aes(x = mm, y = peso, color = as_factor(aa))) +
+  geom_point(alpha = .5) +
   geom_line(aes(group = aa)) +
   facet_wrap(~cat, ncol = 1) +
   labs(
