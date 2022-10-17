@@ -173,5 +173,5 @@ datos_mes_kg %>%
   ) 
   # scale_color_brewer(palette = "Paired")
 ggsave(
-  filename = here("report/graphs", "mes_aa_total_kg_cat.png")
+  filename = here("report/graphs", "mes_aa_total_kg_cat_acum.png")
 )
