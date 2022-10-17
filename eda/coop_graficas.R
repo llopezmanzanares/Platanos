@@ -32,9 +32,6 @@ datos_mes <-
   ) %>% 
   mutate(
     fecha = rollforward(fecha)
-    # esto da problemas si quiero recomponer la fecha posteriormente
-    # aa = year(fecha),
-    # mm = month(fecha, label = TRUE),
   ) %>% 
   group_by(fecha) %>% 
   summarise(
@@ -67,8 +64,13 @@ ggsave(
 # Kg por meses ------------------------------------------------------------
 
 datos_mes_kg <- datos_mes %>% 
-  select(fecha, ends_with("kg")) %>% 
-  group_by(aa = year(fecha)) %>% 
+  mutate(
+    aa = year(fecha),
+    mm = month(fecha, label = TRUE),
+    .after = 1
+  ) %>% 
+  select(fecha:mm, ends_with("kg")) %>% 
+  group_by(aa) %>% 
   mutate(
     across(ends_with("_kg"), cumsum, .names = "{.col}_acum")
     ) %>% 
@@ -77,11 +79,7 @@ datos_mes_kg <- datos_mes %>%
   
 # los totales mensuales comparados
 datos_mes_kg %>% 
-  select(fecha, total_kg) %>% 
-  mutate(
-    aa = year(fecha),
-    mm = month(fecha, label = TRUE)
-    ) %>% 
+  select(fecha:mm, total_kg) %>% 
   ggplot(aes(x = mm, y = total_kg, fill = as_factor(aa))) +
   geom_col(position = "dodge") +
   labs(
@@ -97,32 +95,42 @@ ggsave(
 
 # el acumulado de los totales
 datos_mes_kg %>% 
-  select(fecha, total_kg_acum) %>% 
-  mutate(
-    aa = year(fecha),
-    mm = month(fecha, label = TRUE)
-  ) %>% 
+  select(fecha:mm, total_kg_acum) %>% 
   ggplot(aes(x= mm, y = total_kg_acum, color = as_factor(aa))) +
   geom_point() +
   geom_line(aes(group = aa)) +
+  # valores del último mes y comparativa con años anteriores
+  geom_point(
+    data = datos_mes_kg %>% filter(month(fecha) == month(max(fecha))),
+    aes(x = mm, y = total_kg_acum), color = "black", shape = 1,
+    show.legend = FALSE
+  ) +
+  geom_text(
+    data = datos_mes_kg %>% filter(month(fecha) == month(max(fecha))),
+    aes(
+      label = format(total_kg_acum, big.mark=".", decimal.mar = ",") %>%
+        str_c(.,"kg", sep=" ")
+    ),
+    nudge_x = .8, size = 3,
+    show.legend = FALSE
+  ) +
   labs(
     title = "Acumulados mensuales de la producción total (Kg)",
     x = NULL, y = NULL, color = "Anualidades"
   )
-ggsave(filename = here("report/graphs", "mes_aa_total_kg_acum.png")
-       )
+ggsave(
+  filename = here("report/graphs", "mes_aa_total_kg_acum.png")
+  )
 
 # los kg por categorías, comparados
 datos_mes_kg %>% 
-  select(!c(total_kg, ends_with("acum"),aa)) %>% 
+  select(!c(total_kg, ends_with("acum"))) %>% 
   pivot_longer(
-    cols = -fecha,
+    cols = !c(fecha, aa, mm),
     names_to  = "cat",
     values_to = "peso"
   ) %>% 
   mutate(
-    aa = year(fecha),
-    mm = month(fecha, label = TRUE),
     cat = case_when(
       str_detect(cat, "psup") ~ "Psup",
       str_detect(cat, "segu") ~ "Segunda",
@@ -145,15 +153,13 @@ ggsave(
 
 # acumulados de los kg por categorías
 datos_mes_kg %>% 
-  select(!c(ends_with("kg"), total_kg_acum, aa)) %>% 
+  select(!c(ends_with("kg"), total_kg_acum)) %>% 
   pivot_longer(
-    cols = -fecha,
+    cols = !c(fecha, aa, mm),
     names_to = "cat",
     values_to = "peso"
   ) %>% 
   mutate(
-    aa = year(fecha),
-    mm = month(fecha, label = TRUE),
     cat = case_when(
       str_detect(cat, "psup") ~ "Psup",
       str_detect(cat, "segu") ~ "Segunda",
