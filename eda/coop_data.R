@@ -1,3 +1,6 @@
+
+# ESTE LO PUEDO BORRAR
+
 # modificaciones al conjunto de datos para trabajar mejor con él
 
 library(tidyverse)

@@ -12,32 +12,9 @@ theme_set(
   # theme_light()
 )
 
-# objeto datos_sem
-load(file = here("data/processed", "datos_finca.RData"))
+# cargo datos_mes y obtengo datos_mes_kg
+source(file = here("eda/", "coop_graficas_datos.R"))
 
-# Datos mensuales ---------------------------------------------------------
-
-# Es más útil trabajar con los datos mensuales
-# solo tengo un dato de 2020, así que lo elimino
-datos_mes <- 
-  filter(datos_sem, year(fecha) > 2020) %>% 
-  select(
-    !c(semana,             # el dato de la semana no aporta información
-       total_fac,          # el total facturado es muy similar al importe, lo quito
-       ends_with(c("_med", # tampoco las medias y porcentajes
-                   "_pc",
-                   "_eurkg")
-       )
-    )
-  ) %>% 
-  mutate(
-    fecha = rollforward(fecha)
-  ) %>% 
-  group_by(fecha) %>% 
-  summarise(
-    across(everything(), sum),
-    .groups = "drop"
-  )
 
 # Relación euros vs Kg ----------------------------------------------------
 
@@ -63,20 +40,6 @@ ggsave(
 
 # Kg por meses ------------------------------------------------------------
 
-datos_mes_kg <- datos_mes %>% 
-  mutate(
-    aa = year(fecha),
-    mm = month(fecha, label = TRUE),
-    .after = 1
-  ) %>% 
-  select(fecha:mm, ends_with("kg")) %>% 
-  group_by(aa) %>% 
-  mutate(
-    across(ends_with("_kg"), cumsum, .names = "{.col}_acum")
-    ) %>% 
-  ungroup()
-
-  
 # los totales mensuales comparados
 datos_mes_kg %>% 
   select(fecha:mm, total_kg) %>% 
