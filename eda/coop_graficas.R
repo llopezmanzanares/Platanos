@@ -40,6 +40,30 @@ ggsave(
 
 # Kg por meses ------------------------------------------------------------
 
+# evolución del total de kg
+datos_mes %>% 
+  select(fecha:total_kg) %>% 
+  pivot_longer(
+    cols = -fecha,
+    names_to = "tipo",
+    values_to = "valor"
+  ) %>% 
+  mutate(
+    tipo = case_when(
+      tipo == "racimos" ~  "Número de racimos",
+      tipo == "total_kg" ~ "Kg totales"
+    ) 
+    ) %>% 
+  ggplot(aes(x = fecha, y = valor)) +
+  geom_col(fill = "steelblue3") +
+  facet_wrap(~tipo, ncol = 1, scales = "free_y") +
+  labs(
+    title = "Evolución mensual del número de racimos y peso",
+    x = NULL, y = NULL
+  )
+ggsave(
+  filename = here("report/graphs", "mes_racskg.png")
+)
 # los totales mensuales comparados
 datos_mes_kg %>% 
   select(fecha:mm, total_kg) %>% 

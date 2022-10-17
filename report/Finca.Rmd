@@ -8,6 +8,8 @@ output:
     toc_depth: 2
     toc_float: true
     number_sections: true
+params:
+  new_coop: TRUE
 ---
 
 ```{r setup, include=FALSE}
@@ -31,6 +33,17 @@ options(OutDec = ",")
 ```
 
 ```{r dataload}
+
+if (isTRUE(params$new_coop)) {
+  # actualizo las gráficas, cargo datos_mes y obtengo datos_mes_kg
+  source(file = here("eda/", "coop_graficas.R"))
+} else {
+  # cargo datos_mes y obtengo datos_mes_kg
+  source(file = here("eda/", "coop_graficas_datos.R"))
+}
+
+# esto es lo anterior, ver si algo es útil
+
 load(here("data/processed", "ds_cooperativa.RData"))
 
 peso_mes_cat <- datos_mes %>% 
@@ -56,10 +69,50 @@ precios_mes_cat <- datos_mes %>%
   )
 ```
 
-# Evolución mensual
+# Introducción
 
 Para la evolución mensual se han agregado los datos en función de la fecha del mes del documento de liquidación.
 
+Actualmente la información abarca de las anualidades a partir de 2020. Sin embargo, de 2020 sólo se dispone de datos del mes de Diciembre, por lo que no se tiene en cuenta de momento.
+
+# Evolución general
+
+La evolución de la relación entre el peso cortado mensualmente y la liquidación es como se muestra a continuación.
+
+```{r rel-eurkg}
+knitr::include_graphics(path = here("report/graphs", "eur_kg.png"))
+```
+
+La evolución del peso de los cortes mensuales y el número de racimos ha sido la siguiente.
+
+```{r evol_racskg}
+knitr::include_graphics(path = here("report/graphs", "mes_racskg.png"))
+```
+
+# Evolución del peso
+
+Para el total general del peso de las liquidaciones, tenemos
+
+```{r vs-kg_mmaa}
+knitr::include_graphics(path = here("report/graphs", "mes_aa_total_kg.png"))
+```
+
+```{r vs-kg-acum-aa}
+knitr::include_graphics(path = here("report/graphs", "mes_aa_total_kg_acum.png"))
+```
+
+Si lo hacemos por categorías
+
+```{r vs-kgcat_mmaa}
+knitr::include_graphics(path = here("report/graphs", "mes_aa_total_kg_cat.png"))
+```
+
+```{r vs_kgcat_acum_aa}
+knitr::include_graphics(path = here("report/graphs", "mes_aa_total_kg_cat_acum.png"))
+```
+
+
+<!--
 ## Acumulado mensual de las variables generales
 
 Evolución mensual del acumulado semanal del número de racimos, peso total, importe total y el total de las facturas.
@@ -269,3 +322,4 @@ precios_mes_cat %>%
   labs(x = NULL, y = NULL, fill = "Anualidades")
 ```
 
+-->
