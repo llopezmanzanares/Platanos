@@ -89,6 +89,12 @@ La evolución del peso de los cortes mensuales y el número de racimos ha sido l
 knitr::include_graphics(path = here("report/graphs", "mes_racskg.png"))
 ```
 
+La evolución del peso de los racimos es la siguiente
+
+```{r evol-kgracs}
+knitr::include_graphics(path = here("report/graphs", "kg_racimo.png"))
+```
+
 # Evolución del peso
 
 Para el total general del peso de las liquidaciones, tenemos
@@ -110,7 +116,6 @@ knitr::include_graphics(path = here("report/graphs", "mes_aa_total_kg_cat.png"))
 ```{r vs_kgcat_acum_aa}
 knitr::include_graphics(path = here("report/graphs", "mes_aa_total_kg_cat_acum.png"))
 ```
-
 
 <!--
 ## Acumulado mensual de las variables generales
