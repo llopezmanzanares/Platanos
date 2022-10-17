@@ -166,3 +166,17 @@ datos_mes_kg %>%
 ggsave(
   filename = here("report/graphs", "mes_aa_total_kg_cat_acum.png")
 )
+
+# relación entre racimos y kg
+datos_mes %>% 
+  select(fecha, kg_rac) %>% 
+  ggplot(aes(x = fecha, y = kg_rac)) +
+  geom_point() +
+  geom_smooth(se = FALSE, method = "loess") +
+  labs(
+    title = "Evolución del Kg por racimo",
+    x = NULL, y = NULL
+  )
+ggsave(
+  filename = here("report/graphs", "kg_racimo.png")
+)  

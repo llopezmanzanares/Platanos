@@ -26,6 +26,9 @@ datos_mes <-
   summarise(
     across(everything(), sum),
     .groups = "drop"
+  ) %>% 
+  mutate(
+    kg_rac = total_kg / racimos
   )
 
 # Kg por meses ------------------------------------------------------------
