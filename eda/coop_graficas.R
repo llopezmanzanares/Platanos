@@ -180,3 +180,34 @@ datos_mes %>%
 ggsave(
   filename = here("report/graphs", "kg_racimo.png")
 )  
+
+# puedo hacer la relación entre racimos y kg en base semanal
+datos_sem %>% 
+  select(fecha, semana, racimos, peso_med) %>% 
+  filter(year(fecha) > 2020) %>% 
+  pivot_longer(
+    !c(fecha, semana),
+    names_to = "medida",
+    values_to = "valor"
+  ) %>% 
+  mutate(
+    aa = year(fecha),
+    medida = case_when(
+      medida == "racimos"  ~ "Racimos",
+      medida == "peso_med" ~ "Kg (media)"
+    )
+  ) %>% 
+  ggplot(aes(x = semana, y = valor, color = as_factor(aa))) +
+  geom_point(alpha = .5) +
+  geom_smooth(se = FALSE) +
+  geom_vline(xintercept = 34, color = "grey75") +
+  facet_wrap(~medida, ncol = 1, scales = "free_y") +
+  labs(
+    title    = "Comparativa de la media de Kg y número de racimos",
+    subtitle = "Semanas de cada anualidad",
+    caption  = "Marcada la semana 34",
+    x = "Semanas", y = NULL, color = "Anualidades"
+  )
+ggsave(
+  filename = here("report/graphs", "kg_racimo_sem.png")
+)
