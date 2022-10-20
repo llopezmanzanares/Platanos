@@ -81,6 +81,7 @@ superficie <- read_xls(
   path = here("data/raw/superficie_cultivada_islas.xls"),
   skip = 8
 ) %>% 
+  filter(!is.na(territorio)) %>% 
   mutate(
     anualidad = as.numeric(anualidad),
     `Regadío: Que aún no produce` = str_replace(`Regadío: Que aún no produce`, ",", "\\.") %>% 
