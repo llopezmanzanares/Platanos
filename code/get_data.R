@@ -75,7 +75,23 @@ exportaciones <- read_xlsx(
     .after = 2
   )
 
+# Superficie cultivada ----------------------------------------------------
+
+superficie <- read_xls(
+  path = here("data/raw/superficie_cultivada_islas.xls"),
+  skip = 8
+) %>% 
+  mutate(
+    anualidad = as.numeric(anualidad),
+    `Regadío: Que aún no produce` = str_replace(`Regadío: Que aún no produce`, ",", "\\.") %>% 
+      as.numeric(),
+    `Regadío: En producción` = str_remove(`Regadío: En producción`, "\\.") %>% 
+      str_replace(",", "\\.") %>% as.numeric(),
+    `CULTIVO PROTEGIDO` = str_remove(`CULTIVO PROTEGIDO`, "\\.") %>% 
+      str_replace(",", "\\.") %>% as.numeric()
+  )
+
 # Guardo los datos --------------------------------------------------------
 
-save(exportaciones, precios_sem, toneladas, 
+save(exportaciones, precios_sem, toneladas, superficie,
      file = here("data/processed", "platanos.RData"))
