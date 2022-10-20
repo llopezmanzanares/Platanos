@@ -89,10 +89,10 @@ La evolución del peso de los cortes mensuales y el número de racimos ha sido l
 knitr::include_graphics(path = here("report/graphs", "mes_racskg.png"))
 ```
 
-La evolución del peso de los racimos es la siguiente
+La evolución del peso de los racimos, en una base semanal, es la siguiente
 
 ```{r evol-kgracs}
-knitr::include_graphics(path = here("report/graphs", "kg_racimo.png"))
+knitr::include_graphics(path = here("report/graphs", "kg_racimo_sem.png"))
 ```
 
 # Evolución del peso
