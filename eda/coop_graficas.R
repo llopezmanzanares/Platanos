@@ -140,9 +140,9 @@ datos_mes_kg %>%
   ) +
   scale_fill_brewer(palette = "Paired")
 
-ggsave(
-  filename = here("report/graphs", "mes_aa_total_kg_cat.png")
-)
+# ggsave(
+#   filename = here("report/graphs", "mes_aa_total_kg_cat.png")
+# )
 
 # acumulados de los kg por categorías
 grafs$kg_cat_acum <-
@@ -170,9 +170,9 @@ datos_mes_kg %>%
     x = NULL, y = NULL, color = "Anualidades"
   ) 
   # scale_color_brewer(palette = "Paired")
-ggsave(
-  filename = here("report/graphs", "mes_aa_total_kg_cat_acum.png")
-)
+# ggsave(
+#   filename = here("report/graphs", "mes_aa_total_kg_cat_acum.png")
+# )
 
 # relación entre racimos y kg
 datos_mes %>% 
@@ -184,9 +184,9 @@ datos_mes %>%
     title = "Evolución del Kg por racimo",
     x = NULL, y = NULL
   )
-ggsave(
-  filename = here("report/graphs", "kg_racimo.png")
-)  
+# ggsave(
+#   filename = here("report/graphs", "kg_racimo.png")
+# )  
 
 # puedo hacer la relación entre racimos y kg en base semanal
 grafs$rac_kg_sem <-
