@@ -9,10 +9,13 @@ library(lubridate)
 library(readxl)
 library(ISOweek)
 
+# Variables ---------------------------------------------------------------
+
+istac <- list()  # los datos descargados de ISTAC
 
 # Precios -----------------------------------------------------------------
 
-precios_sem <- read_xlsx(
+istac$precios_sem <- read_xlsx(
   here("data/raw", "precios_medios_percibidos.xlsx"),
   skip = 10,
   col_names = c("periodo", "canarias", "gran.canaria", "tenerife", "la.palma")
@@ -36,7 +39,7 @@ precios_sem <- read_xlsx(
 
 # Toneladas anuales -------------------------------------------------------
 
-toneladas <- read_xls(
+istac$toneladas <- read_xls(
   here("data/raw", "toneladas_anuales_islas.xls"),
   skip = 8,
   n_max = 11,
@@ -57,7 +60,7 @@ toneladas <- read_xls(
 
 # Exportaciones mensuales -------------------------------------------------
 
-exportaciones <- read_xlsx(
+istac$exportaciones <- read_xlsx(
   here("data/raw", "exportaciones_mensuales.xlsx"),
   skip = 7,
   .name_repair = tolower
@@ -77,7 +80,7 @@ exportaciones <- read_xlsx(
 
 # Superficie cultivada ----------------------------------------------------
 
-superficie <- read_xls(
+istac$superficie <- read_xls(
   path = here("data/raw/superficie_cultivada_islas.xls"),
   skip = 8
 ) %>% 
@@ -94,5 +97,5 @@ superficie <- read_xls(
 
 # Guardo los datos --------------------------------------------------------
 
-save(exportaciones, precios_sem, toneladas, superficie,
-     file = here("data/processed", "platanos.RData"))
+save(istac,
+     file = here("data/processed", "istac_platanos.RData"))
