@@ -1,6 +1,6 @@
 ---
 title: "Producción de la finca"
-date: "Agosto 2022"
+date: "Septiembre 2022"
 output:
   html_document:
     theme: yeti
