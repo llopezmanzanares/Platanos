@@ -24,9 +24,10 @@ library(kableExtra)
 library(here)
 
 ### standardize ggplot theme
-#theme_set(theme_classic())
-#theme_set(theme_minimal())
+# theme_set(theme_classic())
+# theme_set(theme_minimal())
 theme_set(theme_light())
+# theme_set(theme_void())
 
 # los decimales con comas, de forma general
 options(OutDec = ",")
@@ -80,19 +81,22 @@ Actualmente la información abarca de las anualidades a partir de 2020. Sin emba
 La evolución de la relación entre el peso cortado mensualmente y la liquidación es como se muestra a continuación.
 
 ```{r rel-eurkg}
-knitr::include_graphics(path = here("report/graphs", "eur_kg.png"))
+# knitr::include_graphics(path = here("report/graphs", "eur_kg.png"))
+grafs$eur_kg
 ```
 
 La evolución del peso de los cortes mensuales y el número de racimos ha sido la siguiente.
 
 ```{r evol_racskg}
-knitr::include_graphics(path = here("report/graphs", "mes_racskg.png"))
+# knitr::include_graphics(path = here("report/graphs", "mes_racskg.png"))
+grafs$rac_kg_mm
 ```
 
 La evolución del peso de los racimos, en una base semanal, es la siguiente
 
 ```{r evol-kgracs}
-knitr::include_graphics(path = here("report/graphs", "kg_racimo_sem.png"))
+# knitr::include_graphics(path = here("report/graphs", "kg_racimo_sem.png"))
+grafs$rac_kg_sem
 ```
 
 # Evolución del peso
@@ -100,21 +104,25 @@ knitr::include_graphics(path = here("report/graphs", "kg_racimo_sem.png"))
 Para el total general del peso de las liquidaciones, tenemos
 
 ```{r vs-kg_mmaa}
-knitr::include_graphics(path = here("report/graphs", "mes_aa_total_kg.png"))
+# knitr::include_graphics(path = here("report/graphs", "mes_aa_total_kg.png"))
+grafs$kg_mm
 ```
 
 ```{r vs-kg-acum-aa}
-knitr::include_graphics(path = here("report/graphs", "mes_aa_total_kg_acum.png"))
+# knitr::include_graphics(path = here("report/graphs", "mes_aa_total_kg_acum.png"))
+grafs$kg_mm_acum
 ```
 
 Si lo hacemos por categorías
 
 ```{r vs-kgcat_mmaa}
-knitr::include_graphics(path = here("report/graphs", "mes_aa_total_kg_cat.png"))
+# knitr::include_graphics(path = here("report/graphs", "mes_aa_total_kg_cat.png"))
+grafs$kg_cat
 ```
 
 ```{r vs_kgcat_acum_aa}
-knitr::include_graphics(path = here("report/graphs", "mes_aa_total_kg_cat_acum.png"))
+# knitr::include_graphics(path = here("report/graphs", "mes_aa_total_kg_cat_acum.png"))
+grafs$kg_cat_acum
 ```
 
 <!--

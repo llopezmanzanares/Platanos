@@ -15,9 +15,11 @@ theme_set(
 # cargo datos_mes y obtengo datos_mes_kg
 source(file = here("eda/", "coop_graficas_datos.R"))
 
+grafs <- list()
 
 # Relación euros vs Kg ----------------------------------------------------
 
+grafs$eur_kg <-
 datos_mes %>% 
   select(fecha, starts_with("total")) %>% 
   mutate(
@@ -34,13 +36,14 @@ datos_mes %>%
     x = NULL, y = "€ / Kg"
   )
 
-ggsave(
-  filename = here("report/graphs", "eur_kg.png")
-)
+# ggsave(
+#   filename = here("report/graphs", "eur_kg.png")
+# )
 
 # Kg por meses ------------------------------------------------------------
 
 # evolución del total de kg
+grafs$rac_kg_mm <-
 datos_mes %>% 
   select(fecha:total_kg) %>% 
   pivot_longer(
@@ -61,10 +64,11 @@ datos_mes %>%
     title = "Evolución mensual del número de racimos y peso",
     x = NULL, y = NULL
   )
-ggsave(
-  filename = here("report/graphs", "mes_racskg.png")
-)
+# ggsave(
+#   filename = here("report/graphs", "mes_racskg.png")
+# )
 # los totales mensuales comparados
+grafs$kg_mm <-
 datos_mes_kg %>% 
   select(fecha:mm, total_kg) %>% 
   ggplot(aes(x = mm, y = total_kg, fill = as_factor(aa))) +
@@ -76,11 +80,12 @@ datos_mes_kg %>%
   ) +
   scale_fill_brewer(palette = "Paired")
 
-ggsave(
-  filename = here("report/graphs", "mes_aa_total_kg.png")
-)
+# ggsave(
+#   filename = here("report/graphs", "mes_aa_total_kg.png")
+# )
 
 # el acumulado de los totales
+grafs$kg_mm_acum <-
 datos_mes_kg %>% 
   select(fecha:mm, total_kg_acum) %>% 
   ggplot(aes(x= mm, y = total_kg_acum, color = as_factor(aa))) +
@@ -105,11 +110,12 @@ datos_mes_kg %>%
     title = "Acumulados mensuales de la producción total (Kg)",
     x = NULL, y = NULL, color = "Anualidades"
   )
-ggsave(
-  filename = here("report/graphs", "mes_aa_total_kg_acum.png")
-  )
+# ggsave(
+#   filename = here("report/graphs", "mes_aa_total_kg_acum.png")
+#   )
 
 # los kg por categorías, comparados
+grafs$kg_cat <-
 datos_mes_kg %>% 
   select(!c(total_kg, ends_with("acum"))) %>% 
   pivot_longer(
@@ -139,6 +145,7 @@ ggsave(
 )
 
 # acumulados de los kg por categorías
+grafs$kg_cat_acum <-
 datos_mes_kg %>% 
   select(!c(ends_with("kg"), total_kg_acum)) %>% 
   pivot_longer(
@@ -182,6 +189,7 @@ ggsave(
 )  
 
 # puedo hacer la relación entre racimos y kg en base semanal
+grafs$rac_kg_sem <-
 datos_sem %>% 
   select(fecha, semana, racimos, peso_med) %>% 
   filter(year(fecha) > 2020) %>% 
@@ -208,6 +216,10 @@ datos_sem %>%
     caption  = "Marcada la semana 34",
     x = "Semanas", y = NULL, color = "Anualidades"
   )
-ggsave(
-  filename = here("report/graphs", "kg_racimo_sem.png")
-)
+# ggsave(
+#   filename = here("report/graphs", "kg_racimo_sem.png")
+# )
+
+# Guardo las gráficas -----------------------------------------------------
+
+save(grafs, file = here("data/processed", "finca_graficas.RData"))
