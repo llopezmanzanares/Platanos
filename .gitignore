@@ -25,3 +25,10 @@
 # all csv/tsv files
 *.csv
 *.tsv
+
+# all html files
+*.html
+
+# all excel files
+*.xls
+*.xlsx
