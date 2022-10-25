@@ -1,0 +1,66 @@
+---
+title: "Producción de plátanos"
+date: "Septiembre 2022"
+execute: 
+  echo: false
+  warning: false
+format: 
+  html:
+    theme: yeti
+    toc: true
+    toc-depth: 2
+    number-sections: true
+editor: visual
+knitr: 
+  opts_chunk:
+    echo: false
+    warning: false
+    message: false
+params:
+  new_coop: false
+---
+
+```{r}
+#| label: set-up
+#| include: false
+
+library(tidyverse)
+library(here)
+
+theme_set(
+  # theme_minimal()
+  theme_light()
+)
+
+```
+
+```{r}
+#| label: data-load
+
+if (isTRUE(params$new_coop)){
+  # cargo nuevos datos
+} else {
+  load(here("data/processed", "finca_graficas.RData"))
+}
+
+# rango de los datos
+fechas_rng <- range(grafs$eur_kg$data$fecha)
+```
+
+# Introducción
+
+Análisis de la evolución de la producción de plátanos para el periodo: `r fechas_rng[1]` hasta `r fechas_rng[2]`
+
+Para la evolución mensual se han agregado los datos en función de la fecha correspondiente a la semana del corte, según aparece en el documento de liquidación.
+
+# Evolución de la producción
+
+## Producción mensual en kg
+
+```{r kg-mes}
+# comparativa de la producción mensual
+grafs$kg_mm
+
+# comparativa del acumulado anual
+grafs$kg_mm_acum
+```
