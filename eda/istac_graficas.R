@@ -47,6 +47,28 @@ istac_grafs$exp_tot <- istac$exportaciones %>%
   )
 
 
+# Gráficas de precios -----------------------------------------------------
+
+
+# Gráficas de superficie --------------------------------------------------
+
+istac_grafs$sup <- istac$superficie %>% 
+  filter(
+    territorio %in% c("Gran Canaria", "Tenerife", "La Palma")
+  ) %>% 
+  pivot_longer(
+    cols = !c("territorio", "anualidad"),
+    names_to = "medida",
+    values_to = "valor"
+  ) %>% 
+  my_plot(aes(x = as_factor(anualidad), y = valor, color = territorio)) +
+  geom_line(aes(group=territorio)) +
+  facet_wrap(~medida, ncol = 1) +
+  labs(
+    title = "Evolución de la superficie cultivada (ha)",
+    x = NULL, y = NULL, color = NULL
+  )
+
 # Guardo las gráficas -----------------------------------------------------
 
 save(istac_grafs, file = here("data/processed", "istac_graficas.RData"))  
