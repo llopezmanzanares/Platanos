@@ -3,7 +3,6 @@
 
 # objeto datos_sem
 load(file = here("data/processed", "datos_finca.RData"))
-load(file = here("data/processed", "finca_graficas.RData"))
 
 # Datos mensuales ---------------------------------------------------------
 
