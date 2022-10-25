@@ -54,6 +54,8 @@ Análisis de la evolución de la producción de plátanos para el periodo: `r fe
 
 Para la evolución mensual se han agregado los datos en función de la fecha correspondiente a la semana del corte, según aparece en el documento de liquidación.
 
+Además, se ofrece información sobre el contexto de la producción en el archipiélago.
+
 # Evolución de la producción
 
 ## Producción mensual en kg
@@ -98,3 +100,19 @@ grafs$kg_cat
 # el acumulado de lo anterior
 grafs$kg_cat_acum
 ```
+
+## Racimos
+
+```{r}
+#| label: racimos
+
+# racimos mensuales
+grafs$rac_kg_mm
+
+# comparativa semanal de la media en kg y el número de racimos
+grafs$rac_kg_sem
+```
+
+# Evolución en Canarias
+
+En este apartado se presentan los datos más relevantes de la evolución del cultivo del plátano en Canarias.
