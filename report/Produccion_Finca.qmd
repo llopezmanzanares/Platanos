@@ -18,6 +18,7 @@ knitr:
     message: false
 params:
   new_coop: false
+  new_istac: false
 ---
 
 ```{r}
@@ -36,16 +37,34 @@ theme_set(
 ```
 
 ```{r}
-#| label: data-load
+#| label: coop-data-load
 
 if (isTRUE(params$new_coop)){
   # cargo nuevos datos
+  source(file = here("code", "get_coop_data.R"))
+  # genero las gráficas
+  source(file = here("eda", "coop_graficas.R"))
 } else {
+  # solamente cargo el objeto con las gráficas
   load(here("data/processed", "finca_graficas.RData"))
 }
 
-# rango de los datos
+# rango de los datos de las gráficas de la cooperativa
 fechas_rng <- range(grafs$eur_kg$data$fecha)
+```
+
+```{r}
+#| label: istac-data-load
+
+if (isTRUE(params$new_istac)){
+  # cargo nuevos datos
+  source(file = here("code", "get_istac_data.R"))
+  # genero las gráficas
+} else {
+  # solamente cargo el objeto con las gráficas
+  load(here("data/processed", "istac_graficas.RData"))
+}
+
 ```
 
 # Introducción
@@ -116,3 +135,13 @@ grafs$rac_kg_sem
 # Evolución en Canarias
 
 En este apartado se presentan los datos más relevantes de la evolución del cultivo del plátano en Canarias.
+
+## Evolución de la producción
+
+```{r}
+#| label: istac-produccion
+
+istac_grafs$tn
+
+istac_grafs$exp_tot
+```
