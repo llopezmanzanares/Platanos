@@ -15,7 +15,7 @@ library(lubridate)
 # cargo datos_mes y obtengo datos_mes_kg
 source(file = here("eda/", "coop_graficas_datos.R"))
 
-grafs <- list()
+coop_grafs <- list()
 
 # función para modificar la posición de la leyenda y el eje y en las gráficas
 my_plot <- function(...){
@@ -29,8 +29,8 @@ my_plot <- function(...){
 
 # Relación euros vs Kg ----------------------------------------------------
 
-grafs$eur_kg <-
-datos_mes %>% 
+coop_grafs$eur_kg <-
+coop_ds$mes %>% 
   select(fecha, starts_with("total")) %>% 
   mutate(
     eur_kg = total_eur / total_kg,
@@ -49,8 +49,8 @@ datos_mes %>%
 # Kg por meses ------------------------------------------------------------
 
 # evolución del total de kg
-grafs$rac_kg_mm <-
-datos_mes %>% 
+coop_grafs$rac_kg_mm <-
+  coop_ds$mes %>% 
   select(fecha:total_kg) %>% 
   pivot_longer(
     cols = -fecha,
@@ -73,8 +73,8 @@ datos_mes %>%
 
 
 # los totales mensuales comparados
-grafs$kg_mm <-
-datos_mes_kg %>% 
+coop_grafs$kg_mm <-
+  coop_ds$mes_kg %>% 
   select(fecha:mm, total_kg) %>%
   my_plot(aes(x = mm, y = total_kg, fill = as_factor(aa))) +
   geom_col(position = "dodge") +
@@ -87,20 +87,20 @@ datos_mes_kg %>%
 
 
 # el acumulado de los totales
-grafs$kg_mm_acum <-
-datos_mes_kg %>% 
+coop_grafs$kg_mm_acum <-
+  coop_ds$mes_kg %>% 
   select(fecha:mm, total_kg_acum) %>% 
   my_plot(aes(x= mm, y = total_kg_acum, color = as_factor(aa))) +
   geom_point() +
   geom_line(aes(group = aa)) +
   # valores del último mes y comparativa con años anteriores
   geom_point(
-    data = datos_mes_kg %>% filter(month(fecha) == month(max(fecha))),
+    data = coop_ds$mes_kg %>% filter(month(fecha) == month(max(fecha))),
     aes(x = mm, y = total_kg_acum), color = "black", shape = 1,
     show.legend = FALSE
   ) +
   geom_text(
-    data = datos_mes_kg %>% filter(month(fecha) == month(max(fecha))),
+    data = coop_ds$mes_kg %>% filter(month(fecha) == month(max(fecha))),
     aes(
       label = format(total_kg_acum, big.mark=".", decimal.mar = ",") %>%
         str_c(.,"kg", sep=" ")
@@ -114,8 +114,8 @@ datos_mes_kg %>%
   )
 
 # los kg por categorías, comparados
-grafs$kg_cat <-
-datos_mes_kg %>% 
+coop_grafs$kg_cat <-
+  coop_ds$mes_kg %>% 
   select(!c(total_kg, ends_with("acum"))) %>% 
   pivot_longer(
     cols = !c(fecha, aa, mm),
@@ -141,8 +141,8 @@ datos_mes_kg %>%
 
 
 # acumulados de los kg por categorías
-grafs$kg_cat_acum <-
-datos_mes_kg %>% 
+coop_grafs$kg_cat_acum <-
+  coop_ds$mes_kg %>% 
   select(!c(ends_with("kg"), total_kg_acum)) %>% 
   pivot_longer(
     cols = !c(fecha, aa, mm),
@@ -168,19 +168,19 @@ datos_mes_kg %>%
   # scale_color_brewer(palette = "Paired")
 
 # relación entre racimos y kg
-datos_mes %>% 
-  select(fecha, kg_rac) %>% 
-  my_plot(aes(x = fecha, y = kg_rac)) +
-  geom_point() +
-  geom_smooth(se = FALSE, method = "loess") +
-  labs(
-    title = "Evolución del Kg por racimo",
-    x = NULL, y = NULL
-  )
+# coop_ds$mes %>% 
+#   select(fecha, kg_rac) %>% 
+#   my_plot(aes(x = fecha, y = kg_rac)) +
+#   geom_point() +
+#   geom_smooth(se = FALSE, method = "loess") +
+#   labs(
+#     title = "Evolución del Kg por racimo",
+#     x = NULL, y = NULL
+#   )
 
 # puedo hacer la relación entre racimos y kg en base semanal
-grafs$rac_kg_sem <-
-datos_sem %>% 
+coop_grafs$rac_kg_sem <-
+  coop_ds$sem %>% 
   select(fecha, semana, racimos, peso_med) %>% 
   filter(year(fecha) > 2020) %>% 
   pivot_longer(
@@ -209,4 +209,4 @@ datos_sem %>%
 
 # Guardo las gráficas -----------------------------------------------------
 
-save(grafs, file = here("data/processed", "finca_graficas.RData"))
+save(coop_grafs, file = here("data/processed", "finca_graficas.RData"))

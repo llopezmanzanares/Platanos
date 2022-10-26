@@ -50,7 +50,7 @@ if (isTRUE(params$new_coop)){
 }
 
 # rango de los datos de las gráficas de la cooperativa
-fechas_rng <- range(grafs$eur_kg$data$fecha)
+fechas_rng <- range(coop_grafs$eur_kg$data$fecha)
 ```
 
 ```{r}
@@ -87,15 +87,16 @@ Además, se ofrece información sobre el contexto de la producción en el archip
 #| label: kg-mes
 
 # comparativa de la producción mensual
-grafs$kg_mm
+coop_grafs$kg_mm
 
 # comparativa del acumulado anual
-grafs$kg_mm_acum
+coop_grafs$kg_mm_acum
 ```
 
 ```{r}
 #| label: tbl-kgmes
-grafs$kg_mm_acum$data %>% 
+
+coop_grafs$kg_mm_acum$data %>% 
   filter(lubridate::month(fecha) == lubridate::month(fechas_rng[2])) %>% 
   select(fecha, total_kg_acum) %>% 
   mutate(
@@ -118,10 +119,10 @@ Atendiendo a las diferentes categorías, el desglose es el siguiente:
 #| label: kg-mes-cat
 
 # kg por categorías
-grafs$kg_cat
+coop_grafs$kg_cat
 
 # el acumulado de lo anterior
-grafs$kg_cat_acum
+coop_grafs$kg_cat_acum
 ```
 
 ## Racimos
@@ -130,10 +131,10 @@ grafs$kg_cat_acum
 #| label: racimos
 
 # racimos mensuales
-grafs$rac_kg_mm
+coop_grafs$rac_kg_mm
 
 # comparativa semanal de la media en kg y el número de racimos
-grafs$rac_kg_sem
+coop_grafs$rac_kg_sem
 ```
 
 # Evolución en Canarias
