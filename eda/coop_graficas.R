@@ -102,7 +102,7 @@ coop_grafs$kg_mm_acum <-
   geom_text(
     data = coop_ds$mes_kg %>% filter(month(fecha) == month(max(fecha))),
     aes(
-      label = format(total_kg_acum, big.mark=".", decimal.mar = ",") %>%
+      label = format(total_kg_acum, big.mark=".", decimal.mark = ",") %>%
         str_c(.,"kg", sep=" ")
     ),
     nudge_x = .8, size = 3,
@@ -205,6 +205,70 @@ coop_grafs$rac_kg_sem <-
     subtitle = "Semanas de cada anualidad",
     caption  = "Marcada la semana 34",
     x = "Semanas", y = NULL, color = "Anualidades"
+  )
+
+
+# Importes ----------------------------------------------------------------
+
+coop_grafs$eur_mm_acum <- coop_ds$mes %>% 
+  select(fecha, total_eur) %>% 
+  group_by(anualidad = year(fecha)) %>% 
+  mutate(
+    eur_acum = cumsum(total_eur)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    mes = month(fecha, label = TRUE)
+  ) %>% 
+  my_plot(aes(x = mes, y = eur_acum, color = as_factor(anualidad))) +
+  geom_point(alpha = .5) +
+  geom_line(aes(group = anualidad)) +
+  # último valor del último año, comparado con los anteriores
+  geom_point(
+    data = . %>% filter(month(fecha) == month(max(fecha))),
+    aes(x = mes, y = eur_acum), color = "black", shape = 1,
+    show.legend = FALSE
+  ) +
+  geom_text(
+    data = . %>% filter(month(fecha) == month(max(fecha))),
+    aes(
+      label = format(eur_acum, big.mark=".", decimal.mark = ",") %>%
+        str_c(.,"eur", sep=" ")
+    ),
+    nudge_x = .9, size = 3,
+    show.legend = FALSE
+  ) +
+  labs(
+    title = "Acumulados mensuales de los importes (€)",
+    x = NULL, y = NULL, color = "Anualidades"
+  )
+
+# comparo los importes por categorías
+
+coop_grafs$eur_cat <- coop_ds$mes %>% 
+  select(fecha, ends_with("eur"), -total_eur) %>% 
+  pivot_longer(
+    cols = -fecha,
+    names_to = "cat",
+    values_to = "eur"
+  ) %>% 
+  mutate(
+    mes = month(fecha, label = TRUE),
+    anualidad = as_factor(year(fecha)),
+    cat = case_when(
+      str_detect(cat, "prem") ~ "Premium",
+      str_detect(cat, "psup") ~ "Psup",
+      TRUE                    ~ "Segunda"
+    )
+  ) %>% 
+  my_plot(aes(x = mes, y = eur, color = anualidad)) +
+  geom_point(alpha = .5) +
+  geom_line(aes(group = anualidad)) +
+  facet_wrap(~cat, ncol = 1) +
+  labs(
+    title = "Comparativa de la evolución de los importes por categoría",
+    subtitle = "Valores en €",
+    x = NULL, y = NULL, color = NULL
   )
 
 # Guardo las gráficas -----------------------------------------------------
