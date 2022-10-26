@@ -179,6 +179,13 @@ En este apartado se presentan los datos más relevantes de la evolución del cul
 ## Evolución de la producción
 
 ```{r}
+#| label: istac-prod-canarias
+
+istac_grafs$tn_canarias
+
+```
+
+```{r}
 #| label: istac-produccion
 
 istac_grafs$tn

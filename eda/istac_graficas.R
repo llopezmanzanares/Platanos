@@ -16,6 +16,17 @@ my_plot <- function(...){
 
 # Evolución de la producción ----------------------------------------------
 
+istac_grafs$tn_canarias <- istac_ds$toneladas %>% 
+  filter(territorio == "canarias") %>% 
+  my_plot(aes(x = anualidad, y = tn/1000)) +
+  geom_col(fill = "steelblue3") +
+  geom_smooth(aes(group = territorio), se = FALSE) +
+  labs(
+    title = "Producción total anual (miles Tn)",
+    caption = "Fuente: ISTAC, Gobierno de Canarias",
+    x = NULL, y = NULL
+  )
+
 istac_grafs$tn <- istac_ds$toneladas %>% 
   filter(territorio != "canarias") %>% 
   mutate(
