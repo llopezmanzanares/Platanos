@@ -1,6 +1,6 @@
 ---
 title: "Producción de plátanos"
-date: "Septiembre 2022"
+date: "Octubre 2022"
 execute: 
   echo: false
   warning: false
@@ -69,7 +69,11 @@ if (isTRUE(params$new_istac)){
 
 # Introducción
 
-Análisis de la evolución de la producción de plátanos para el periodo: `r fechas_rng[1]` hasta `r fechas_rng[2]`
+Análisis de la evolución de la producción de plátanos para el periodo:
+
+desde `r fechas_rng[1]`
+
+hasta `r fechas_rng[2]`
 
 Para la evolución mensual se han agregado los datos en función de la fecha correspondiente a la semana del corte, según aparece en el documento de liquidación.
 
