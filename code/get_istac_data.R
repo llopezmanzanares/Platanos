@@ -11,11 +11,11 @@ library(ISOweek)
 
 # Variables ---------------------------------------------------------------
 
-istac <- list()  # los datos descargados de ISTAC
+istac_ds <- list()  # los datos descargados de ISTAC
 
 # Precios -----------------------------------------------------------------
 
-istac$precios_sem <- read_xlsx(
+istac_ds$precios_sem <- read_xlsx(
   here("data/raw", "precios_medios_percibidos.xlsx"),
   skip = 10,
   col_names = c("periodo", "canarias", "gran.canaria", "tenerife", "la.palma")
@@ -39,7 +39,7 @@ istac$precios_sem <- read_xlsx(
 
 # Toneladas anuales -------------------------------------------------------
 
-istac$toneladas <- read_xls(
+istac_ds$toneladas <- read_xls(
   here("data/raw", "toneladas_anuales_islas.xls"),
   skip = 8,
   n_max = 11,
@@ -60,7 +60,7 @@ istac$toneladas <- read_xls(
 
 # Exportaciones mensuales -------------------------------------------------
 
-istac$exportaciones <- read_xlsx(
+istac_ds$exportaciones <- read_xlsx(
   here("data/raw", "exportaciones_mensuales.xlsx"),
   skip = 7,
   .name_repair = tolower
@@ -80,7 +80,7 @@ istac$exportaciones <- read_xlsx(
 
 # Superficie cultivada ----------------------------------------------------
 
-istac$superficie <- read_xls(
+istac_ds$superficie <- read_xls(
   path = here("data/raw/superficie_cultivada_islas.xls"),
   skip = 8
 ) %>% 
@@ -97,5 +97,5 @@ istac$superficie <- read_xls(
 
 # Guardo los datos --------------------------------------------------------
 
-save(istac,
+save(istac_ds,
      file = here("data/processed", "istac_platanos.RData"))

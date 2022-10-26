@@ -16,7 +16,7 @@ my_plot <- function(...){
 
 # Evolución de la producción ----------------------------------------------
 
-istac_grafs$tn <- istac$toneladas %>% 
+istac_grafs$tn <- istac_ds$toneladas %>% 
   filter(territorio != "canarias") %>% 
   mutate(
     territorio = str_replace(territorio, "\\.", " ") %>% 
@@ -30,7 +30,7 @@ istac_grafs$tn <- istac$toneladas %>%
     x = NULL, y = NULL, color = NULL
   )
 
-istac_grafs$exp_tot <- istac$exportaciones %>% 
+istac_grafs$exp_tot <- istac_ds$exportaciones %>% 
   filter(
     isla %in% c("Gran Canaria", "Tenerife", "La Palma"),
     anualidad >= 2018
@@ -50,7 +50,7 @@ istac_grafs$exp_tot <- istac$exportaciones %>%
 
 # Gráficas de precios -----------------------------------------------------
 
-istac_grafs$pre_sem <- istac$precios_sem %>% 
+istac_grafs$pre_sem <- istac_ds$precios_sem %>% 
   filter(territorio != "canarias") %>% 
   mutate(
     sem_txt = str_extract(periodo, pattern = "\\d{2}$") %>% as.numeric(),
@@ -67,7 +67,7 @@ istac_grafs$pre_sem <- istac$precios_sem %>%
   )
 
 # medias mensuales del precio, nivel Canarias
-istac_grafs$pre_mes_canarias <- istac$precios_sem %>% 
+istac_grafs$pre_mes_canarias <- istac_ds$precios_sem %>% 
   filter(territorio == "canarias") %>%
   select(semana, precio) %>% 
   mutate(
@@ -93,7 +93,7 @@ istac_grafs$pre_mes_canarias <- istac$precios_sem %>%
 
 # Gráficas de superficie --------------------------------------------------
 
-istac_grafs$sup <- istac$superficie %>% 
+istac_grafs$sup <- istac_ds$superficie %>% 
   filter(
     territorio %in% c("Gran Canaria", "Tenerife", "La Palma")
   ) %>% 
