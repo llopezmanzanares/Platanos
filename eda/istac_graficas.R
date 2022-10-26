@@ -46,9 +46,25 @@ istac_grafs$exp_tot <- istac$exportaciones %>%
     x = NULL, y = NULL, color = NULL
   )
 
+# toneladas producidas vs exportaciones
 
 # Gráficas de precios -----------------------------------------------------
 
+istac_grafs$pre_sem <- istac$precios_sem %>% 
+  filter(territorio != "canarias") %>% 
+  mutate(
+    sem_txt = str_extract(periodo, pattern = "\\d{2}$") %>% as.numeric(),
+    territorio = str_replace(territorio, "\\.", " ") %>% 
+      str_to_title()
+  ) %>% 
+  my_plot(aes(x = sem_txt, y = precio, color = as_factor(anualidad))) +
+  geom_point(alpha = .6) +
+  facet_wrap(~territorio, ncol = 1) +
+  labs(
+    title = "Evolución del precio percibido (€/kg)",
+    caption = "Fuente: ISTAC, Gobierno de Canarias",
+    x = "Semanas", y = NULL, color = NULL
+  )
 
 # Gráficas de superficie --------------------------------------------------
 
