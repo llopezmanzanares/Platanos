@@ -94,31 +94,11 @@ coop_grafs$kg_mm
 coop_grafs$kg_mm_acum
 ```
 
-```{r}
-#| label: tbl-kgmes
-
-coop_grafs$kg_mm_acum$data %>% 
-  filter(lubridate::month(fecha) == lubridate::month(fechas_rng[2])) %>% 
-  select(fecha, total_kg_acum) %>% 
-  mutate(
-    roc = ((total_kg_acum / lag(total_kg_acum)) - 1) * 100,
-    roc = if_else(is.na(roc), 0, roc) %>% 
-      round(., 2)
-  ) %>% 
-  kbl(
-    col.names = c("Mensualidad", "Peso (kg)", "RoC (%)"),
-    format.args = list(big.mark = ".", decimal.mark =",")
-  ) %>% 
-  kable_styling(bootstrap_options = "striped", full_width = FALSE)
-
-
-```
-
 Atendiendo a las diferentes categorías, el desglose es el siguiente:
 
 ```{r}
 #| label: kg-mes-cat
-#| fig-height: 9
+#| fig-height: 8
 
 # kg por categorías
 coop_grafs$kg_cat
@@ -153,6 +133,42 @@ coop_grafs$eur_mm_acum
 #| fig-height: 9
 
 coop_grafs$eur_cat
+
+```
+
+## Rendimiento
+
+```{r}
+#| label: tbl-kgmes
+
+# tabla con las comparativas de producción e importe acumulados en el último mes
+
+left_join(
+  coop_grafs$kg_mm_acum$data %>% 
+    filter(lubridate::month(fecha) == lubridate::month(fechas_rng[2])) %>% 
+    select(fecha, total_kg_acum),
+  coop_grafs$eur_mm_acum$data %>% 
+    filter(lubridate::month(fecha) == lubridate::month(fechas_rng[2])) %>% 
+    select(fecha, eur_acum),
+  by = "fecha"
+) %>% 
+  mutate(
+    roc_kg = ((total_kg_acum / lag(total_kg_acum)) - 1) * 100,
+    roc_kg = if_else(is.na(roc_kg), 0, roc_kg) %>% 
+      round(., 2),
+    roc_eur = ((eur_acum / lag(eur_acum)) - 1) * 100,
+    roc_eur = if_else(is.na(roc_eur), 0, roc_eur) %>% 
+      round(., 2),
+    mes = str_c(year(fecha), month(fecha, label = TRUE), sep = " ")
+  ) %>% 
+  select(mes, total_kg_acum, roc_kg, eur_acum, roc_eur) %>% 
+  kbl(
+    caption = NULL,
+    col.names = c("Mensualidad", "Peso (kg)", "RoC (%)", "Importe (€)", "RoC (%)"),
+    format.args = list(big.mark = ".", decimal.mark =",")
+  ) %>% 
+  kable_styling(bootstrap_options = "striped", full_width = TRUE)
+
 
 ```
 
