@@ -26,6 +26,7 @@ params:
 #| include: false
 
 library(tidyverse)
+library(lubridate)
 library(here)
 library(kableExtra)
 
@@ -117,6 +118,7 @@ Atendiendo a las diferentes categorías, el desglose es el siguiente:
 
 ```{r}
 #| label: kg-mes-cat
+#| fig-height: 9
 
 # kg por categorías
 coop_grafs$kg_cat
@@ -135,6 +137,23 @@ coop_grafs$rac_kg_mm
 
 # comparativa semanal de la media en kg y el número de racimos
 coop_grafs$rac_kg_sem
+```
+
+## Importes
+
+```{r}
+#| label: coop-importes-acum
+
+coop_grafs$eur_mm_acum
+
+```
+
+```{r}
+#| label: coop-imps-cat
+#| fig-height: 9
+
+coop_grafs$eur_cat
+
 ```
 
 # Evolución en Canarias
