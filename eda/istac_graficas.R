@@ -66,6 +66,31 @@ istac_grafs$pre_sem <- istac$precios_sem %>%
     x = "Semanas", y = NULL, color = NULL
   )
 
+# medias mensuales del precio, nivel Canarias
+istac_grafs$pre_mes_canarias <- istac$precios_sem %>% 
+  filter(territorio == "canarias") %>%
+  select(semana, precio) %>% 
+  mutate(
+    mes = lubridate::rollforward(semana)
+  ) %>% 
+  group_by(mes) %>% 
+  summarise(
+    precio = round(mean(precio), 2),
+    anualidad = lubridate::year(mes),
+    mes = lubridate::month(mes, label = TRUE),
+    .groups = "drop"
+  ) %>% 
+  my_plot(aes(x = mes, y = precio, color = as_factor(anualidad))) +
+  geom_point(alpha = .5) +
+  geom_smooth(aes(group = anualidad), se = FALSE) +
+  facet_wrap(~anualidad, ncol = 1) +
+  labs(
+    title = "Evolución mensual de la media del precio percibido (€/Kg)",
+    subtitle = "Conjunto de Canarias (Tenerife, La Palma y Gran Canaria)",
+    caption = "Fuente: ISTAC, Gobierno de Canarias",
+    x = NULL, y =NULL, color = NULL
+  )
+
 # Gráficas de superficie --------------------------------------------------
 
 istac_grafs$sup <- istac$superficie %>% 
