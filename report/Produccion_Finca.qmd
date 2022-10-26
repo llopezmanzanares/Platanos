@@ -145,3 +145,30 @@ istac_grafs$tn
 
 istac_grafs$exp_tot
 ```
+
+## Precios percibidos por el agricultor
+
+```{r}
+#| label: istac-precios-sem
+#| fig-height: 9
+
+istac_grafs$pre_sem
+
+```
+
+```{r}
+#| label: istac-precios-mes
+#| fig-height: 9
+
+istac_grafs$pre_mes_canarias
+
+```
+
+## Evolución de la superficie cultivada
+
+```{r}
+#| label: istac-superficies
+
+istac_grafs$sup
+
+```
