@@ -7,6 +7,8 @@ library(here)
 
 # Constantes --------------------------------------------------------------
 
+coop_ds <- list()
+
 dir <- list(
   raw = "data/raw",
   pro = "data/processed"
@@ -126,13 +128,13 @@ segunda <- filter(ds, medida == "segunda") %>%
   )
 
 
-datos_sem <- bind_cols(fechas, semanas, racimos, totales, total_factura, peso_med, prec_med, premium, psup, segunda)
+coop_ds$sem <- bind_cols(fechas, semanas, racimos, totales, total_factura, peso_med, prec_med, premium, psup, segunda)
 
 rm(ds, fechas, semanas, racimos, totales, total_factura, peso_med, prec_med, premium, psup, segunda)
 
 
 # Guardo el conjunto de datos ---------------------------------------------
 
-save(datos_sem, file = here(dir$pro, "datos_finca.RData"))
+save(coop_ds, file = here(dir$pro, "datos_finca.RData"))
 
-write_csv2(datos_sem, file = here(dir$pro, "datos_finca.csv"))
+# write_csv2(coop_ds$sem, file = here(dir$pro, "datos_finca.csv"))

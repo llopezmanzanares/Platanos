@@ -8,8 +8,8 @@ load(file = here("data/processed", "datos_finca.RData"))
 
 # Es más útil trabajar con los datos mensuales
 # solo tengo un dato de 2020, así que lo elimino
-datos_mes <- 
-  filter(datos_sem, year(fecha) > 2020) %>% 
+coop_ds$mes <- 
+  filter(coop_ds$sem, year(fecha) > 2020) %>% 
   select(
     !c(semana,             # el dato de la semana no aporta información
        total_fac,          # el total facturado es muy similar al importe, lo quito
@@ -33,7 +33,7 @@ datos_mes <-
 
 # Kg por meses ------------------------------------------------------------
 
-datos_mes_kg <- datos_mes %>% 
+coop_ds$mes_kg <- coop_ds$mes %>% 
   mutate(
     aa = year(fecha),
     mm = month(fecha, label = TRUE),
@@ -45,3 +45,7 @@ datos_mes_kg <- datos_mes %>%
     across(ends_with("_kg"), cumsum, .names = "{.col}_acum")
   ) %>% 
   ungroup()
+
+# Guardo los datos --------------------------------------------------------
+
+save(coop_ds, file = here("data/processed", "datos_finca.RData"))
