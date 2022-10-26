@@ -25,7 +25,7 @@ istac_grafs$tn <- istac_ds$toneladas %>%
   my_plot(aes(x = anualidad, y = tn/1000, color = territorio)) +
   geom_line(aes(group = territorio)) +
   labs(
-    title = "Toneladas producidas, por isla",
+    title = "Producción de plátanos (mil Tn)",
     caption = "Fuente: ISTAC, Gobierno de Canarias",
     x = NULL, y = NULL, color = NULL
   )
