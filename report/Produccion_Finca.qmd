@@ -229,7 +229,32 @@ istac_grafs$prodvsexps
 
 ```
 
-Las exportaciones incluyen tanto a península como al extranjero. Por tanto, suponiendo que lo que no se exporta se destina al mercad interno, la evolución de este indicador es la siguiente
+Las exportaciones incluyen tanto a península como al extranjero, por lo que podemos ver en qué mercado se ha producido la disminución.
+
+```{r}
+#| label: istac-exports
+
+istac_ds$exportaciones %>% 
+  select(mes, Nacional = peninsula, Internacional = extranjero) %>% 
+  pivot_longer(
+    cols = -mes,
+    names_to = "destino",
+    values_to = "Tn"
+  ) %>% 
+  mutate(
+    aa = lubridate::year(mes),
+    mm = lubridate::month(mes, label = TRUE)
+  ) %>% 
+  filter(aa > 2018) %>% 
+  my_plot(aes(x = aa, y = Tn, fill = as_factor(aa))) +
+  geom_col(position = "dodge") +
+  # geom_point(alpha = .4) +
+  # geom_smooth(aes(group = aa), se = FALSE) + 
+  facet_wrap(~destino, ncol = 1, scales = "free_y")
+
+```
+
+Por tanto, suponiendo que lo que no se exporta se destina al mercado interno, la evolución de este indicador es la siguiente
 
 ```{r}
 #| label: istac-consinterno
