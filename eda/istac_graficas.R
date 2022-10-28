@@ -59,6 +59,7 @@ istac_grafs$exp_tot <- istac_ds$exportaciones %>%
 
 # toneladas producidas vs exportaciones
 
+
 # Gráficas de precios -----------------------------------------------------
 
 istac_grafs$pre_sem <- istac_ds$precios_sem %>% 

@@ -78,6 +78,32 @@ istac_ds$exportaciones <- read_xlsx(
     .after = 2
   )
 
+# Consumo interno ---------------------------------------------------------
+
+istac_ds$prodvsexps <- 
+  left_join(
+    istac_ds$toneladas %>% 
+      filter(territorio == "canarias") %>% 
+      select(-territorio) %>% 
+      mutate(anualidad = as.numeric(anualidad)) %>% 
+      rename(produccion = tn),
+    istac_ds$exportaciones %>% 
+      filter(
+        isla == "Canarias",
+        anualidad > 2011
+      ) %>% 
+      group_by(anualidad) %>% 
+      summarise(
+        exports = sum(total),
+        .groups = "drop"
+      ),
+    by = "anualidad"
+  ) %>% 
+  mutate(
+    interno = produccion - exports,
+    int_prc = round(interno / produccion * 100, 2)
+  )
+
 # Superficie cultivada ----------------------------------------------------
 
 istac_ds$superficie <- read_xls(
