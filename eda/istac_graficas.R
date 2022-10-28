@@ -58,7 +58,35 @@ istac_grafs$exp_tot <- istac_ds$exportaciones %>%
   )
 
 # toneladas producidas vs exportaciones
+istac_grafs$prodvsexps <- istac_ds$prodvsexps %>% 
+  select(anualidad:exports) %>% 
+  pivot_longer(
+    cols = -anualidad,
+    names_to = "medida",
+    values_to = "tn"
+  ) %>% 
+  my_plot(aes(x = as_factor(anualidad), y = tn, color = medida)) +
+  geom_point(alpha = .4) +
+  # geom_line(aes(group = medida)) +
+  geom_smooth(aes(group = medida), se = FALSE) +
+  labs(
+    title = "Comparativa de la producción y exportación anual",
+    subtitle = "Toneladas anuales",
+    caption = "Fuente: ISTAC, Gobierno de Canarias",
+    x = NULL, y = NULL, color = NULL
+  )
 
+# producción dedicada a consumo interno
+istac_grafs$cons_propio <- istac_ds$prodvsexps %>% 
+  my_plot(aes(x = anualidad, y = interno)) +
+  geom_point(alpha = .4) +
+  geom_smooth(se = FALSE) +
+  labs(
+    title = "Evolución anual del consumo interno de la producción",
+    subtitle = "Toneladas",
+    caption = "Fuente: ISTAC, Gobierno de Canarias",
+    x = NULL, y = NULL
+  )
 
 # Gráficas de precios -----------------------------------------------------
 
