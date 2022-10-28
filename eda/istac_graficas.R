@@ -65,9 +65,14 @@ istac_grafs$prodvsexps <- istac_ds$prodvsexps %>%
     names_to = "medida",
     values_to = "tn"
   ) %>% 
+  mutate(
+    medida = case_when(
+      medida == "produccion" ~ "Producción",
+      TRUE                   ~ "Exportación"
+    )
+  ) %>% 
   my_plot(aes(x = as_factor(anualidad), y = tn, color = medida)) +
   geom_point(alpha = .4) +
-  # geom_line(aes(group = medida)) +
   geom_smooth(aes(group = medida), se = FALSE) +
   labs(
     title = "Comparativa de la producción y exportación anual",

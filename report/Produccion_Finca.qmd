@@ -219,3 +219,21 @@ istac_grafs$pre_mes_canarias
 istac_grafs$sup
 
 ```
+
+## Relación entre producción y exportación
+
+```{r}
+#| label: istac-prod-vs-exp
+
+istac_grafs$prodvsexps
+
+```
+
+Las exportaciones incluyen tanto a península como al extranjero. Por tanto, suponiendo que lo que no se exporta se destina al mercad interno, la evolución de este indicador es la siguiente
+
+```{r}
+#| label: istac-consinterno
+
+istac_grafs$cons_propio
+
+```
