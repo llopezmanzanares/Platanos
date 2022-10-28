@@ -63,6 +63,7 @@ if (isTRUE(params$new_istac)){
   # genero las gráficas
 } else {
   # solamente cargo el objeto con las gráficas
+  load(here("data/processed", "istac_platanos.RData"))
   load(here("data/processed", "istac_graficas.RData"))
 }
 
@@ -139,7 +140,7 @@ coop_grafs$eur_cat
 ## Rendimiento
 
 ```{r}
-#| label: tbl-kgmes
+#| label: tabla-kgmes
 
 # tabla con las comparativas de producción e importe acumulados en el último mes
 
@@ -163,7 +164,6 @@ left_join(
   ) %>% 
   select(mes, total_kg_acum, roc_kg, eur_acum, roc_eur) %>% 
   kbl(
-    caption = NULL,
     col.names = c("Mensualidad", "Peso (kg)", "RoC (%)", "Importe (€)", "RoC (%)"),
     format.args = list(big.mark = ".", decimal.mark =",")
   ) %>% 
@@ -215,6 +215,7 @@ istac_grafs$pre_mes_canarias
 
 ```{r}
 #| label: istac-superficies
+#| fig-height: 8
 
 istac_grafs$sup
 
@@ -232,25 +233,42 @@ istac_grafs$prodvsexps
 Las exportaciones incluyen tanto a península como al extranjero, por lo que podemos ver en qué mercado se ha producido la disminución.
 
 ```{r}
-#| label: istac-exports
+#| label: tabla-istac-exports
 
 istac_ds$exportaciones %>% 
-  select(mes, Nacional = peninsula, Internacional = extranjero) %>% 
-  pivot_longer(
-    cols = -mes,
-    names_to = "destino",
-    values_to = "Tn"
-  ) %>% 
+  select(mes, peninsula, extranjero) %>% 
   mutate(
     aa = lubridate::year(mes),
-    mm = lubridate::month(mes, label = TRUE)
+  ) %>%
+  group_by(aa) %>% 
+  summarise(
+    across(c("peninsula", "extranjero"), sum),
+    .groups = "drop"
+  ) %>%
+  filter(
+    !is.na(peninsula),
+    aa < max(aa)
+    ) %>%
+  mutate(
+    across(
+      peninsula:extranjero,
+      ~ round((.x / lag(.x, default = .x[1]) - 1) * 100, 2), .names = "roc_{.col}")
   ) %>% 
-  filter(aa > 2018) %>% 
-  my_plot(aes(x = aa, y = Tn, fill = as_factor(aa))) +
-  geom_col(position = "dodge") +
-  # geom_point(alpha = .4) +
-  # geom_smooth(aes(group = aa), se = FALSE) + 
-  facet_wrap(~destino, ncol = 1, scales = "free_y")
+  select(aa, ends_with(c("sula", "jero"))) %>% 
+  kbl(
+    col.names = c(" ", "Nacional (Tn)", "RoC (%)", "Internacional (Tn)", "RoC (%)"),
+    format.args = list(big.mark = ".", decimal.mark = ",")
+  ) %>% 
+  kable_styling(
+    bootstrap_options = "striped", 
+    full_width = TRUE
+  )
+  
+  # my_plot(aes(x = aa, y = Tn, fill = as_factor(aa))) +
+  # geom_col(position = "dodge") +
+  # # geom_point(alpha = .4) +
+  # # geom_smooth(aes(group = aa), se = FALSE) + 
+  # facet_wrap(~destino, ncol = 1, scales = "free_y")
 
 ```
 
