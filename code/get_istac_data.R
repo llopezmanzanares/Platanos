@@ -83,6 +83,8 @@ istac_ds$exportaciones <- read_xlsx(
 
 # Consumo interno ---------------------------------------------------------
 
+# TODO ver qué ha pasado con estos datos, que la gráfica se ha dado la vuelta
+
 istac_ds$prodvsexps <- 
   left_join(
     istac_ds$toneladas %>% 
