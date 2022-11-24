@@ -10,6 +10,7 @@ format:
     toc: true
     toc-depth: 2
     number-sections: true
+    embed-resources: true
 editor: visual
 knitr: 
   opts_chunk:
