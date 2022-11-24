@@ -62,9 +62,12 @@ istac_ds$toneladas <- read_xls(
 
 istac_ds$exportaciones <- read_xlsx(
   here("data/raw", "exportaciones_mensuales.xlsx"),
-  skip = 7,
-  .name_repair = tolower
+  skip = 10,
+  col_names = c("isla", "periodo", "total", "españa (excluida canarias)", "extranjero")
+  # .name_repair = tolower
 ) %>% 
+  drop_na(total) %>% 
+  fill(isla) %>% 
   mutate(
     mes = str_c("01/", periodo, sep = "") %>% 
       dmy(quiet = T) %>% 
