@@ -15,6 +15,10 @@
 *_cache/
 /cache/
 
+# quarto outputs
+/.quarto/
+/_site/
+
 # Temporary files created by R markdown
 *.utf8.md
 *.knit.md

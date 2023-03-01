@@ -1,6 +1,6 @@
 ---
 title: "Producción de plátanos"
-date: "Octubre 2022"
+date: "Noviembre 2022"
 execute: 
   echo: false
   warning: false
@@ -10,6 +10,7 @@ format:
     toc: true
     toc-depth: 2
     number-sections: true
+    embed-resources: true
 editor: visual
 knitr: 
   opts_chunk:
@@ -61,6 +62,7 @@ if (isTRUE(params$new_istac)){
   # cargo nuevos datos
   source(file = here("code", "get_istac_data.R"))
   # genero las gráficas
+  source(file = here("eda", "istac_graficas.R"))
 } else {
   # solamente cargo el objeto con las gráficas
   load(here("data/processed", "istac_platanos.RData"))
