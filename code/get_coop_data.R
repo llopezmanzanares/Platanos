@@ -138,6 +138,7 @@ coop_ds$sem <- bind_cols(fechas, semanas, racimos, totales, total_factura, peso_
 
 rm(ds, fechas, semanas, racimos, totales, total_factura, peso_med, prec_med, premium, psup, segunda)
 
+# agregados mensuales y anuales
 
 # Guardo el conjunto de datos ---------------------------------------------
 
