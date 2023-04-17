@@ -1,6 +1,6 @@
 ---
 title: "Producción de plátanos"
-date: "Abril 2023"
+date: "2023-04-17"
 execute: 
   echo: false
   warning: false
@@ -19,7 +19,7 @@ format:
     grid:
       sidebar-width: 50px
       body-width: 1050px
-      margin-width: 200
+      margin-width: 200px
 knitr: 
   opts_chunk:
     echo: false
