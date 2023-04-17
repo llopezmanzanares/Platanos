@@ -9,8 +9,9 @@ library(here)
 
 coop_ds <- list()
 
-dir <- list(
+dirs <- list(
   raw = "data/raw",
+  cop = "data/raw/coop",
   pro = "data/processed"
 )
 
@@ -34,13 +35,13 @@ xtr_num <- function(txt, patron){
 # Leo y transformo --------------------------------------------------------
 
 data_files <- list.files(
-  path = here(dir$raw, "coop"),
+  path = here(dirs$cop),
   pattern = "^L"
   )
 
 ds <- 
   map(
-    here(dir$raw, "coop", data_files),
+    here(dirs$cop, data_files),
     pdf_text
   ) %>% 
   str_split(pattern = "\\n") %>% 
@@ -135,6 +136,6 @@ rm(ds, fechas, semanas, racimos, totales, total_factura, peso_med, prec_med, pre
 
 # Guardo el conjunto de datos ---------------------------------------------
 
-save(coop_ds, file = here(dir$pro, "datos_finca.RData"))
+save(coop_ds, file = here(dirs$pro, "datos_finca.RData"))
 
-# write_csv2(coop_ds$sem, file = here(dir$pro, "datos_finca.csv"))
+# write_csv2(coop_ds$sem, file = here(dirs$pro, "datos_finca.csv"))
