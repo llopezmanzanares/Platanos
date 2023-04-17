@@ -1,4 +1,9 @@
-# datos de producción proporcionados por la cooperativa
+# Datos de producción proporcionados por la cooperativa
+# Extraigo la información de todos los pdf cada vez
+
+# Versión: 2023-04-17
+
+# Packages ------
 
 library(tidyverse)
 library(lubridate)
