@@ -72,7 +72,7 @@ ds <-
 # voy extrayendo los subconjuntos de datos
 fechas <- filter(ds, medida == "fecha") %>% 
   mutate(
-    fecha = str_extract(value, pattern = "(\\d{2}\\.?){3}") %>% 
+    fecha = str_extract(value, pattern = "(\\d{2,4}\\.?){3}") %>% 
       str_replace(pattern = "\\.", replacement = "-") %>% 
       dmy(),
     .keep = "none"
