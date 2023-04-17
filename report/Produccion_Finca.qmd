@@ -16,6 +16,10 @@ format:
     toc-depth: 2
     number-sections: true
     embed-resources: true
+    grid:
+      sidebar-width: 50px
+      body-width: 1050px
+      margin-width: 200
 knitr: 
   opts_chunk:
     echo: false
@@ -23,7 +27,7 @@ knitr:
     message: false
 params:
   new_coop: false
-  new_istac: false
+  new_istac: true
 ---
 
 ```{r}
@@ -56,7 +60,7 @@ if (isTRUE(params$new_coop)){
 }
 
 # rango de los datos de las gráficas de la cooperativa
-fechas_rng <- range(coop_ds$sem$fecha)
+fechas_rng <- range(coop_grafs$eur_kg$data$fecha)
 ```
 
 ```{r}
@@ -160,14 +164,14 @@ El rendimiento del mes en curso se muestra en la @tbl-kgmes, en la que se muestr
 #| label: tbl-kgmes
 #| tbl-cap: "Comparativa de los datos para el mes en curso"
 
-coop_ds$mes %>% 
-  select(fecha:total_eur) %>% 
+coop_grafs$eur_kg$data %>% 
+  # select(fecha:total_eur) %>% 
   mutate(
-    eur_kg = round(total_eur / total_kg, 2)
+    eur_kg = round(eur_kg, 2)
     ) %>%
-  filter(month(fecha) == month(fechas_rng[2])) %>% 
+  filter(month(fecha) == month(last(fecha))) %>% 
   kbl(
-    col.names   = c("Mensualidad", "Racimos", "Peso (kg)", "Importe (€)", "€ / Kg"),
+    col.names   = c("Mensualidad", "Peso (kg)", "Importe (€)", "€ / Kg"),
     format.args = list(big.mark = ".", decimal.mark = ",")
   ) %>% 
   kable_styling(bootstrap_options = "striped", full_width = TRUE)
