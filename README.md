@@ -1,4 +1,4 @@
-# Platanos_2
+# Platanos
 Análisis de los datos de cultivo de plátanos en Canarias
 
 ## Fuentes de datos
