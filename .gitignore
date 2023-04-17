@@ -34,5 +34,4 @@
 *.html
 
 # all excel files
-*.xls
-*.xlsx
+*.xls*
