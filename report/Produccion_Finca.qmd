@@ -1,6 +1,6 @@
 ---
 title: "Producción de plátanos"
-date: "Noviembre 2022"
+date: "Abril 2023"
 execute: 
   echo: false
   warning: false
@@ -18,7 +18,7 @@ knitr:
     warning: false
     message: false
 params:
-  new_coop: false
+  new_coop: true
   new_istac: false
 ---
 
