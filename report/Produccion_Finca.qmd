@@ -92,7 +92,12 @@ Además, se ofrece información sobre el contexto de la producción en el archip
 ## Producción mensual en kg
 
 ```{r}
-#| label: kg-mes
+#| label: fig-kg-mes
+#| fig-cap: "Análisis de la producción mensual"
+#| fig-subcap: 
+#|   - "Comparativa de la producción"
+#|   - "Acumulado de la producción"
+#| layout-ncol: 2
 
 # comparativa de la producción mensual
 coop_grafs$kg_mm
@@ -104,8 +109,12 @@ coop_grafs$kg_mm_acum
 Atendiendo a las diferentes categorías, el desglose es el siguiente:
 
 ```{r}
-#| label: kg-mes-cat
-#| fig-height: 8
+#| label: fig-kg-mes-cat
+#| fig-cap: "Desglose de la producción (Kg) por categorías"
+#| fig-subcap: 
+#|   - "Comparativa mensual"
+#|   - "Detalle de los acumulados mensuales"
+#| layout-ncol: 1
 
 # kg por categorías
 coop_grafs$kg_cat
