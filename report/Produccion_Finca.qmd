@@ -22,7 +22,7 @@ knitr:
     warning: false
     message: false
 params:
-  new_coop: true
+  new_coop: false
   new_istac: false
 ---
 
