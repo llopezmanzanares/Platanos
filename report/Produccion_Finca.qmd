@@ -4,6 +4,11 @@ date: "Abril 2023"
 execute: 
   echo: false
   warning: false
+crossref: 
+  fig-title: "Figura"
+  fig-prefix: "Figura"
+  tbl-title: "Tabla"
+  tbl-prefix: "Tabla"
 format: 
   html:
     theme: yeti
@@ -11,7 +16,6 @@ format:
     toc-depth: 2
     number-sections: true
     embed-resources: true
-editor: visual
 knitr: 
   opts_chunk:
     echo: false
@@ -52,7 +56,7 @@ if (isTRUE(params$new_coop)){
 }
 
 # rango de los datos de las gráficas de la cooperativa
-fechas_rng <- range(coop_grafs$eur_kg$data$fecha)
+fechas_rng <- range(coop_ds$sem$fecha)
 ```
 
 ```{r}
@@ -141,33 +145,21 @@ coop_grafs$eur_cat
 
 ## Rendimiento
 
+El rendimiento del mes en curso se muestra en la @tbl-kgmes, en la que se muestran los principales valores para el periodo de tiempo del que se dispone de datos.
+
 ```{r}
-#| label: tabla-kgmes
+#| label: tbl-kgmes
+#| tbl-cap: "Comparativa de los datos para el mes en curso"
 
-# tabla con las comparativas de producción e importe acumulados en el último mes
-
-left_join(
-  coop_grafs$kg_mm_acum$data %>% 
-    filter(lubridate::month(fecha) == lubridate::month(fechas_rng[2])) %>% 
-    select(fecha, total_kg_acum),
-  coop_grafs$eur_mm_acum$data %>% 
-    filter(lubridate::month(fecha) == lubridate::month(fechas_rng[2])) %>% 
-    select(fecha, eur_acum),
-  by = "fecha"
-) %>% 
+coop_ds$mes %>% 
+  select(fecha:total_eur) %>% 
   mutate(
-    roc_kg = ((total_kg_acum / lag(total_kg_acum)) - 1) * 100,
-    roc_kg = if_else(is.na(roc_kg), 0, roc_kg) %>% 
-      round(., 2),
-    roc_eur = ((eur_acum / lag(eur_acum)) - 1) * 100,
-    roc_eur = if_else(is.na(roc_eur), 0, roc_eur) %>% 
-      round(., 2),
-    mes = str_c(year(fecha), month(fecha, label = TRUE), sep = " ")
-  ) %>% 
-  select(mes, total_kg_acum, roc_kg, eur_acum, roc_eur) %>% 
+    eur_kg = round(total_eur / total_kg, 2)
+    ) %>%
+  filter(month(fecha) == month(fechas_rng[2])) %>% 
   kbl(
-    col.names = c("Mensualidad", "Peso (kg)", "RoC (%)", "Importe (€)", "RoC (%)"),
-    format.args = list(big.mark = ".", decimal.mark =",")
+    col.names   = c("Mensualidad", "Racimos", "Peso (kg)", "Importe (€)", "€ / Kg"),
+    format.args = list(big.mark = ".", decimal.mark = ",")
   ) %>% 
   kable_styling(bootstrap_options = "striped", full_width = TRUE)
 
