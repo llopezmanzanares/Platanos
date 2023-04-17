@@ -35,3 +35,4 @@
 
 # all excel files
 *.xls*
+$*.xls*
