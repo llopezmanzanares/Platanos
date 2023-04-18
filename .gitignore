@@ -1,12 +1,8 @@
-# History files
+# History files, Session Data files and User-specific files
 .Rhistory
 .Rapp.history
-
-# Session Data files
-#.RData
-
-# User-specific files
-#.Ruserdata
+.RData
+.Ruserdata
 
 # RStudio files
 .Rproj.user/
