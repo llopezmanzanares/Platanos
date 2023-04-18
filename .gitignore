@@ -31,4 +31,4 @@
 
 # all excel files
 *.xls*
-$*.xls*
+~$*.xls*
