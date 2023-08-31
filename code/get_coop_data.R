@@ -194,3 +194,8 @@ coop_ds$mes_kg <- coop_ds$mes %>%
 save(coop_ds, file = here(dirs$pro, "datos_finca_test.RData"))
 
 # write_csv2(coop_ds$sem, file = here(dirs$pro, "datos_finca.csv"))
+
+
+# Limpio la casa ----------------------------------------------------------
+
+rm(xtr_num, xtr_sem_data, read_pdfs, patrones, data_files)
