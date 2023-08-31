@@ -26,4 +26,57 @@ knitr:
     message: false
 ---
 
-## 
+```{r}
+#| label: set-up
+#| include: false
+
+library(tidyverse)
+library(lubridate)
+library(here)
+library(gt)
+library(gtExtras)
+
+# theme_set(
+#   theme_light()
+# )
+
+```
+
+```{r}
+#| label: data-load
+
+load(here("data/processed/datos_finca.RData"))
+load(here("data/processed/graficas_finca.RData"))
+
+```
+
+```{r}
+#| label: totals
+
+coop_ds$mes %>% 
+  select(racimos:total_eur) %>% 
+  rename(
+    Racimos  = racimos,
+    Peso     = total_kg,
+    Ingresos = total_eur
+  ) %>% 
+  gt_plt_summary(title = NULL) %>% 
+  tab_header(
+    title = "Valores principales",
+    subtitle = "Desde 2021"
+  ) %>% 
+  cols_hide(columns = c(n_missing)) %>%
+  fmt_integer(columns = c(Mean:SD), sep_mark = ".") %>% 
+  cols_label(
+    name = "COLUMN", value = NULL,
+    name = "Column", value="Histograma",
+    Mean = "Media",
+    Median = "Mediana",
+    SD = "Desv."
+  )
+
+
+
+  
+
+```
