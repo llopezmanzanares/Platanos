@@ -24,4 +24,10 @@ dirs <- list(
 
 # Functions ---------------------------------------------------------------
 
+
+# Acciones ----------------------------------------------------------------
+
+# Genero el conjunto de datos con las lecturas semanales.
+# Se crea el archivo de datos procesados "datos_finca.RData"
+
 source(here(dirs$cod, "get_coop_data.R"))
