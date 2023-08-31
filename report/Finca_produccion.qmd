@@ -1,0 +1,29 @@
+---
+title: "Producción de la finca"
+execute: 
+  echo: false
+  warning: false
+crossref: 
+  fig-title: "Figura"
+  fig-prefix: "Figura"
+  tbl-title: "Tabla"
+  tbl-prefix: "Tabla"
+format: 
+  html:
+    theme: yeti
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    embed-resources: true
+    grid:
+      sidebar-width: 50px
+      body-width: 1050px
+      margin-width: 200px
+knitr: 
+  opts_chunk:
+    echo: false
+    warning: false
+    message: false
+---
+
+## 
