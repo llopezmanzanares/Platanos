@@ -37,6 +37,34 @@ xtr_num <- function(txt, patron){
   return(numero)
 }
 
+read_pdfs <- function(datafiles) {
+  ds_coop <- 
+    map(
+      here(dirs$cop, datafiles),
+      pdf_text
+    ) %>% 
+    str_split(pattern = "\\n") %>% 
+    unlist() %>% 
+    as_tibble() %>% 
+    filter(str_detect(value, pattern = "Fecha|Semana|PREMIUM|P\\. SUPER|SEGUNDA|Total|racimos|medio")) %>% 
+    mutate(
+      value  = str_to_lower(value),
+      medida = case_when(
+        str_detect(value, "fecha")         ~ "fecha",
+        str_detect(value, "semana")        ~ "semana",
+        str_detect(value, "premium")       ~ "premium",
+        str_detect(value, "p\\. super")    ~ "psup",
+        str_detect(value, "segunda")       ~ "segunda",
+        str_detect(value, "total \\.")     ~ "totales",
+        str_detect(value, "total racimos") ~ "racimos",
+        str_detect(value, "peso medio")    ~ "peso",
+        str_detect(value, "precio medio")  ~ "precio",
+        str_detect(value, "total eu")      ~ "total_euros"
+      )
+    ) 
+  return(ds_coop)
+}
+
 # Leo y transformo --------------------------------------------------------
 
 data_files <- list.files(
@@ -44,30 +72,8 @@ data_files <- list.files(
   pattern = "^L"
   )
 
-ds <- 
-  map(
-    here(dirs$cop, data_files),
-    pdf_text
-  ) %>% 
-  str_split(pattern = "\\n") %>% 
-  unlist() %>% 
-  as_tibble() %>% 
-  filter(str_detect(value, pattern = "Fecha|Semana|PREMIUM|P\\. SUPER|SEGUNDA|Total|racimos|medio")) %>% 
-  mutate(
-    value  = str_to_lower(value),
-    medida = case_when(
-      str_detect(value, "fecha")         ~ "fecha",
-      str_detect(value, "semana")        ~ "semana",
-      str_detect(value, "premium")       ~ "premium",
-      str_detect(value, "p\\. super")    ~ "psup",
-      str_detect(value, "segunda")       ~ "segunda",
-      str_detect(value, "total \\.")     ~ "totales",
-      str_detect(value, "total racimos") ~ "racimos",
-      str_detect(value, "peso medio")    ~ "peso",
-      str_detect(value, "precio medio")  ~ "precio",
-      str_detect(value, "total eu")      ~ "total_euros"
-    )
-  ) 
+ds <- read_pdfs(data_files)
+
 
 # voy extrayendo los subconjuntos de datos
 fechas <- filter(ds, medida == "fecha") %>% 
