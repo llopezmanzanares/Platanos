@@ -56,7 +56,7 @@ if (isTRUE(params$new_coop)){
   source(file = here("eda", "coop_graficas.R"))
 } else {
   # solamente cargo el objeto con las gráficas
-  load(here("data/processed", "finca_graficas.RData"))
+  load(here("data/processed", "graficas_finca.RData"))
 }
 
 # rango de los datos de las gráficas de la cooperativa
