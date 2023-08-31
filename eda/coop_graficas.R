@@ -279,4 +279,4 @@ coop_grafs$eur_cat <- coop_ds$mes %>%
 
 # Guardo las gráficas -----------------------------------------------------
 
-save(coop_grafs, file = here("data/processed", "finca_graficas.RData"))
+save(coop_grafs, file = here("data/processed", "graficas_finca.RData"))
