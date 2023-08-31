@@ -1,4 +1,10 @@
-# Generación de las gráficas usadas en el informe Finca.Rmd
+# Generación de las gráficas usadas en el informe Finca.Rmd y en
+# Produccion_Finca.qmd
+
+# Versión: 2023-08-31
+
+# Modificaciones a realizar:
+# concordancia de colores en todas las gráficas
 
 
 # Carga de datos ----------------------------------------------------------
