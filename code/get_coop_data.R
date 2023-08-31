@@ -5,20 +5,20 @@
 
 # Packages ------
 
-library(tidyverse)
+# library(tidyverse)
 library(lubridate)
 library(pdftools)
-library(here)
+# library(here)
 
 # Constantes --------------------------------------------------------------
 
-coop_ds <- list()
-
-dirs <- list(
-  raw = "data/raw",
-  cop = "data/raw/coop",
-  pro = "data/processed"
-)
+# coop_ds <- list()
+# 
+# dirs <- list(
+#   raw = "data/raw",
+#   cop = "data/raw/coop",
+#   pro = "data/processed"
+# )
 
 patrones <- list(
   kg    = "(\\d\\.)?\\d+",         # los miles con un punto
