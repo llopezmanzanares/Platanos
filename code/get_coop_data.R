@@ -191,7 +191,7 @@ coop_ds$mes_kg <- coop_ds$mes %>%
 
 # Guardo el conjunto de datos ---------------------------------------------
 
-save(coop_ds, file = here(dirs$pro, "datos_finca_test.RData"))
+save(coop_ds, file = here(dirs$pro, "datos_finca.RData"))
 
 # write_csv2(coop_ds$sem, file = here(dirs$pro, "datos_finca.csv"))
 
