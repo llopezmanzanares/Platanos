@@ -1,7 +1,7 @@
 # Datos de producción proporcionados por la cooperativa
 # Extraigo la información de todos los pdf cada vez
 
-# Versión: 2023-04-17
+# Versión: 2023-08-31
 
 # Packages ------
 
