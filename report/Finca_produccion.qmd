@@ -80,12 +80,5 @@ coop_ds$mes %>%
 ```{r}
 #| label: summary-anuals
 
-coop_ds$mes %>% 
-  select(fecha:total_eur) %>% 
-  pivot_longer(-fecha) %>% 
-  mutate(
-    aa = lubridate::year(fecha)
-  ) %>% 
-  ggplot(aes(x = name, y = value)) +
-  geom_boxplot()
+coop_grafs$summ
 ```
