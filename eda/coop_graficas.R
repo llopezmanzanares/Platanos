@@ -35,8 +35,9 @@ my_plot <- function(...){
 
 # Resumen gral ------------------------------------------------------------
 
-# Distribución de los racimos
-coop_ds$mes %>% 
+# Distribución de los racimos, ingresos y pesos mensuales por anualidades
+coop_grafs$summ <-
+  coop_ds$mes %>% 
   select(fecha, Racimos = racimos, Ingresos = total_eur, Pesos = total_kg) %>% 
   pivot_longer(-fecha) %>% 
   mutate(aa = year(fecha) %>% as_factor()) %>% 
@@ -46,26 +47,27 @@ coop_ds$mes %>%
   geom_boxplot(
     colour = "springgreen4", 
     outlier.colour = "yellow4", outlier.shape = 1
-    ) +
+  ) +
   geom_jitter(width = 0.1, alpha = 0.4) +
   labs(
     title = "Distribución anual de los valores mensuales de\n Ingresos, Pesos y número de Racimos",
     x = NULL, y = NULL
-       )
+  )
 
 # Relación euros vs Kg ----------------------------------------------------
 
-coop_grafs$eur_kg <-
-coop_ds$mes %>% 
+#coop_grafs$eur_kg <-
+  coop_ds$mes %>% 
   select(fecha, starts_with("total")) %>% 
   mutate(
     eur_kg = total_eur / total_kg,
   ) %>% 
   my_plot(aes(x = fecha, y = eur_kg)) +
-  geom_point(alpha = .8) +
+  geom_point(alpha = .8, color = "yellow4") +
   geom_smooth(
     method = "loess",
-    se = FALSE
+    se = FALSE,
+    color = "springgreen4"
   ) +
   labs(
     title = "Evolución de la relación € / Kg",
