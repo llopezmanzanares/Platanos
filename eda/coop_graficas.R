@@ -56,7 +56,7 @@ coop_grafs$summ <-
 
 # Relación euros vs Kg ----------------------------------------------------
 
-#coop_grafs$eur_kg <-
+coop_grafs$eur_kg <-
   coop_ds$mes %>% 
   select(fecha, starts_with("total")) %>% 
   mutate(
@@ -92,10 +92,10 @@ coop_grafs$rac_kg_mm <-
     ) 
     ) %>% 
   my_plot(aes(x = fecha, y = valor)) +
-  geom_col(fill = "steelblue3") +
+  geom_col(fill = "springgreen4") +
   facet_wrap(~tipo, ncol = 1, scales = "free_y") +
   labs(
-    title = "Evolución mensual del número de racimos y peso",
+    title = "Evolución mensual del peso y número de racimos",
     x = NULL, y = NULL
   )
 
@@ -107,11 +107,11 @@ coop_grafs$kg_mm <-
   my_plot(aes(x = mm, y = total_kg, fill = as_factor(aa))) +
   geom_col(position = "dodge") +
   labs(
-    title = "Comparativa de la producción mensual (Kg)",
-    subtitle = "Producción de todas las categorías",
+    title = "Producción mensual (Kg)",
+    subtitle = "Todas las categorías",
     x = NULL, y = NULL, fill = "Anualidades"
   ) +
-  scale_fill_brewer(palette = "Paired")
+  scale_fill_brewer(palette = "Greens")
 
 
 # el acumulado de los totales
@@ -119,8 +119,8 @@ coop_grafs$kg_mm_acum <-
   coop_ds$mes_kg %>% 
   select(fecha:mm, total_kg_acum) %>% 
   my_plot(aes(x= mm, y = total_kg_acum, color = as_factor(aa))) +
+  geom_line(aes(group = aa), linewidth = 1.1) +
   geom_point() +
-  geom_line(aes(group = aa)) +
   # valores del último mes y comparativa con años anteriores
   geom_point(
     data = coop_ds$mes_kg %>% filter(month(fecha) == month(max(fecha))),
@@ -139,7 +139,8 @@ coop_grafs$kg_mm_acum <-
   labs(
     title = "Acumulados mensuales de la producción total (Kg)",
     x = NULL, y = NULL, color = "Anualidades"
-  )
+  ) +
+  scale_color_brewer(palette = "Greens")
 
 # los kg por categorías, comparados
 coop_grafs$kg_cat <-
@@ -165,7 +166,7 @@ coop_grafs$kg_cat <-
     subtitle = "Producción de cada una de las categorías",
     x = NULL, y = NULL, fill = "Anualidades"
   ) +
-  scale_fill_brewer(palette = "Paired")
+  scale_fill_brewer(palette = "Greens")
 
 
 # acumulados de los kg por categorías
@@ -233,12 +234,14 @@ coop_grafs$rac_kg_sem <-
     subtitle = "Semanas de cada anualidad",
     caption  = "Marcada la semana 34",
     x = "Semanas", y = NULL, color = "Anualidades"
-  )
+  ) +
+    scale_color_brewer(palette = "Greens")
 
 
 # Importes ----------------------------------------------------------------
 
-coop_grafs$eur_mm_acum <- coop_ds$mes %>% 
+coop_grafs$eur_mm_acum <- 
+  coop_ds$mes %>% 
   select(fecha, total_eur) %>% 
   group_by(anualidad = year(fecha)) %>% 
   mutate(
@@ -250,7 +253,7 @@ coop_grafs$eur_mm_acum <- coop_ds$mes %>%
   ) %>% 
   my_plot(aes(x = mes, y = eur_acum, color = as_factor(anualidad))) +
   geom_point(alpha = .5) +
-  geom_line(aes(group = anualidad)) +
+  geom_line(aes(group = anualidad), linewidth = 1.1) +
   # último valor del último año, comparado con los anteriores
   geom_point(
     data = . %>% filter(month(fecha) == month(max(fecha))),
@@ -269,11 +272,13 @@ coop_grafs$eur_mm_acum <- coop_ds$mes %>%
   labs(
     title = "Acumulados mensuales de los importes (€)",
     x = NULL, y = NULL, color = "Anualidades"
-  )
+  ) +
+  scale_color_brewer(palette = "Greens")
 
 # comparo los importes por categorías
 
-coop_grafs$eur_cat <- coop_ds$mes %>% 
+coop_grafs$eur_cat <- 
+  coop_ds$mes %>% 
   select(fecha, ends_with("eur"), -total_eur) %>% 
   pivot_longer(
     cols = -fecha,
@@ -291,13 +296,14 @@ coop_grafs$eur_cat <- coop_ds$mes %>%
   ) %>% 
   my_plot(aes(x = mes, y = eur, color = anualidad)) +
   geom_point(alpha = .5) +
-  geom_line(aes(group = anualidad)) +
-  facet_wrap(~cat, ncol = 1) +
+  geom_line(aes(group = anualidad), linewidth = 1) +
+  facet_wrap(~cat, ncol = 1, scales = "free_y") +
   labs(
     title = "Comparativa de la evolución de los importes por categoría",
     subtitle = "Valores en €",
     x = NULL, y = NULL, color = NULL
-  )
+  ) +
+    scale_color_brewer(palette = "Greens")
 
 # Guardo las gráficas -----------------------------------------------------
 
