@@ -51,7 +51,7 @@ load(here("data/processed/graficas_finca.RData"))
 ```
 
 ```{r}
-#| label: totals
+#| label: summary-table
 
 coop_ds$mes %>% 
   select(racimos:total_eur) %>% 
@@ -75,8 +75,17 @@ coop_ds$mes %>%
     SD = "Desv."
   )
 
+```
 
+```{r}
+#| label: summary-anuals
 
-  
-
+coop_ds$mes %>% 
+  select(fecha:total_eur) %>% 
+  pivot_longer(-fecha) %>% 
+  mutate(
+    aa = lubridate::year(fecha)
+  ) %>% 
+  ggplot(aes(x = name, y = value)) +
+  geom_boxplot()
 ```
