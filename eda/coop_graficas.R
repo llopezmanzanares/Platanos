@@ -13,13 +13,13 @@ library(tidyverse)
 library(here)
 library(lubridate)
 
-# theme_set(
-#   theme_minimal()
-#   # theme_light()
-# )
+theme_set(
+  theme_minimal()
+  # theme_light()
+)
 
-# cargo datos_mes y obtengo datos_mes_kg
-source(file = here("eda/", "coop_graficas_datos.R"))
+# datos de la cooperativa (semana, mes y kg mensuales)
+load(here("data/processed/datos_finca.RData"))
 
 coop_grafs <- list()
 
@@ -32,6 +32,19 @@ my_plot <- function(...){
     scale_y_continuous(position = "right")
 }
   
+
+# Resumen gral ------------------------------------------------------------
+
+# Distribución de los racimos
+coop_ds$mes %>% 
+  select(fecha, Racimos = racimos, Ingresos = total_eur, Pesos = total_kg) %>% 
+  pivot_longer(-fecha) %>% 
+  mutate(aa = year(fecha) %>% as_factor()) %>% 
+  ggplot(aes(x = aa, y = value)) +
+  facet_wrap(~name, ncol = 1, scales = "free_y") +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 1) +
+  geom_jitter(width = 0.2, color = "gray70") +
+  labs(x = NULL, y = NULL)
 
 # Relación euros vs Kg ----------------------------------------------------
 
