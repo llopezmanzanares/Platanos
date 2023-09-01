@@ -14,7 +14,8 @@ library(here)
 
 # Constantes --------------------------------------------------------------
 
-coop_ds <- list()
+coop_ds    <- list()
+coop_grafs <- list()
 
 dirs <- list(
   raw = "data/raw",
