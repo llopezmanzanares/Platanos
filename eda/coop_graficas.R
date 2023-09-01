@@ -21,8 +21,6 @@ theme_set(
 # datos de la cooperativa (semana, mes y kg mensuales)
 load(here("data/processed/datos_finca.RData"))
 
-coop_grafs <- list()
-
 # función para modificar la posición de la leyenda y el eje y en las gráficas
 my_plot <- function(...){
   ggplot(...) + 
