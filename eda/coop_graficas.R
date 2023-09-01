@@ -42,9 +42,16 @@ coop_ds$mes %>%
   mutate(aa = year(fecha) %>% as_factor()) %>% 
   ggplot(aes(x = aa, y = value)) +
   facet_wrap(~name, ncol = 1, scales = "free_y") +
-  geom_boxplot(outlier.colour = "red", outlier.shape = 1) +
-  geom_jitter(width = 0.2, color = "gray70") +
-  labs(x = NULL, y = NULL)
+  scale_colour_brewer(palette = "Greens") +
+  geom_boxplot(
+    colour = "springgreen4", 
+    outlier.colour = "yellow4", outlier.shape = 1
+    ) +
+  geom_jitter(width = 0.1, alpha = 0.4) +
+  labs(
+    title = "Distribución anual de los valores mensuales de\n Ingresos, Pesos y número de Racimos",
+    x = NULL, y = NULL
+       )
 
 # Relación euros vs Kg ----------------------------------------------------
 
