@@ -82,3 +82,18 @@ coop_ds$mes %>%
 
 coop_grafs$summ
 ```
+```{r}
+#| label: sumcum-kg€
+#| layout-ncol: 2
+
+
+coop_grafs$kg_mm_acum
+
+coop_grafs$eur_mm_acum
+```
+```{r}
+#| label: week-kgbunches
+
+coop_grafs$rac_kg_sem
+```
+
