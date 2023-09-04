@@ -40,15 +40,15 @@ coop_grafs$summ <-
   pivot_longer(-fecha) %>% 
   mutate(aa = year(fecha) %>% as_factor()) %>% 
   ggplot(aes(x = aa, y = value)) +
+  geom_point(alpha = 0.3) +
   facet_wrap(~name, ncol = 1, scales = "free_y") +
   scale_colour_brewer(palette = "Greens") +
   geom_boxplot(
     colour = "springgreen4", 
     outlier.colour = "yellow4", outlier.shape = 1
   ) +
-  geom_jitter(width = 0.1, alpha = 0.4) +
   labs(
-    title = "Distribución anual de los valores mensuales de\n Ingresos, Pesos y número de Racimos",
+    title = "Evolución de la distribución anual de los valores mensuales de\nIngresos, Pesos y número de Racimos",
     x = NULL, y = NULL
   )
 
