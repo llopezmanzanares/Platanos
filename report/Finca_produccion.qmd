@@ -36,9 +36,9 @@ library(here)
 library(gt)
 library(gtExtras)
 
-# theme_set(
-#   theme_light()
-# )
+theme_set(
+  theme_light()
+)
 
 ```
 

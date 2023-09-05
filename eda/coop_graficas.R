@@ -13,16 +13,13 @@ library(tidyverse)
 library(here)
 library(lubridate)
 
-theme_set(
-  theme_minimal()
-  # theme_light()
-)
 
 # datos de la cooperativa (semana, mes y kg mensuales)
 load(here("data/processed/datos_finca.RData"))
 
 # función para modificar la posición de la leyenda y el eje y en las gráficas
 my_plot <- function(...){
+
   ggplot(...) + 
     theme(
       legend.position = "bottom"
