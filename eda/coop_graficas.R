@@ -42,7 +42,6 @@ coop_grafs$summ <-
   ggplot(aes(x = aa, y = value)) +
   geom_point(alpha = 0.3) +
   facet_wrap(~name, ncol = 1, scales = "free_y") +
-  scale_colour_brewer(palette = "Greens") +
   geom_boxplot(
     colour = "springgreen4", 
     outlier.colour = "yellow4", outlier.shape = 1
