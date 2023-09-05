@@ -27,7 +27,11 @@ my_plot <- function(...){
     theme(
       legend.position = "bottom"
     ) +
-    scale_y_continuous(position = "right")
+    scale_y_continuous(position = "right") +
+    scale_color_brewer(
+      palette = "YlGn", 
+      aesthetics = c("colour", "fill") # ambas al mismo tiempo
+    )
 }
   
 
@@ -107,8 +111,7 @@ coop_grafs$kg_mm <-
     title = "Producción mensual (Kg)",
     subtitle = "Todas las categorías",
     x = NULL, y = NULL, fill = "Anualidades"
-  ) +
-  scale_fill_brewer(palette = "Greens")
+  )
 
 
 # el acumulado de los totales
@@ -136,8 +139,7 @@ coop_grafs$kg_mm_acum <-
   labs(
     title = "Acumulados mensuales de la producción total (Kg)",
     x = NULL, y = NULL, color = "Anualidades"
-  ) +
-  scale_color_brewer(palette = "Greens")
+  )
 
 # los kg por categorías, comparados
 coop_grafs$kg_cat <-
@@ -162,8 +164,7 @@ coop_grafs$kg_cat <-
     title = "Comparativa de la producción mensual (Kg)",
     subtitle = "Producción de cada una de las categorías",
     x = NULL, y = NULL, fill = "Anualidades"
-  ) +
-  scale_fill_brewer(palette = "Greens")
+  )
 
 
 # acumulados de los kg por categorías
@@ -191,7 +192,6 @@ coop_grafs$kg_cat_acum <-
     subtitle = "Producción de cada una de las categorías",
     x = NULL, y = NULL, color = "Anualidades"
   ) 
-  # scale_color_brewer(palette = "Paired")
 
 # relación entre racimos y kg
 # coop_ds$mes %>% 
@@ -231,8 +231,7 @@ coop_grafs$rac_kg_sem <-
     subtitle = "Semanas de cada anualidad",
     caption  = "Marcada la semana 34",
     x = "Semanas", y = NULL, color = "Anualidades"
-  ) +
-    scale_color_brewer(palette = "Greens")
+  )
 
 
 # Importes ----------------------------------------------------------------
@@ -269,8 +268,7 @@ coop_grafs$eur_mm_acum <-
   labs(
     title = "Acumulados mensuales de los importes (€)",
     x = NULL, y = NULL, color = "Anualidades"
-  ) +
-  scale_color_brewer(palette = "Greens")
+  )
 
 # comparo los importes por categorías
 
@@ -299,8 +297,7 @@ coop_grafs$eur_cat <-
     title = "Comparativa de la evolución de los importes por categoría",
     subtitle = "Valores en €",
     x = NULL, y = NULL, color = NULL
-  ) +
-    scale_color_brewer(palette = "Greens")
+  )
 
 # Guardo las gráficas -----------------------------------------------------
 
