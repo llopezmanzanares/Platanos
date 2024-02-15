@@ -1,5 +1,7 @@
 # Lectura de datos de las diferentes fuentes
 
+# Versi2024-02-15
+
 
 # Carga de librerías ------------------------------------------------------
 
@@ -15,28 +17,19 @@ istac_ds <- list()  # los datos descargados de ISTAC
 
 # Precios -----------------------------------------------------------------
 
-istac_ds$precios_sem <- read_xlsx(
-  here("data/raw", "precios_medios_percibidos.xlsx"),
-  skip = 10,
-  col_names = c("periodo", "canarias", "gran.canaria", "tenerife", "la.palma"),
-  col_types = c("text", "numeric", "numeric", "numeric", "numeric")
-  ) %>% 
-  pivot_longer(
-    !periodo,
-    names_to = "territorio",
-    values_to = "precio"
-  ) %>% 
-  filter(!is.na(precio), periodo != "Copyright") %>% 
+istac_ds$precios_sem <- 
+  read_xlsx(
+    path = here::here("data/raw/precios_medios_percibidos.xlsx"),
+    skip = 10,
+    col_names = c("semana", "Tenerife", "La Palma", "Gran Canaria", "Canarias")
+  ) |> 
   mutate(
-    semana = str_replace(periodo,
-                         pattern = "(\\d+)(\\s\\w+\\s)(\\d+)",
-                         replacement = "\\1-W\\3-1") %>% 
-    ISOweek2date(),
-    anualidad = year(semana),
-    mes = month(semana, label = T),
-    trimestre = quarter(semana, type = "date_last"),
-    .after = 1
-  )
+    aa  = str_extract(semana, pattern = "[:digit:]+") |> as.numeric(),
+    sem = str_extract(semana, pattern = "[:digit:]+$") |> as.numeric(),
+    .keep = "unused"
+  ) |> 
+  filter(!is.na(aa)) |> 
+  pivot_longer(cols = Tenerife:Canarias, names_to = "territorio", values_to = "precio")
 
 # Toneladas anuales -------------------------------------------------------
 

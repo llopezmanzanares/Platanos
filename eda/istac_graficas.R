@@ -1,5 +1,7 @@
 # Generación de las gráficas a partir de los datos de ISTAC
 
+# Versión: 2024-02-15
+
 library(tidyverse)
 
 
@@ -95,20 +97,29 @@ istac_grafs$cons_propio <- istac_ds$prodvsexps %>%
 
 # Gráficas de precios -----------------------------------------------------
 
-istac_grafs$pre_sem <- istac_ds$precios_sem %>% 
-  filter(territorio != "canarias") %>% 
+#precios última anualidad
+p_sem_ult_aa <- filter(istac_ds$precios_sem, aa == max(aa))
+
+istac_grafs$pre_sem <- 
+  istac_ds$precios_sem |> 
   mutate(
-    sem_txt = str_extract(periodo, pattern = "\\d{2}$") %>% as.numeric(),
-    territorio = str_replace(territorio, "\\.", " ") %>% 
-      str_to_title()
-  ) %>% 
-  my_plot(aes(x = sem_txt, y = precio, color = as_factor(anualidad))) +
-  geom_point(alpha = .6) +
+    mx_precio = max(precio, na.rm = TRUE),
+    mn_precio = min(precio, na.rm = TRUE),
+    md_precio = median(precio, na.rm = TRUE),
+    .by = c(territorio, sem)
+  ) |> 
+  ggplot(aes(x = sem)) +
+  geom_ribbon(aes(ymin = mn_precio, ymax = mx_precio), fill = "#e5f77d", color = "#DEBA6F") +
+  geom_line(aes(y = md_precio), color = "#DEBA6F") +
+  geom_line(data = p_sem_ult_aa, aes(y = precio), color = "#823038") +
   facet_wrap(~territorio, ncol = 1) +
   labs(
-    title = "Evolución del precio percibido (€/kg)",
-    caption = "Fuente: ISTAC, Gobierno de Canarias",
-    x = "Semanas", y = NULL, color = NULL
+    title = "Evolución del percio percibido (€/Kg)",
+    subtitle = "Valores máximos, mínimos, medios y última anaualidad.",
+    x = "Semana", y = NULL
+  ) +
+  theme(
+    plot.title.position = "plot"
   )
 
 # medias mensuales del precio, nivel Canarias
