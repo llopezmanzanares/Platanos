@@ -1,7 +1,5 @@
 # Lectura de datos de las diferentes fuentes
 
-# Versi2024-02-15
-
 
 # Carga de librerías ------------------------------------------------------
 
