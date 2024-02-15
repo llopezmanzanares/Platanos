@@ -1,5 +1,7 @@
 # Lectura de datos de las diferentes fuentes
 
+# Versión: 2024-02-15
+
 
 # Carga de librerías ------------------------------------------------------
 
