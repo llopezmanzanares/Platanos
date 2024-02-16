@@ -36,42 +36,39 @@ istac_ds$precios_sem <-
 istac_ds$toneladas <- 
   read_xlsx(
     here("data/raw", "toneladas_anuales_islas.xlsx"),
-    skip = 9,
-    # n_max = 11,
-    col_names = c("aa", "Canarias", "Lanzarote", "Fuerteventura", "Gran Canaria",
+    skip = 10,
+    col_names = c("tipo","aa", "Canarias", "Lanzarote", "Fuerteventura", "Gran Canaria",
                   "Tenerife", "La Gomera", "La Palma", "El Hierro")
   )  |>  
-  filter(!is.na(Canarias))  |>  
+  filter(!is.na(Tenerife)) |>
+  select(-tipo) |> 
+  mutate(Canarias = as.numeric(Canarias)) |> 
   pivot_longer(
     !aa,
     names_to = "territorio",
     values_to = "tn"
-  )  |>  
-  mutate(
-    tn = str_replace(tn, pattern = "\\.", replacement = "")  |>  
-      str_replace(pattern = ",", replacement = "\\.")  |>  
-      as.numeric()
   )
 
 # Exportaciones mensuales -------------------------------------------------
 
-istac_ds$exportaciones <- read_xlsx(
-  here("data/raw", "exportaciones_mensuales.xlsx"),
-  skip = 10,
-  col_names = c("isla", "periodo", "total", "españa (excluida canarias)", "extranjero")
-  # .name_repair = tolower
-) %>% 
-  drop_na(total) %>% 
-  fill(isla) %>% 
+istac_ds$exportaciones <- 
+  read_xlsx(
+    here("data/raw", "exportaciones_mensuales.xlsx"),
+    skip = 10,
+    col_names = c("isla", "periodo", "total", "españa (excluida canarias)", "extranjero")
+  )  |>  
+  fill(isla) |>  
+  drop_na(total) |>  
   mutate(
-    mes = str_c("01/", periodo, sep = "") %>% 
-      dmy(quiet = T) %>% 
+    mes = str_c("01/", periodo, sep = "") |>  
+      dmy(quiet = T) |>  
       rollforward()
-  ) %>% 
-  filter(!is.na(mes)) %>% 
-  select(periodo, mes, isla, total, peninsula = `españa (excluida canarias)`, extranjero) %>% 
+  )|> 
+  # quito los agregados anuales
+  filter(!is.na(mes))|> 
+  select(periodo, mes, isla, total, peninsula = `españa (excluida canarias)`, extranjero) |>  
   mutate(
-    anualidad = year(mes),
+    aa = year(mes),
     trimestre = quarter(mes, type = "date_last"),
     .after = 2
   )
@@ -82,23 +79,22 @@ istac_ds$exportaciones <- read_xlsx(
 
 istac_ds$prodvsexps <- 
   left_join(
-    istac_ds$toneladas %>% 
-      filter(territorio == "canarias") %>% 
-      select(-territorio) %>% 
-      mutate(anualidad = as.numeric(anualidad)) %>% 
+    istac_ds$toneladas |>  
+      filter(territorio == "Canarias") |>  
+      select(-territorio) |>  
+      mutate(aa = as.numeric(aa)) |>  
       rename(produccion = tn),
-    istac_ds$exportaciones %>% 
+    istac_ds$exportaciones |>  
       filter(
         isla == "Canarias",
-        anualidad > 2011
-      ) %>% 
-      group_by(anualidad) %>% 
+        aa > 2011
+      )  |>  
       summarise(
         exports = sum(total),
-        .groups = "drop"
+        .by = aa
       ),
-    by = "anualidad"
-  ) %>% 
+    join_by(aa)
+  ) |>  
   mutate(
     interno = produccion - exports,
     int_prc = round(interno / produccion * 100, 2)
@@ -106,20 +102,15 @@ istac_ds$prodvsexps <-
 
 # Superficie cultivada ----------------------------------------------------
 
-istac_ds$superficie <- read_xls(
-  path = here("data/raw/superficie_cultivada_islas.xls"),
-  skip = 8
-) %>% 
-  filter(!is.na(territorio)) %>% 
-  mutate(
-    anualidad = as.numeric(anualidad),
-    `Regadío: Que aún no produce` = str_replace(`Regadío: Que aún no produce`, ",", "\\.") %>% 
-      as.numeric(),
-    `Regadío: En producción` = str_remove(`Regadío: En producción`, "\\.") %>% 
-      str_replace(",", "\\.") %>% as.numeric(),
-    `CULTIVO PROTEGIDO` = str_remove(`CULTIVO PROTEGIDO`, "\\.") %>% 
-      str_replace(",", "\\.") %>% as.numeric()
-  )
+istac_ds$superficie <- 
+  read_xlsx(
+    path = here("data/raw/superficie_cultivada_islas.xlsx"),
+    skip = 10,
+    col_names = c("territorio", "aa", "ha")
+  )|> 
+  filter(!is.na(ha)) %>%
+  fill(territorio) |> 
+  mutate(aa = as.numeric(aa))
 
 # Guardo los datos --------------------------------------------------------
 
