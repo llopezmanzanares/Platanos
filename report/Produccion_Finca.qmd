@@ -44,6 +44,12 @@ theme_set(
   theme_light()
 )
 
+eur <- scales::label_currency(suffix = "€", prefix = NULL,
+                              big.mark = ".", decimal.mark = ",")
+
+col_pal <- c("cream" = "#f4f7be", "mindaro" = "#e5f77d", "ecru" = "#deba6f",
+             "wine"  = "#823038", "licoire" = "#1e000e")
+
 ```
 
 ```{r}
@@ -183,6 +189,17 @@ coop_grafs$eur_kg$data %>%
 
 En este apartado se presentan los datos más relevantes de la evolución del cultivo del plátano en Canarias.
 
+## Precios percibidos por el agricultor
+
+```{r}
+#| label: istac-precios-sem
+
+# modificar colores del subtítulo
+
+istac_grafs$pre_sem
+
+```
+
 ## Evolución de la producción
 
 ```{r}
@@ -197,32 +214,14 @@ istac_grafs$tn_canarias
 
 istac_grafs$tn
 
+# cambiar los colores del subtítulo
 istac_grafs$exp_tot
-```
-
-## Precios percibidos por el agricultor
-
-```{r}
-#| label: istac-precios-sem
-#| fig-height: 9
-
-istac_grafs$pre_sem
-
-```
-
-```{r}
-#| label: istac-precios-mes
-#| fig-height: 9
-
-istac_grafs$pre_mes_canarias
-
 ```
 
 ## Evolución de la superficie cultivada
 
 ```{r}
 #| label: istac-superficies
-#| fig-height: 8
 
 istac_grafs$sup
 
@@ -233,6 +232,7 @@ istac_grafs$sup
 ```{r}
 #| label: istac-prod-vs-exp
 
+# cambiar colores en el título y quitar leyenda
 istac_grafs$prodvsexps
 
 ```
@@ -241,6 +241,7 @@ Las exportaciones incluyen tanto a península como al extranjero, por lo que pod
 
 ```{r}
 #| label: tabla-istac-exports
+#| eval: false
 
 istac_ds$exportaciones %>% 
   select(mes, peninsula, extranjero) %>% 
