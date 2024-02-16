@@ -33,22 +33,23 @@ istac_ds$precios_sem <-
 
 # Toneladas anuales -------------------------------------------------------
 
-istac_ds$toneladas <- read_xls(
-  here("data/raw", "toneladas_anuales_islas.xls"),
-  skip = 8,
-  n_max = 11,
-  col_names = c("anualidad", "canarias", "lanzarote", "fuerteventura", "gran.canaria",
-                "tenerife", "la.gomera", "la.palma", "el.hierro")
-) %>% 
-  filter(anualidad != "Plátano") %>% 
+istac_ds$toneladas <- 
+  read_xlsx(
+    here("data/raw", "toneladas_anuales_islas.xlsx"),
+    skip = 9,
+    # n_max = 11,
+    col_names = c("aa", "Canarias", "Lanzarote", "Fuerteventura", "Gran Canaria",
+                  "Tenerife", "La Gomera", "La Palma", "El Hierro")
+  )  |>  
+  filter(!is.na(Canarias))  |>  
   pivot_longer(
-    !anualidad,
+    !aa,
     names_to = "territorio",
     values_to = "tn"
-  ) %>% 
+  )  |>  
   mutate(
-    tn = str_replace(tn, pattern = "\\.", replacement = "") %>% 
-      str_replace(pattern = ",", replacement = "\\.") %>% 
+    tn = str_replace(tn, pattern = "\\.", replacement = "")  |>  
+      str_replace(pattern = ",", replacement = "\\.")  |>  
       as.numeric()
   )
 
