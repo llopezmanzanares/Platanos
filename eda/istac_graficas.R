@@ -41,17 +41,30 @@ istac_grafs$tn_canarias <-
     x = NULL, y = NULL
   )
 
+txt_tn_pos <-
+  istac_ds$toneladas|> 
+  filter(
+    territorio %in% c("Tenerife", "Gran Canaria", "La Palma"),
+    aa == min(aa)
+    )
+
 istac_grafs$tn <- 
   istac_ds$toneladas|> 
   filter(territorio %in% c("Tenerife", "Gran Canaria", "La Palma"))|> 
   my_plot(aes(x = aa, y = tn/1000, color = territorio)) +
   geom_line(aes(group = territorio)) +
+  geom_text(
+    data = txt_tn_pos,
+    aes(label = territorio, x = aa, y = tn/1000),
+    vjust = 0, hjust = 0
+  ) +
   labs(
-    title = "Producción de plátanos (mil Tn)",
+    title    = "Producción de plátanos (mil Tn)",
     subtitle = "Principales islas productoras",
-    caption = "Fuente: ISTAC, Gobierno de Canarias",
+    caption  = "Fuente: ISTAC, Gobierno de Canarias",
     x = NULL, y = NULL, color = NULL
-  )
+  ) +
+  theme(legend.position = "none")
 
  exps_eda <- 
   istac_ds$exportaciones |> 
@@ -76,11 +89,11 @@ istac_grafs$exp_tot <-
   geom_ribbon(aes(ymin = mn_tn, ymax = mx_tn), fill = col_pal["mindaro"]) +
   geom_line(aes(x = mm, y = md_tn), color = col_pal["ecru"], linewidth = 1) +
   geom_line(data = exps_last_aa, aes(y = tn), color = col_pal["wine"]) +
-  facet_wrap(~isla, ncol = 1) +
+  facet_wrap(~isla, ncol = 1, scales = "free_y") +
   labs(
-    title = "Evolución mensual de las exportaciones (mil Tn)",
+    title    = "Evolución mensual de las exportaciones (mil Tn)",
     subtitle = "Valores máximos y mínimos, media y último año",
-    caption = "Fuente: ISTAC, Gobierno de Canarias",
+    caption  = "Fuente: ISTAC, Gobierno de Canarias",
     x = NULL, y = NULL, color = NULL
   )
 
@@ -88,16 +101,15 @@ istac_grafs$exp_tot <-
 istac_grafs$prodvsexps <- 
   istac_ds$prodvsexps |>  
   select(aa:exports) |>  
-  pivot_longer( cols = -aa, names_to = "medida", values_to = "tn"
-  ) |>  
+  pivot_longer( cols = -aa, names_to = "medida", values_to = "tn") |>  
   mutate(medida = if_else(medida == "produccion", "Producción", "Exportación"))|> 
   my_plot(aes(x = as_factor(aa), y = tn, color = medida)) +
   geom_point(alpha = .4) +
   geom_smooth(aes(group = medida), se = FALSE) +
   labs(
-    title = "Comparativa de la producción y exportación anual",
+    title    = "Comparativa de la producción y exportación anual",
     subtitle = "Toneladas anuales",
-    caption = "Fuente: ISTAC, Gobierno de Canarias",
+    caption  = "Fuente: ISTAC, Gobierno de Canarias",
     x = NULL, y = NULL, color = NULL
   )
 
@@ -105,14 +117,14 @@ istac_grafs$prodvsexps <-
 istac_grafs$cons_propio <- 
   istac_ds$prodvsexps |>  
   my_plot(aes(x = aa, y = interno)) +
-  geom_point(alpha = .4) +
+  geom_point(alpha = 0.6) +
   geom_smooth(se = FALSE) +
   labs(
-    title = "Evolución anual del consumo interno de la producción",
-    subtitle = "Toneladas",
+    title = "Evolución anual del consumo interno de la producción (Tn)",
     caption = "Fuente: ISTAC, Gobierno de Canarias",
     x = NULL, y = NULL
-  )
+  ) +
+  scale_x_continuous(breaks = istac_ds$prodvsexps$aa)
 
 # Gráficas de precios -----------------------------------------------------
 
@@ -131,42 +143,27 @@ istac_grafs$pre_sem <-
   geom_ribbon(aes(ymin = mn_precio, ymax = mx_precio), fill = "#e5f77d", color = "#DEBA6F") +
   geom_line(aes(y = md_precio), color = "#DEBA6F") +
   geom_line(data = p_sem_ult_aa, aes(y = precio), color = "#823038") +
+  geom_vline(xintercept = 34) +
   facet_wrap(~territorio, ncol = 1) +
   labs(
-    title = "Evolución del percio percibido (€/Kg)",
-    subtitle = "Valores máximos, mínimos, medios y última anaualidad.",
+    title    = "Evolución del percio percibido (€/Kg)",
+    subtitle = "Valores máximos, mínimos, medios, última anualidad y semana 34.",
+    caption  = "Fuente: ISTAC, Gobierno de Canarias",
     x = "Semana", y = NULL
   ) +
   theme(
     plot.title.position = "plot"
   )
 
-# medias mensuales del precio, nivel Canarias
-istac_grafs$pre_mes_canarias <- istac_ds$precios_sem %>% 
-  filter(territorio == "canarias") %>%
-  select(semana, precio) %>% 
-  mutate(
-    mes = lubridate::rollforward(semana)
-  ) %>% 
-  group_by(mes) %>% 
-  summarise(
-    precio = round(mean(precio), 2),
-    anualidad = lubridate::year(mes),
-    mes = lubridate::month(mes, label = TRUE),
-    .groups = "drop"
-  ) %>% 
-  my_plot(aes(x = mes, y = precio, color = as_factor(anualidad))) +
-  geom_point(alpha = .5) +
-  geom_smooth(aes(group = anualidad), se = FALSE) +
-  facet_wrap(~anualidad, ncol = 1) +
-  labs(
-    title = "Evolución mensual de la media del precio percibido (€/Kg)",
-    subtitle = "Conjunto de Canarias (Tenerife, La Palma y Gran Canaria)",
-    caption = "Fuente: ISTAC, Gobierno de Canarias",
-    x = NULL, y =NULL, color = NULL
-  )
 
 # Gráficas de superficie --------------------------------------------------
+
+txt_position <-
+  istac_ds$superficie |>  
+  filter(
+    territorio %in% c("Gran Canaria", "Tenerife", "La Palma"),
+    aa == min(aa)
+  )
 
 istac_grafs$sup <- 
   istac_ds$superficie |>  
@@ -175,10 +172,18 @@ istac_grafs$sup <-
   ) |> 
   my_plot(aes(x = as_factor(aa), y = ha, color = territorio)) +
   geom_line(aes(group = territorio)) +
+  geom_text(
+    data = txt_position, 
+    aes(label = territorio, x = as.character(aa), y = ha),
+    vjust = 0, hjust = 0
+    ) +
   labs(
-    title = "Evolución de la superficie cultivada (ha)",
+    title    = "Evolución de la superficie cultivada (ha)",
+    subtitle = "Islas con mayor superficie",
+    caption  = "Fuente: ISTAC, Gobierno de Canarias",
     x = NULL, y = NULL, color = NULL
-  )
+  ) +
+  theme(legend.position = "none")
 
 # Guardo las gráficas -----------------------------------------------------
 
