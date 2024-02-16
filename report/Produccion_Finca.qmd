@@ -193,10 +193,23 @@ En este apartado se presentan los datos más relevantes de la evolución del cul
 
 ```{r}
 #| label: istac-precios-sem
+#| fig-height: 7
 
-# modificar colores del subtítulo
+# indicar periodo de datos?
 
-istac_grafs$pre_sem
+istac_grafs$pre_sem +
+  labs(
+    subtitle = glue::glue(
+      'Valores máximos y mínimos, ',
+      '<span style=color:{col_pal["ecru"]}>media</span>, ',
+      '<span style=color:{col_pal["wine"]}>última anualidad</span> y ',
+      '<span style=color:{"#333333"}>semana 34</span>'
+    )
+  ) +
+  theme(
+    plot.subtitle = ggtext::element_markdown(),
+    legend.position = "none"
+  )
 
 ```
 
@@ -214,8 +227,18 @@ istac_grafs$tn_canarias
 
 istac_grafs$tn
 
-# cambiar los colores del subtítulo
-istac_grafs$exp_tot
+istac_grafs$exp_tot +
+  labs(
+    subtitle = glue::glue(
+      'Valores máximos y mínimos, ',
+      '<span style=color:{col_pal["ecru"]}>media</span> y ',
+      '<span style=color:{col_pal["wine"]}>último año</span>'
+    )
+  ) +
+  theme(
+    plot.subtitle = ggtext::element_markdown(),
+    legend.position = "none"
+  )
 ```
 
 ## Evolución de la superficie cultivada
@@ -233,7 +256,15 @@ istac_grafs$sup
 #| label: istac-prod-vs-exp
 
 # cambiar colores en el título y quitar leyenda
-istac_grafs$prodvsexps
+istac_grafs$prodvsexps +
+  # labs(
+  #   title = glue::glue(
+  #     'Comparativa de la ',
+  #     '<span style=color:{}>Producción</span> y ',
+  #     '<span style=color:{}>Exportación</span> anual (Tn)'
+  #   )
+  # ) +
+  theme(title = ggtext::element_markdown(), legend.position = "none")
 
 ```
 
