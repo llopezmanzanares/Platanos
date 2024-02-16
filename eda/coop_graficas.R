@@ -1,7 +1,7 @@
 # Generación de las gráficas usadas en el informe Finca.Rmd y en
 # Produccion_Finca.qmd
 
-# Versión: 2023-08-31
+# Versión: 2024-02-16
 
 # Modificaciones a realizar:
 # concordancia de colores en todas las gráficas
@@ -22,6 +22,7 @@ my_plot <- function(...){
 
   ggplot(...) + 
     theme(
+      plot.title.position = "plot",
       legend.position = "bottom"
     ) +
     scale_y_continuous(position = "right") +
@@ -41,12 +42,9 @@ coop_grafs$summ <-
   pivot_longer(-fecha) %>% 
   mutate(aa = year(fecha) %>% as_factor()) %>% 
   ggplot(aes(x = aa, y = value)) +
-  geom_point(alpha = 0.3) +
+  geom_boxplot(colour = "springgreen4", outlier.shape = NA) +
+  geom_jitter(width = 0.1, alpha = 0.5) +
   facet_wrap(~name, ncol = 1, scales = "free_y") +
-  geom_boxplot(
-    colour = "springgreen4", 
-    outlier.colour = "yellow4", outlier.shape = 1
-  ) +
   labs(
     title = "Evolución de la distribución anual de los valores mensuales de\nIngresos, Pesos y número de Racimos",
     x = NULL, y = NULL
@@ -155,7 +153,7 @@ coop_grafs$kg_cat <-
     )
   ) %>% 
   my_plot(aes(x = mm, y = peso, fill = as_factor(aa))) +
-  geom_col(position = "dodge") +
+  geom_col(position = "dodge", color = "#333333") +
   facet_wrap(~cat, ncol = 1) +
   labs(
     title = "Comparativa de la producción mensual (Kg)",
@@ -181,7 +179,7 @@ coop_grafs$kg_cat_acum <-
     )
   ) %>% 
   my_plot(aes(x = mm, y = peso, color = as_factor(aa))) +
-  geom_point(alpha = .5) +
+  geom_point() +
   geom_line(aes(group = aa)) +
   facet_wrap(~cat, ncol = 1) +
   labs(
