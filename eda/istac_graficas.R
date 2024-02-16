@@ -1,8 +1,18 @@
 # Generación de las gráficas a partir de los datos de ISTAC
 
-# Versión: 2024-02-15
+# Versión: 2024-02-16
+
+# TODO: modificar gráficas de líneas. Incluir nombre isla en la gráfica
 
 library(tidyverse)
+
+# Preparacion -------------------------------------------------------------
+
+eur <- scales::label_currency(suffix = "€", prefix = NULL,
+                              big.mark = ".", decimal.mark = ",")
+
+col_pal <- c("cream" = "#f4f7be", "mindaro" = "#e5f77d", "ecru" = "#deba6f",
+             "wine"  = "#823038", "licoire" = "#1e000e")
 
 
 istac_grafs <- list()
@@ -11,6 +21,7 @@ istac_grafs <- list()
 my_plot <- function(...){
   ggplot(...) + 
     theme(
+      plot.title.position = "plot",
       legend.position = "bottom"
     ) +
     scale_y_continuous(position = "right")
@@ -18,62 +29,69 @@ my_plot <- function(...){
 
 # Evolución de la producción ----------------------------------------------
 
-istac_grafs$tn_canarias <- istac_ds$toneladas %>% 
-  filter(territorio == "canarias") %>% 
-  my_plot(aes(x = anualidad, y = tn/1000)) +
-  geom_col(fill = "steelblue3") +
-  geom_smooth(aes(group = territorio), se = FALSE) +
+istac_grafs$tn_canarias <- 
+  istac_ds$toneladas|> 
+  filter(territorio == "Canarias") |>  
+  my_plot(aes(x = aa, y = tn/1000)) +
+  geom_segment(aes(x = aa, xend = aa, y = 0, yend = tn/1000), linewidth = 1) +
+  geom_point(shape = 21, fill = col_pal["wine"], color = col_pal["mindaro"], size = 10) +
   labs(
     title = "Producción total anual (miles Tn)",
     caption = "Fuente: ISTAC, Gobierno de Canarias",
     x = NULL, y = NULL
   )
 
-istac_grafs$tn <- istac_ds$toneladas %>% 
-  filter(territorio != "canarias") %>% 
-  mutate(
-    territorio = str_replace(territorio, "\\.", " ") %>% 
-      str_to_title()
-  ) %>% 
-  my_plot(aes(x = anualidad, y = tn/1000, color = territorio)) +
+istac_grafs$tn <- 
+  istac_ds$toneladas|> 
+  filter(territorio %in% c("Tenerife", "Gran Canaria", "La Palma"))|> 
+  my_plot(aes(x = aa, y = tn/1000, color = territorio)) +
   geom_line(aes(group = territorio)) +
   labs(
     title = "Producción de plátanos (mil Tn)",
+    subtitle = "Principales islas productoras",
     caption = "Fuente: ISTAC, Gobierno de Canarias",
     x = NULL, y = NULL, color = NULL
   )
 
-istac_grafs$exp_tot <- istac_ds$exportaciones %>% 
+ exps_eda <- 
+  istac_ds$exportaciones |> 
   filter(
     isla %in% c("Gran Canaria", "Tenerife", "La Palma"),
-    anualidad >= 2018
-    ) %>% 
-  my_plot(aes(x = lubridate::month(mes, label = TRUE), y = total/1000, color = as_factor(anualidad))) +
-  geom_point(alpha = .5) +
-  geom_smooth(aes(group = anualidad), se = FALSE) +
+    aa >= 2018
+    )|> 
+  select(mes, isla, total:extranjero) |> 
+  pivot_longer(cols = total:extranjero, names_to = "tipo", values_to = "tn") |> 
+  mutate(mm = month(mes, label = TRUE), aa = year(mes)) |> 
+  mutate(
+    mx_tn = max(tn), mn_tn = min(tn), md_tn = median(tn),
+    .by = c(isla, tipo, mm)
+  )
+ 
+ exps_last_aa <- filter(exps_eda, aa == max(aa), tipo == "total")
+ 
+istac_grafs$exp_tot <-  
+  exps_eda |> 
+  filter(tipo == "total") |>
+  ggplot(aes(x = mm, group = aa)) +
+  geom_ribbon(aes(ymin = mn_tn, ymax = mx_tn), fill = col_pal["mindaro"]) +
+  geom_line(aes(x = mm, y = md_tn), color = col_pal["ecru"], linewidth = 1) +
+  geom_line(data = exps_last_aa, aes(y = tn), color = col_pal["wine"]) +
   facet_wrap(~isla, ncol = 1) +
   labs(
-    title = "Evolución mensual de las exportaciones",
-    subtitle = "Miles de Tn",
+    title = "Evolución mensual de las exportaciones (mil Tn)",
+    subtitle = "Valores máximos y mínimos, media y último año",
     caption = "Fuente: ISTAC, Gobierno de Canarias",
     x = NULL, y = NULL, color = NULL
   )
 
 # toneladas producidas vs exportaciones
-istac_grafs$prodvsexps <- istac_ds$prodvsexps %>% 
-  select(anualidad:exports) %>% 
-  pivot_longer(
-    cols = -anualidad,
-    names_to = "medida",
-    values_to = "tn"
-  ) %>% 
-  mutate(
-    medida = case_when(
-      medida == "produccion" ~ "Producción",
-      TRUE                   ~ "Exportación"
-    )
-  ) %>% 
-  my_plot(aes(x = as_factor(anualidad), y = tn, color = medida)) +
+istac_grafs$prodvsexps <- 
+  istac_ds$prodvsexps |>  
+  select(aa:exports) |>  
+  pivot_longer( cols = -aa, names_to = "medida", values_to = "tn"
+  ) |>  
+  mutate(medida = if_else(medida == "produccion", "Producción", "Exportación"))|> 
+  my_plot(aes(x = as_factor(aa), y = tn, color = medida)) +
   geom_point(alpha = .4) +
   geom_smooth(aes(group = medida), se = FALSE) +
   labs(
@@ -84,8 +102,9 @@ istac_grafs$prodvsexps <- istac_ds$prodvsexps %>%
   )
 
 # producción dedicada a consumo interno
-istac_grafs$cons_propio <- istac_ds$prodvsexps %>% 
-  my_plot(aes(x = anualidad, y = interno)) +
+istac_grafs$cons_propio <- 
+  istac_ds$prodvsexps |>  
+  my_plot(aes(x = aa, y = interno)) +
   geom_point(alpha = .4) +
   geom_smooth(se = FALSE) +
   labs(
@@ -149,18 +168,13 @@ istac_grafs$pre_mes_canarias <- istac_ds$precios_sem %>%
 
 # Gráficas de superficie --------------------------------------------------
 
-istac_grafs$sup <- istac_ds$superficie %>% 
+istac_grafs$sup <- 
+  istac_ds$superficie |>  
   filter(
     territorio %in% c("Gran Canaria", "Tenerife", "La Palma")
-  ) %>% 
-  pivot_longer(
-    cols = !c("territorio", "anualidad"),
-    names_to = "medida",
-    values_to = "valor"
-  ) %>% 
-  my_plot(aes(x = as_factor(anualidad), y = valor, color = territorio)) +
-  geom_line(aes(group=territorio)) +
-  facet_wrap(~medida, ncol = 1) +
+  ) |> 
+  my_plot(aes(x = as_factor(aa), y = ha, color = territorio)) +
+  geom_line(aes(group = territorio)) +
   labs(
     title = "Evolución de la superficie cultivada (ha)",
     x = NULL, y = NULL, color = NULL
