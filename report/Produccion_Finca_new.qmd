@@ -1,0 +1,263 @@
+---
+title: "Producción de plátanos"
+date: "`r Sys.Date()`"
+lang: es
+execute: 
+  echo: false
+  warning: false
+crossref: 
+  fig-title: "Figura"
+  fig-prefix: "Figura"
+  tbl-title: "Tabla"
+  tbl-prefix: "Tabla"
+format: 
+  html:
+    theme: lux
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    embed-resources: true
+    fig-width: 10
+    page-layout: full
+    grid:
+      sidebar-width: 50px
+      body-width: 1200px
+      margin-width: 200px
+knitr: 
+  opts_chunk:
+    echo: false
+    warning: false
+    message: false
+---
+
+```{r}
+#| label: set-up
+#| include: false
+
+library(tidyverse)
+library(ggdist)
+library(here)
+library(gt)
+library(gtExtras)
+library(kableExtra)
+
+theme_set(
+  # theme_minimal()
+  theme_light(base_size = 16)
+)
+
+eur <- scales::label_currency(suffix = "€", prefix = NULL,
+                              big.mark = ".", decimal.mark = ",")
+
+# mi paleta de colores
+col_pal <- c("cream" = "#f4f7be", "mindaro" = "#e5f77d", "ecru" = "#deba6f",
+             "wine"  = "#823038", "licoire" = "#1e000e")
+
+```
+
+```{r}
+#| label: data-load
+
+load(here("data/processed/datos_finca.RData"))
+load(here("data/processed/graficas_finca.RData"))
+load(here("data/processed/istac_platanos.RData"))
+load(here("data/processed/istac_graficas.RData"))
+
+# rango de los datos de las gráficas de la cooperativa
+coop_rng <- range(coop_grafs$eur_kg$data$fecha)
+# rango de los daatos del istac
+istac_rng <- range(istac_grafs$pre_sem$data$aa)
+```
+
+
+# Producción de plátano en Canarias
+
+## Precios percibidos por el agricultor
+
+Datos para el periodo `r istac_rng[1]` a `r istac_rng[2]`
+
+```{r}
+#| label: istac-precios-sem
+#| fig-height: 7
+
+istac_grafs$pre_sem +
+  labs(
+    subtitle = glue::glue(
+      'Valores máximos y mínimos, ',
+      '<span style=color:{col_pal["ecru"]}>media</span>, ',
+      '<span style=color:{col_pal["wine"]}>última anualidad</span> y ',
+      '<span style=color:{"#333333"}>semana 34</span>'
+    )
+  ) +
+  theme(
+    plot.subtitle   = ggtext::element_markdown(),
+    legend.position = "none"
+  ) +
+  scale_y_continuous(labels = eur)
+
+```
+
+```{r}
+#| label: eu-precios
+
+# cambiar fecha 01-01-17 a 31-12-16
+
+ds <- 
+  readxl::read_xlsx(
+    path  = here::here("data/raw/bananas_wholesale-proces_feb24.xlsx"),
+    sheet = "data EU",
+    skip  = 2
+  ) |> 
+  select(week, `ending on`, ES) |> 
+  # hay un problema con como cuentan las semanas
+  mutate(
+    aa = year(`ending on`),
+    wk = week(`ending on`),
+    # precio de 100 Kg, lo paso a Kg
+    pr = ES / 100,
+    .keep = "none"
+    ) |> 
+  mutate(
+    mx_pr = max(pr, na.rm = TRUE),
+    mn_pr = min(pr, na.rm = TRUE),
+    md_pr = median(pr, na.rm = TRUE),
+    .by   = wk
+  )
+
+ds_lastaa <- filter(ds, aa == max(aa)) |> select(aa:pr)
+
+ds |> 
+  ggplot(aes(x = wk)) +
+  geom_ribbon(aes(ymin = mn_pr, ymax = mx_pr), fill = "#e5f77d", color = "#DEBA6F") +
+  geom_line(aes(y = md_pr), color = "#DEBA6F", linewidth = 0.9) +
+  geom_line(data = ds_lastaa, aes(x = wk, y = pr), color = "#823038", linewidth = 0.9) +
+  geom_vline(xintercept = 34, color = "#333333") +
+  labs(
+    title = "Evolución del rango de precios (€/Kg)",
+    subtitle = glue::glue(
+      'Valores máximos y mínimos, ',
+      '<span style=color:{col_pal["ecru"]}>media</span>, ',
+      '<span style=color:{col_pal["wine"]}>última anualidad</span> y ',
+      '<span style=color:{"#333333"}>semana 34</span>'
+    ),
+    caption = "Fuente: Members States and UK notifications pursuant to Art 1 and Annex I (5) of Commission Regulation (EU) 2017/1185",
+    x = "Semana", y = element_blank()
+  ) +
+  theme(
+    plot.subtitle = ggtext::element_markdown(),
+    plot.caption = element_text(size = 10),
+    legend.position = "none"
+  ) +
+  scale_y_continuous(labels = eur)
+
+  
+```
+
+
+## Evolución de la producción
+
+```{r}
+#| label: istac-prod-canarias
+
+istac_grafs$tn_canarias
+
+```
+
+```{r}
+#| label: istac-produccion
+#| fig-height: 7
+
+istac_grafs$tn
+
+istac_grafs$exp_tot +
+  labs(
+    subtitle = glue::glue(
+      'Valores máximos y mínimos, ',
+      '<span style=color:{col_pal["ecru"]}>media</span> y ',
+      '<span style=color:{col_pal["wine"]}>último año</span>'
+    )
+  ) +
+  theme(
+    plot.subtitle = ggtext::element_markdown(),
+    legend.position = "none"
+  )
+```
+
+## Evolución de la superficie cultivada
+
+```{r}
+#| label: istac-superficies
+
+istac_grafs$sup
+
+```
+
+## Relación entre producción y exportación
+
+```{r}
+#| label: istac-prod-vs-exp
+
+# cambiar colores en el título y quitar leyenda
+istac_grafs$prodvsexps +
+  # labs(
+  #   title = glue::glue(
+  #     'Comparativa de la ',
+  #     '<span style=color:{}>Producción</span> y ',
+  #     '<span style=color:{}>Exportación</span> anual (Tn)'
+  #   )
+  # ) +
+  theme(title = ggtext::element_markdown(), legend.position = "none")
+
+```
+
+Las exportaciones incluyen tanto a península como al extranjero, por lo que podemos ver en qué mercado se ha producido la disminución.
+
+```{r}
+#| label: tabla-istac-exports
+#| eval: false
+
+istac_ds$exportaciones %>% 
+  select(mes, peninsula, extranjero) %>% 
+  mutate(
+    aa = lubridate::year(mes),
+  ) %>%
+  group_by(aa) %>% 
+  summarise(
+    across(c("peninsula", "extranjero"), sum),
+    .groups = "drop"
+  ) %>%
+  filter(
+    !is.na(peninsula),
+    aa < max(aa)
+    ) %>%
+  mutate(
+    across(
+      peninsula:extranjero,
+      ~ round((.x / lag(.x, default = .x[1]) - 1) * 100, 2), .names = "roc_{.col}")
+  ) %>% 
+  select(aa, ends_with(c("sula", "jero"))) %>% 
+  kbl(
+    col.names = c(" ", "Nacional (Tn)", "RoC (%)", "Internacional (Tn)", "RoC (%)"),
+    format.args = list(big.mark = ".", decimal.mark = ",")
+  ) %>% 
+  kable_styling(
+    bootstrap_options = "striped", 
+    full_width = TRUE
+  )
+  
+  # my_plot(aes(x = aa, y = Tn, fill = as_factor(aa))) +
+  # geom_col(position = "dodge") +
+  # # geom_point(alpha = .4) +
+  # # geom_smooth(aes(group = aa), se = FALSE) + 
+  # facet_wrap(~destino, ncol = 1, scales = "free_y")
+
+```
+
+Por tanto, suponiendo que lo que no se exporta se destina al mercado interno, la evolución de este indicador es la siguiente
+
+```{r}
+#| label: istac-consinterno
+
+istac_grafs$cons_propio
+
+```
