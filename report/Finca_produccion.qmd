@@ -54,19 +54,20 @@ load(here("data/processed/graficas_finca.RData"))
 #| label: summary-table
 
 coop_ds$mes %>% 
-  select(racimos:total_eur) %>% 
+  select(racimos:total_eur) |>  
   rename(
     Racimos  = racimos,
     Peso     = total_kg,
     Ingresos = total_eur
-  ) %>% 
-  gt_plt_summary(title = NULL) %>% 
+  ) |>  
+  gt_plt_summary(title = NULL) |>  
   tab_header(
-    title = "Valores principales",
+    title = "Valores totales",
     subtitle = "Desde 2021"
-  ) %>% 
-  cols_hide(columns = c(n_missing)) %>%
-  fmt_integer(columns = c(Mean:SD), sep_mark = ".") %>% 
+  ) |>
+  tab_options(table.width = pct(60)) |> 
+  cols_hide(columns = c(n_missing)) |> 
+  fmt_integer(columns = c(Mean:SD), sep_mark = ".")|> 
   cols_label(
     name = "COLUMN", value = NULL,
     name = "Column", value="Histograma",
