@@ -69,7 +69,7 @@ coop_grafs$dist_kg <-
     position = position_nudge(y = 0.075), height = 0.75
     ) +
   labs(
-    title = "Distribución de los pesos semanales (Kg)",
+    # title = "Distribución de los pesos semanales (Kg)",
     x = element_blank(), y = element_blank()
   ) +
   theme(
@@ -95,7 +95,7 @@ coop_grafs$dist_kg_aa <-
   ) +
   facet_wrap(~aa, nrow = 1) +
   labs(
-    title = "Distribución de los pesos semanales (Kg)",
+    # title = "Distribución de los pesos semanales (Kg)",
     x = element_blank(), y = element_blank()
   ) +
   theme(
@@ -189,7 +189,8 @@ coop_grafs$kg_mm_acum <-
   labs(
     title = "Acumulados mensuales de la producción total (Kg)",
     x = NULL, y = NULL, color = "Anualidades"
-  )
+  ) + 
+  scale_y_continuous(labels = eur, position = "right")
 
 # los kg por categorías, comparados
 coop_grafs$kg_cat <-
@@ -309,7 +310,7 @@ coop_grafs$eur_mm_acum <-
   geom_text(
     data = . %>% filter(month(fecha) == month(max(fecha))),
     aes(
-      label = format(eur_acum, big.mark=".", decimal.mark = ",") %>%
+      label = format(eur_acum, big.mark=".", decimal.mark = ",", digits = 1) %>%
         str_c(.,"eur", sep=" ")
     ),
     nudge_x = .9, size = 3,
@@ -318,7 +319,8 @@ coop_grafs$eur_mm_acum <-
   labs(
     title = "Acumulados mensuales de los importes (€)",
     x = NULL, y = NULL, color = "Anualidades"
-  )
+  ) +
+  scale_y_continuous(labels = eur, position = "right")
 
 # comparo los importes por categorías
 
