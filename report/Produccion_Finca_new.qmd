@@ -36,10 +36,10 @@ knitr:
 
 library(tidyverse)
 library(ggdist)
+library(patchwork)
 library(here)
 library(gt)
 library(gtExtras)
-library(kableExtra)
 
 theme_set(
   # theme_minimal()
@@ -98,6 +98,14 @@ coop_ds$mes |>
     Median = "Mediana",
     SD = "Desv. Est."
   )
+```
+## Distribución semanal del peso (Kg)
+
+```{r}
+#| label: kg-vs-aa
+#| fig-height: 8
+
+coop_grafs$dist_kg / coop_grafs$dist_kg_aa
 ```
 
 
