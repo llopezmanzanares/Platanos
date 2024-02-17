@@ -97,6 +97,9 @@ istac_grafs$exp_tot <-
     x = NULL, y = NULL, color = NULL
   )
 
+col_pe <- c("#e69f00", "#009e73")
+name(col_pe) <- c("Producción", "Exportación")
+
 # toneladas producidas vs exportaciones
 istac_grafs$prodvsexps <- 
   istac_ds$prodvsexps |>  
@@ -107,18 +110,19 @@ istac_grafs$prodvsexps <-
   geom_point(alpha = .4) +
   geom_smooth(aes(group = medida), se = FALSE) +
   labs(
-    title    = "Comparativa de la producción y exportación anual",
+    title    = "Comparativa de la Producción y Exportación anual",
     subtitle = "Toneladas anuales",
     caption  = "Fuente: ISTAC, Gobierno de Canarias",
     x = NULL, y = NULL, color = NULL
-  )
+  ) +
+  scale_color_manual(values = col_pe)
 
 # producción dedicada a consumo interno
 istac_grafs$cons_propio <- 
   istac_ds$prodvsexps |>  
   my_plot(aes(x = aa, y = interno)) +
   geom_point(alpha = 0.6) +
-  geom_smooth(se = FALSE) +
+  geom_smooth(se = FALSE, color = "#1e000e") +
   labs(
     title = "Evolución anual del consumo interno de la producción (Tn)",
     caption = "Fuente: ISTAC, Gobierno de Canarias",
@@ -141,12 +145,12 @@ istac_grafs$pre_sem <-
   ) |> 
   ggplot(aes(x = sem)) +
   geom_ribbon(aes(ymin = mn_precio, ymax = mx_precio), fill = "#e5f77d", color = "#DEBA6F") +
-  geom_line(aes(y = md_precio), color = "#DEBA6F") +
-  geom_line(data = p_sem_ult_aa, aes(y = precio), color = "#823038") +
+  geom_line(aes(y = md_precio), color = "#DEBA6F", linewidth = 0.9) +
+  geom_line(data = p_sem_ult_aa, aes(y = precio), color = "#823038", linewidth = 0.9) +
   geom_vline(xintercept = 34) +
   facet_wrap(~territorio, ncol = 1) +
   labs(
-    title    = "Evolución del percio percibido (€/Kg)",
+    title    = "Evolución del rango del precio percibido (€/Kg)",
     subtitle = "Valores máximos, mínimos, medios, última anualidad y semana 34.",
     caption  = "Fuente: ISTAC, Gobierno de Canarias",
     x = "Semana", y = NULL
