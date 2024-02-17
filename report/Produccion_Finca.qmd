@@ -35,8 +35,11 @@ params:
 #| include: false
 
 library(tidyverse)
-library(lubridate)
+library(ggdist)
+# library(lubridate)
 library(here)
+library(gt)
+library(gtExtras)
 library(kableExtra)
 
 theme_set(
@@ -47,6 +50,7 @@ theme_set(
 eur <- scales::label_currency(suffix = "€", prefix = NULL,
                               big.mark = ".", decimal.mark = ",")
 
+# mi paleta de colores
 col_pal <- c("cream" = "#f4f7be", "mindaro" = "#e5f77d", "ecru" = "#deba6f",
              "wine"  = "#823038", "licoire" = "#1e000e")
 
@@ -65,6 +69,7 @@ if (isTRUE(params$new_coop)){
   load(here("data/processed", "graficas_finca.RData"))
 }
 
+load(here("data/processed/datos_finca.RData"))
 # rango de los datos de las gráficas de la cooperativa
 fechas_rng <- range(coop_grafs$eur_kg$data$fecha)
 ```
@@ -99,7 +104,43 @@ Además, se ofrece información sobre el contexto de la producción en el archip
 
 # Evolución de la producción
 
+```{r}
+#| label: summary-table
+
+coop_ds$mes |>  
+  select(racimos:total_eur) |>  
+  rename(
+    Racimos  = racimos,
+    Peso     = total_kg,
+    Ingresos = total_eur
+  )  |>  
+  gt_plt_summary(title = NULL) |> 
+  tab_header(
+    title = "Valores principales",
+    subtitle = "Desde 2021"
+  )  |>  
+  cols_hide(columns = c(n_missing))  |> 
+  fmt_integer(columns = c(Mean:SD), sep_mark = ".")  |>  
+  cols_label(
+    name = "COLUMN", value = NULL,
+    name = "Column", value="Histograma",
+    Mean = "Media",
+    Median = "Mediana",
+    SD = "Desv. Est."
+  )
+```
+
 ## Producción mensual en kg
+
+```{r}
+#| label: densidad-kg
+
+coop_grafs$dist_kg
+coop_grafs$dist_kg_aa
+
+```
+
+
 
 ```{r}
 #| label: fig-kg-mes
