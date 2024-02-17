@@ -69,6 +69,38 @@ coop_rng <- range(coop_grafs$eur_kg$data$fecha)
 istac_rng <- range(istac_grafs$pre_sem$data$aa)
 ```
 
+# Producción de la Finca
+
+Datos para el periodo `r coop_rng[1]` a `r coop_rng[2]`
+
+```{r}
+#| label: resumen
+
+coop_ds$mes |>  
+  select(racimos:total_eur) |>  
+  rename(
+    Racimos  = racimos,
+    Peso     = total_kg,
+    Ingresos = total_eur
+  ) |>  
+  gt_plt_summary() |> 
+  tab_options(table.width = pct(60)) |> 
+  tab_header(
+    title    = "Resumen de valores mensuales",
+    subtitle = "Desde 2021"
+  )  |>  
+  cols_hide(columns = c(n_missing)) |> 
+  fmt_integer(columns = c(Mean:SD), sep_mark = ".") |>  
+  cols_label(
+    name = "COLUMN", value = NULL,
+    name = "Column", value="Histograma",
+    Mean = "Media",
+    Median = "Mediana",
+    SD = "Desv. Est."
+  )
+```
+
+
 
 # Producción de plátano en Canarias
 
@@ -197,61 +229,27 @@ istac_grafs$sup
 ```{r}
 #| label: istac-prod-vs-exp
 
+col_pe <- c("Producción" = "#e69f00", "Exportación" = "#009e73")
+
+
+
 # cambiar colores en el título y quitar leyenda
 istac_grafs$prodvsexps +
-  # labs(
-  #   title = glue::glue(
-  #     'Comparativa de la ',
-  #     '<span style=color:{}>Producción</span> y ',
-  #     '<span style=color:{}>Exportación</span> anual (Tn)'
-  #   )
-  # ) +
-  theme(title = ggtext::element_markdown(), legend.position = "none")
+  labs(
+    title = glue::glue(
+      'Comparativa de la ',
+      '<span style=color:{col_pe["Producción"]}>Producción</span> y ',
+      '<span style=color:{col_pe["Exportación"]}>Exportación</span> anual (Tn)'
+    )
+  ) +
+  theme(plot.title = ggtext::element_markdown(), legend.position = "none") +
+  scale_color_manual(values = col_pe)
 
 ```
 
 Las exportaciones incluyen tanto a península como al extranjero, por lo que podemos ver en qué mercado se ha producido la disminución.
 
-```{r}
-#| label: tabla-istac-exports
-#| eval: false
 
-istac_ds$exportaciones %>% 
-  select(mes, peninsula, extranjero) %>% 
-  mutate(
-    aa = lubridate::year(mes),
-  ) %>%
-  group_by(aa) %>% 
-  summarise(
-    across(c("peninsula", "extranjero"), sum),
-    .groups = "drop"
-  ) %>%
-  filter(
-    !is.na(peninsula),
-    aa < max(aa)
-    ) %>%
-  mutate(
-    across(
-      peninsula:extranjero,
-      ~ round((.x / lag(.x, default = .x[1]) - 1) * 100, 2), .names = "roc_{.col}")
-  ) %>% 
-  select(aa, ends_with(c("sula", "jero"))) %>% 
-  kbl(
-    col.names = c(" ", "Nacional (Tn)", "RoC (%)", "Internacional (Tn)", "RoC (%)"),
-    format.args = list(big.mark = ".", decimal.mark = ",")
-  ) %>% 
-  kable_styling(
-    bootstrap_options = "striped", 
-    full_width = TRUE
-  )
-  
-  # my_plot(aes(x = aa, y = Tn, fill = as_factor(aa))) +
-  # geom_col(position = "dodge") +
-  # # geom_point(alpha = .4) +
-  # # geom_smooth(aes(group = aa), se = FALSE) + 
-  # facet_wrap(~destino, ncol = 1, scales = "free_y")
-
-```
 
 Por tanto, suponiendo que lo que no se exporta se destina al mercado interno, la evolución de este indicador es la siguiente
 
