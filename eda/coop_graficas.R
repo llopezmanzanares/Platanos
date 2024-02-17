@@ -12,7 +12,11 @@
 library(tidyverse)
 library(here)
 library(lubridate)
+library(ggdist)
 
+# mi paleta de colores
+col_pal <- c("cream" = "#f4f7be", "mindaro" = "#e5f77d", "ecru" = "#deba6f",
+             "wine"  = "#823038", "licoire" = "#1e000e")
 
 # datos de la cooperativa (semana, mes y kg mensuales)
 load(here("data/processed/datos_finca.RData"))
@@ -48,6 +52,57 @@ coop_grafs$summ <-
   labs(
     title = "Evolución de la distribución anual de los valores mensuales de\nIngresos, Pesos y número de Racimos",
     x = NULL, y = NULL
+  )
+
+# Distribución de los pesos, al detalle
+coop_grafs$dist_kg <- 
+  coop_ds$sem |> 
+  select(fecha, total_kg) |> 
+  ggplot(aes(x = total_kg)) +
+  geom_boxplot(width = 0.1, fill = col_pal["wine"]) +
+  geom_dots(
+    dotsize = 0.1, height = 0.55, fill = col_pal["wine"],
+    side = "bottom", position = position_nudge(y = -0.075)
+    ) +
+  stat_slab(
+    fill = col_pal["wine"],
+    position = position_nudge(y = 0.075), height = 0.75
+    ) +
+  labs(
+    title = "Distribución de los pesos semanales (Kg)",
+    x = element_blank(), y = element_blank()
+  ) +
+  theme(
+    plot.title.position = "plot",
+    axis.text.y  = element_blank(),
+    axis.ticks.y = element_blank()
+  )
+
+# Distribución Kg por anualidades
+coop_grafs$dist_kg_aa <- 
+  coop_ds$sem |> 
+  select(fecha, total_kg) |>
+  mutate(aa = as_factor(year(fecha))) |> 
+  filter(aa != "2020") |> 
+  ggplot(aes(y = total_kg, fill = aa)) +
+  geom_boxplot(width = 0.1) +
+  geom_dots(
+    dotsize = 0.1, height = 0.55,
+    side = "bottom", position = position_nudge(x = -0.075)
+  ) +
+  stat_slab(
+    position = position_nudge(x = 0.075), height = 0.75
+  ) +
+  facet_wrap(~aa, nrow = 1) +
+  labs(
+    title = "Distribución de los pesos semanales (Kg)",
+    x = element_blank(), y = element_blank()
+  ) +
+  theme(
+    plot.title.position = "plot",
+    legend.position = "none",
+    axis.text.x  = element_blank(),
+    axis.ticks.x = element_blank()
   )
 
 # Relación euros vs Kg ----------------------------------------------------
