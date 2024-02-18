@@ -168,7 +168,7 @@ label_txt <-
 coop_ds$mes_kg |> 
   mutate(aa_txt = as_factor(aa)) |> 
   ggplot(aes(x = mm, y = total_kg_acum)) +
-  geom_line(aes(group = aa_txt, color = aa_txt), size = 0.9) +
+  geom_line(aes(group = aa_txt, color = aa_txt), linewidth = 0.9) +
   ggrepel::geom_text_repel(
     data = label_txt,
     aes(label = txt_aa, color = txt_aa, x = mm, y = total_kg_acum),
@@ -198,7 +198,7 @@ lbl_txt <- filter(eur_acum, mm == min(mm), .by = aa)
 
 eur_acum |> 
   ggplot(aes(x = mm, y = eur_cum)) +
-  geom_line(aes(group = aa_txt, color = aa_txt), size = 0.9) +
+  geom_line(aes(group = aa_txt, color = aa_txt), linewidth = 0.9) +
   ggrepel::geom_text_repel(
     data = lbl_txt,
     aes(label = aa_txt, color = aa_txt, x = mm, y = eur_cum),
@@ -212,6 +212,41 @@ eur_acum |>
   scale_y_continuous(position = "right", labels = eur)
 
 
+```
+
+## Precio percibido
+
+Se compara el total de la factura (Cooperativa), con el valor de ISTAC.
+
+```{r}
+#| label: eur-kg
+
+precio_tef <- 
+  filter(istac_ds$precios_sem, territorio == "Tenerife", aa > min(year(coop_ds$sem$fecha))) |> 
+  select(-territorio)
+
+coop_ds$sem |> 
+  select(fecha, semana, total_kg, total_eur) |> 
+  # tengo un solo valor en 2020
+  filter(fecha > min(fecha)) |> 
+  mutate(aa = year(fecha), precio_coop = total_eur / total_kg) |> 
+  select(aa, sem = semana, precio_coop) |> 
+  full_join(precio_tef) |>  
+  pivot_longer(cols = starts_with("prec")) |> filter(!is.na(value)) |> 
+  mutate(
+    name    = if_else(name == "precio", "ISTAC", "Cooperativa"),
+    sem_txt = if_else(sem < 10, str_c("0", sem), as.character(sem)),
+    fecha   = str_c(aa, sem_txt, "04", sep = " ") |> as.Date(format = "%Y %W %w")
+    ) |> 
+  select(fecha, name, value) |> 
+  ggplot(aes(x = fecha, y = value)) +
+  geom_line(aes(group = name, color = name), linewidth = 1) +
+  labs(
+    title = "Comparativa de valor percibido (€/Kg)",
+    x = element_blank(), y = element_blank(), color = element_blank()
+  ) +
+  theme(plot.title.position = "plot", legend.position = "bottom") +
+  scale_y_continuous(position = "right", labels = eur)
 ```
 
 
