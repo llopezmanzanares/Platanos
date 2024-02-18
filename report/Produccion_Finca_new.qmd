@@ -155,14 +155,7 @@ coop_ds$mes |>
 ```
 
 
-## Acumulados mensuales
-
-```{r}
-#| label: acumulados-mes
-#| fig-height: 8
-
-coop_grafs$kg_mm_acum / coop_grafs$eur_mm_acum
-```
+## Acumulados anuales
 
 ```{r}
 #| label: acum-kg
@@ -189,6 +182,37 @@ coop_ds$mes_kg |>
   scale_y_continuous(position = "right", labels = scales::label_number(big.mark = "."))
 ```
 
+```{r}
+#| label: acum-eur
+
+eur_acum <-
+  coop_ds$sem |> 
+  select(fecha, total_eur) |> 
+  mutate(aa = year(fecha), mm = month(fecha, label = TRUE), .after = 1) |> 
+  filter(aa > min(aa)) |> 
+  summarise(.by = c(aa, mm), eur = sum(total_eur)) |> 
+  mutate(.by = aa, eur_cum = cumsum(eur)) |> 
+  mutate(aa_txt = as_factor(aa), .before = 1)
+
+lbl_txt <- filter(eur_acum, mm == min(mm), .by = aa)
+
+eur_acum |> 
+  ggplot(aes(x = mm, y = eur_cum)) +
+  geom_line(aes(group = aa_txt, color = aa_txt), size = 0.9) +
+  ggrepel::geom_text_repel(
+    data = lbl_txt,
+    aes(label = aa_txt, color = aa_txt, x = mm, y = eur_cum),
+    size = 4
+  ) +
+  labs(
+    title = "Acumulados anuales del precio percibido (€)",
+    x = element_blank(), y = element_blank(), color = element_blank()
+  ) +
+  theme(plot.title.position = "plot", legend.position = "none") +
+  scale_y_continuous(position = "right", labels = eur)
+
+
+```
 
 
 
