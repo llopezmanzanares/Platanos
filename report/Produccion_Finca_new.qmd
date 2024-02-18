@@ -43,7 +43,7 @@ library(gtExtras)
 
 theme_set(
   # theme_minimal()
-  theme_light(base_size = 16)
+  theme_light(base_size = 14)
 )
 
 eur <- scales::label_currency(suffix = "€", prefix = NULL,
@@ -105,8 +105,90 @@ coop_ds$mes |>
 #| label: kg-vs-aa
 #| fig-height: 8
 
+#Añadir unidades en los ejes?
+
 coop_grafs$dist_kg / coop_grafs$dist_kg_aa
 ```
+
+## Evolución mensual
+
+```{r}
+#| label: evol-mm-kg
+
+coop_ds$mes |> 
+  ggplot(aes(x = fecha, y = total_kg)) +
+  geom_point(shape = 21, fill = col_pal["cream"], color = col_pal["wine"]) +
+  geom_smooth(
+    method = "loess", formula = y ~ x,
+    color = col_pal["wine"], fill = col_pal["cream"]
+    ) +
+  labs(
+    title = "Evolución de la producción mensual (Kg)",
+    x = element_blank(), y = element_blank()
+  ) +
+  theme(
+    plot.title.position = "plot",
+    axis.title.y = element_text()
+  ) +
+  scale_y_continuous(position = "right", labels = scales::label_number(big.mark = "."))
+```
+
+```{r}
+#| label: evol-mm-eur
+
+coop_ds$mes |> 
+  ggplot(aes(x = fecha, y = total_eur)) +
+  geom_point(shape = 21, fill = col_pal["cream"], color = col_pal["wine"]) +
+  geom_smooth(
+    method = "loess", formula = y ~ x,
+    color = col_pal["wine"], fill = col_pal["cream"]
+    ) +
+  labs(
+    title = "Evolución de la producción mensual (€)",
+    x = element_blank(), y = element_blank()
+  ) +
+  theme(
+    plot.title.position = "plot",
+    axis.title.y = element_text()
+  ) +
+  scale_y_continuous(position = "right", labels = eur)
+```
+
+
+## Acumulados mensuales
+
+```{r}
+#| label: acumulados-mes
+#| fig-height: 8
+
+coop_grafs$kg_mm_acum / coop_grafs$eur_mm_acum
+```
+
+```{r}
+#| label: acum-kg
+
+
+label_txt <- 
+  filter(coop_ds$mes_kg, fecha == min(fecha), .by = aa) |> 
+  mutate(txt_aa = as_factor(aa))
+
+coop_ds$mes_kg |> 
+  mutate(aa_txt = as_factor(aa)) |> 
+  ggplot(aes(x = mm, y = total_kg_acum)) +
+  geom_line(aes(group = aa_txt, color = aa_txt), size = 0.9) +
+  ggrepel::geom_text_repel(
+    data = label_txt,
+    aes(label = txt_aa, color = txt_aa, x = mm, y = total_kg_acum),
+    size = 4
+    ) +
+  labs(
+    title = "Acumulados anuales de los pesos (Kg)", 
+    x = element_blank(), y = element_blank(), color = element_blank()
+  ) +
+  theme(plot.title.position = "plot", legend.position = "none") +
+  scale_y_continuous(position = "right", labels = scales::label_number(big.mark = "."))
+```
+
 
 
 
@@ -205,9 +287,13 @@ istac_grafs$tn_canarias
 
 ```{r}
 #| label: istac-produccion
-#| fig-height: 7
 
 istac_grafs$tn
+```
+
+```{r}
+#| label: istac-exports
+#| fig-height: 7
 
 istac_grafs$exp_tot +
   labs(
