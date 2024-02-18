@@ -300,7 +300,7 @@ coop_grafs$eur_mm_acum <-
   ) %>% 
   my_plot(aes(x = mes, y = eur_acum, color = as_factor(anualidad))) +
   geom_point(alpha = .5) +
-  geom_line(aes(group = anualidad), linewidth = 1.1) +
+  geom_line(aes(group = anualidad), linewidth = 1.2) +
   # último valor del último año, comparado con los anteriores
   geom_point(
     data = . %>% filter(month(fecha) == month(max(fecha))),
