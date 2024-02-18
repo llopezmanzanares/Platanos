@@ -98,7 +98,7 @@ istac_grafs$exp_tot <-
   )
 
 col_pe <- c("#e69f00", "#009e73")
-name(col_pe) <- c("Producción", "Exportación")
+names(col_pe) <- c("Producción", "Exportación")
 
 # toneladas producidas vs exportaciones
 istac_grafs$prodvsexps <- 
