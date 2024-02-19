@@ -124,13 +124,10 @@ coop_ds$mes |>
     ) +
   labs(
     title = "Evolución de la producción mensual (Kg)",
-    x = element_blank(), y = element_blank()
+    x = NULL, y = NULL
   ) +
-  theme(
-    plot.title.position = "plot",
-    axis.title.y = element_text()
-  ) +
-  scale_y_continuous(position = "right", labels = scales::label_number(big.mark = "."))
+  theme(plot.title.position = "plot") +
+  scale_y_continuous(labels = scales::label_number(big.mark = "."))
 ```
 
 ```{r}
@@ -147,11 +144,8 @@ coop_ds$mes |>
     title = "Evolución de la producción mensual (€)",
     x = element_blank(), y = element_blank()
   ) +
-  theme(
-    plot.title.position = "plot",
-    axis.title.y = element_text()
-  ) +
-  scale_y_continuous(position = "right", labels = eur)
+  theme(plot.title.position = "plot") +
+  scale_y_continuous(labels = eur)
 ```
 
 ```{r}
