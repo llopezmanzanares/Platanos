@@ -91,7 +91,7 @@ istac_grafs$exp_tot <-
   geom_line(data = exps_last_aa, aes(y = tn), color = col_pal["wine"]) +
   facet_wrap(~isla, ncol = 1, scales = "free_y") +
   labs(
-    title    = "Evolución mensual de las exportaciones (mil Tn)",
+    title    = "Evolución mensual de las exportaciones (Tn)",
     subtitle = "Valores máximos y mínimos, media y último año",
     caption  = "Fuente: ISTAC, Gobierno de Canarias",
     x = NULL, y = NULL, color = NULL
