@@ -388,7 +388,8 @@ istac_grafs$exp_tot +
   theme(
     plot.subtitle = ggtext::element_markdown(),
     legend.position = "none"
-  )
+  ) +
+  scale_y_continuous(labels = scales::label_number(big.mark = "."))
 ```
 
 ## Evolución de la superficie cultivada

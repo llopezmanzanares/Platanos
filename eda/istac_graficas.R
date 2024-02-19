@@ -24,7 +24,7 @@ my_plot <- function(...){
       plot.title.position = "plot",
       legend.position = "bottom"
     ) +
-    scale_y_continuous(position = "right")
+    scale_y_continuous(position = "right", labels = scales::label_number(big.mark = "."))
 }
 
 # Evolución de la producción ----------------------------------------------
