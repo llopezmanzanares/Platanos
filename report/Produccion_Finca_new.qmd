@@ -99,13 +99,49 @@ coop_ds$mes |>
     SD = "Desv. Est."
   )
 ```
+```{r}
+#| label: resumen-2
+
+periodo <-
+  tibble(
+    aa = rep(year(coop_rng[1]):year(coop_rng[2]), each = 12),
+    mm = rep(1:12, year(coop_rng[2])-year(coop_rng[1]) + 1) |> 
+      month(label = TRUE)
+  )
+
+left_join(
+  periodo,
+  coop_ds$mes |> 
+  select(fecha:total_eur) |> 
+  mutate(aa = year(fecha), mm = month(fecha, label = TRUE), .keep = "unused"),
+  join_by(aa, mm)
+) |> 
+  pivot_longer(cols = racimos:total_eur) |> 
+  pivot_wider(names_from = mm, values_from = value) |> 
+  mutate(
+    name = str_replace(name, "_", " ") |> str_to_sentence()
+  ) |> 
+  gt(
+    locale = "es",
+    rowname_col = "aa", groupname_col = "name"
+    ) |> 
+  fmt_number(
+    columns = c("ene":"dic"),
+    decimals = 0
+  ) |> 
+  data_color(
+    columns = c("ene":"dic"), direction = "row",
+    palette = col_pal, apply_to = "fill"
+  ) 
+  
+```
+
+
 ## Distribución semanal del peso (Kg)
 
 ```{r}
 #| label: kg-vs-aa
 #| fig-height: 8
-
-#Añadir unidades en los ejes?
 
 coop_grafs$dist_kg / coop_grafs$dist_kg_aa
 ```
@@ -430,9 +466,9 @@ Por tanto, suponiendo que lo que no se exporta se destina al mercado interno, la
 istac_grafs$cons_propio
 
 ```
-<!--
-# En Profundidad
--->
+
+# En Profundidad (experimental)
+
 ```{r}
 #| label: all-ds
 
