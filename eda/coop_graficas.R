@@ -18,6 +18,9 @@ library(ggdist)
 col_pal <- c("cream" = "#f4f7be", "mindaro" = "#e5f77d", "ecru" = "#deba6f",
              "wine"  = "#823038", "licoire" = "#1e000e")
 
+eur <- scales::label_currency(suffix = "€", prefix = NULL,
+                              big.mark = ".", decimal.mark = ",")
+
 # datos de la cooperativa (semana, mes y kg mensuales)
 load(here("data/processed/datos_finca.RData"))
 
@@ -69,14 +72,15 @@ coop_grafs$dist_kg <-
     position = position_nudge(y = 0.075), height = 0.75
     ) +
   labs(
-    # title = "Distribución de los pesos semanales (Kg)",
-    x = element_blank(), y = element_blank()
+    title = "Distribución de los pesos semanales para todo el conjunto de datos",
+    x = "Kg", y = element_blank()
   ) +
   theme(
     plot.title.position = "plot",
     axis.text.y  = element_blank(),
     axis.ticks.y = element_blank()
-  )
+  ) +
+  scale_x_continuous(labels = scales::label_number(big.mark = "."))
 
 # Distribución Kg por anualidades
 coop_grafs$dist_kg_aa <- 
@@ -103,7 +107,8 @@ coop_grafs$dist_kg_aa <-
     legend.position = "none",
     axis.text.x  = element_blank(),
     axis.ticks.x = element_blank()
-  )
+  ) +
+  scale_y_continuous(labels = scales::label_number(big.mark = "."))
 
 # Relación euros vs Kg ----------------------------------------------------
 
