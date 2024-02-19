@@ -50,7 +50,7 @@ eur <- scales::label_currency(suffix = "€", prefix = NULL,
                               big.mark = ".", decimal.mark = ",")
 
 # mi paleta de colores
-col_pal <- c("cream" = "#f4f7be", "mindaro" = "#e5f77d", "ecru" = "#deba6f",
+col_pal <- c("blanco" = "white", "cream" = "#f4f7be", "mindaro" = "#e5f77d", "ecru" = "#deba6f",
              "wine"  = "#823038", "licoire" = "#1e000e")
 
 ```
@@ -65,7 +65,7 @@ load(here("data/processed/istac_graficas.RData"))
 
 # rango de los datos de las gráficas de la cooperativa
 coop_rng <- range(coop_grafs$eur_kg$data$fecha)
-# rango de los daatos del istac
+# rango de los datos del istac
 istac_rng <- range(istac_grafs$pre_sem$data$aa)
 ```
 
@@ -430,3 +430,84 @@ Por tanto, suponiendo que lo que no se exporta se destina al mercado interno, la
 istac_grafs$cons_propio
 
 ```
+<!--
+# En Profundidad
+-->
+```{r}
+#| label: all-ds
+
+# todas las semanas de todos los años (considero 53)
+tiempo <- 
+  tibble(
+    aa  = rep(year(coop_rng[1]):year(coop_rng[2]), each = 53),
+    semana = rep(1:53, year(coop_rng[2])-year(coop_rng[1]) + 1)
+    )
+
+# año y semana de todos los datos, a partir de 2021
+coop_sem_small <- 
+  coop_ds$sem |> 
+  mutate(aa = year(fecha), .before = 1, .keep = "unused") |> 
+  filter(aa > 2020)
+
+# agrupo ambos conjuntos de datos  
+ds <-
+  left_join(
+    tiempo,
+    coop_sem_small,
+    join_by(aa, semana)
+  ) |> 
+  # si no hay datos es que ha sido 0 esa semana
+  mutate(across(!aa:semana, ~replace_na(.x, replace = 0))) |>
+  pivot_longer(cols = !aa:semana) |> 
+  pivot_wider(names_from = semana, values_from = value) |> 
+  filter(name != "total_fac", !str_detect(name, "_med")) |> 
+  mutate(
+    name_suf = str_extract(name, pattern = "(?<=_)[:lower:]+") |> str_trim(),
+    name     = str_extract(name, pattern = "[:lower:]+") |> str_to_title(),
+    .after = name
+  ) |> 
+  mutate(name_suf = replace_na(name_suf, "Uds."))
+
+# tbl_racimos 
+filter(ds, name == "Racimos") |> 
+  gt(locale = "es", rowname_col = "aa", groupname_col = "name") |> 
+  cols_label(name_suf = "") |> 
+  fmt_number(decimals = 0) |> 
+  tab_style(
+    style = cell_text(size = 12), 
+    locations = cells_body(columns = c("1":"53"))
+    ) |> 
+  data_color(
+    columns = c("1":"53"), direction = "row",
+    palette = col_pal, apply_to = "fill"
+  )
+
+# tbl_kg
+filter(ds, name_suf == "kg", name == "Total") |> 
+  gt(locale = "es", rowname_col = "aa", groupname_col = "name") |> 
+  cols_label(name_suf = "") |> 
+  tab_style(
+    style = cell_text(size = 12), 
+    locations = cells_body(columns = c("1":"53"))
+    ) |> 
+  data_color(
+    columns = c("1":"53"), direction = "row",
+    palette = col_pal, apply_to = "fill"
+  )
+
+# tbl_eur
+filter(ds, name_suf == "eur", name == "Total") |> 
+  gt(locale = "es", rowname_col = "aa", groupname_col = "name") |> 
+  cols_label(name_suf = "") |> 
+  fmt_number(decimals = 0) |> 
+  tab_style(
+    style = cell_text(size = 12), 
+    locations = cells_body(columns = c("1":"53"))
+    ) |> 
+  data_color(
+    columns = c("1":"53"), direction = "row",
+    palette = col_pal, apply_to = "fill"
+  )
+```
+
+
