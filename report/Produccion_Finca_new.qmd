@@ -154,6 +154,29 @@ coop_ds$mes |>
   scale_y_continuous(position = "right", labels = eur)
 ```
 
+```{r}
+#| label: premiun-prop
+
+coop_ds$mes |> 
+  select(fecha, matches("total|prem")) |> 
+  mutate(
+    prc_kg  = premium_kg / total_kg,
+    prc_eur = premium_eur / total_eur,
+    .keep   = "unused"
+  ) |> 
+  pivot_longer(cols = !fecha) |> 
+  mutate(name = if_else(str_detect(name, "eur"), "Precio", "Peso")) |> 
+  ggplot(aes(x = fecha, y = value)) +
+  geom_line(aes(color = name), linewidth = 1) +
+  labs(
+    title = "Porcentaje de categoría Premium",
+    x = element_blank(), y = element_blank(), color = element_blank()
+  ) +
+  theme(plot.title.position = "plot", legend.position = "bottom") +
+  scale_y_continuous(labels = scales::label_percent(decimal.mark = ","))
+```
+
+
 
 ## Acumulados anuales
 
