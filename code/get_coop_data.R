@@ -69,11 +69,11 @@ xtr_sem_data <- function(datos_semanales){
   # voy extrayendo los subconjuntos de datos
   fechas <- filter(datos_semanales, medida == "fecha") %>% 
     mutate(
-      fecha = str_extract(value, pattern = "(\\d{2,4}\\.?){3}") %>% 
-        str_replace(pattern = "\\.", replacement = "-") %>% 
-        dmy(),
+      fecha = str_extract(value, pattern = "(\\d{2,4}\\.?){3}") |> 
+        dmy(quiet = TRUE),
       .keep = "none"
-    )
+    ) |> 
+    filter(!is.na(fecha))
   semanas <- filter(datos_semanales, medida == "semana") %>% 
     mutate(
       semana = xtr_num(value, "\\d{1,2}"),
