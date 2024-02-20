@@ -67,6 +67,15 @@ load(here("data/processed/istac_graficas.RData"))
 coop_rng <- range(coop_grafs$eur_kg$data$fecha)
 # rango de los datos del istac
 istac_rng <- range(istac_grafs$pre_sem$data$aa)
+
+# anualidades completas
+aamm_full <-
+  tibble(
+    aa = rep(year(coop_rng[1]):year(coop_rng[2]), each = 12),
+    mm = rep(1:12, year(coop_rng[2])-year(coop_rng[1]) + 1) |> 
+      month(label = TRUE)
+  )
+
 ```
 
 # Producción de la Finca
@@ -99,18 +108,12 @@ coop_ds$mes |>
     SD = "Desv. Est."
   )
 ```
+
 ```{r}
 #| label: resumen-2
 
-periodo <-
-  tibble(
-    aa = rep(year(coop_rng[1]):year(coop_rng[2]), each = 12),
-    mm = rep(1:12, year(coop_rng[2])-year(coop_rng[1]) + 1) |> 
-      month(label = TRUE)
-  )
-
 left_join(
-  periodo,
+  aamm_full,
   coop_ds$mes |> 
   select(fecha:total_eur) |> 
   mutate(aa = year(fecha), mm = month(fecha, label = TRUE), .keep = "unused"),
@@ -125,6 +128,7 @@ left_join(
     locale = "es",
     rowname_col = "aa", groupname_col = "name"
     ) |> 
+  tab_header(title = "Comparativa de valores mensuales") |> 
   fmt_number(
     columns = c("ene":"dic"),
     decimals = 0
@@ -135,6 +139,21 @@ left_join(
   ) 
   
 ```
+
+```{r}
+#| label: indicadores
+
+coop_ds$mes |> 
+  select(fecha, total_kg, total_eur) |> 
+  mutate(
+    aa = year(fecha), mm = month(fecha, label = TRUE),
+    eur_kg = round(total_eur / total_kg, 2)
+  ) |> 
+  ggplot(aes(x = mm, y = eur_kg, color = as_factor(aa))) +
+  geom_line(aes(group = aa), linewidth = 1)
+
+```
+
 
 
 ## Distribución semanal del peso (Kg)
