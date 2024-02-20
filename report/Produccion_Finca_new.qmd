@@ -538,9 +538,9 @@ ds <-
 filter(ds, name == "Racimos") |> 
   gt(locale = "es", rowname_col = "aa", groupname_col = "name") |> 
   cols_label(name_suf = "") |> 
-  fmt_number(decimals = 0) |> 
+  fmt_number(decimals = 0, columns = c("1":"53")) |> 
   tab_style(
-    style = cell_text(size = 12), 
+    style = cell_text(size = 10), 
     locations = cells_body(columns = c("1":"53"))
     ) |> 
   data_color(
@@ -552,8 +552,9 @@ filter(ds, name == "Racimos") |>
 filter(ds, name_suf == "kg", name == "Total") |> 
   gt(locale = "es", rowname_col = "aa", groupname_col = "name") |> 
   cols_label(name_suf = "") |> 
+  fmt_number(decimals = 0, columns = c("1":"53")) |> 
   tab_style(
-    style = cell_text(size = 12), 
+    style = cell_text(size = 10), 
     locations = cells_body(columns = c("1":"53"))
     ) |> 
   data_color(
@@ -565,9 +566,9 @@ filter(ds, name_suf == "kg", name == "Total") |>
 filter(ds, name_suf == "eur", name == "Total") |> 
   gt(locale = "es", rowname_col = "aa", groupname_col = "name") |> 
   cols_label(name_suf = "") |> 
-  fmt_number(decimals = 0) |> 
+  fmt_number(decimals = 0, columns = c("1":"53")) |> 
   tab_style(
-    style = cell_text(size = 12), 
+    style = cell_text(size = 10), 
     locations = cells_body(columns = c("1":"53"))
     ) |> 
   data_color(
