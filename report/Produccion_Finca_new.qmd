@@ -143,14 +143,25 @@ left_join(
 ```{r}
 #| label: indicadores
 
-coop_ds$mes |> 
+ds <- 
+  coop_ds$mes |> 
   select(fecha, total_kg, total_eur) |> 
   mutate(
     aa = year(fecha), mm = month(fecha, label = TRUE),
     eur_kg = round(total_eur / total_kg, 2)
-  ) |> 
-  ggplot(aes(x = mm, y = eur_kg, color = as_factor(aa))) +
-  geom_line(aes(group = aa), linewidth = 1)
+  )
+
+ds_aa <- filter(ds, mm == min(mm)) |> select(aa:eur_kg)
+
+ggplot(ds, aes(x = mm, y = eur_kg, color = as_factor(aa))) +
+  geom_line(aes(group = aa), linewidth = 1) +
+  ggrepel::geom_text_repel(data = ds_aa, aes(label = aa, x = mm, y = eur_kg)) +
+  labs(
+    title = "Relación entre el precio y el peso de la producción (€ vs Kg)",
+    x = element_blank(), y = element_blank()
+  ) +
+  theme(plot.title.position = "plot", legend.position = "none") +
+  scale_y_continuous(labels = scales::label_number(decimal.mark = ","))
 
 ```
 
