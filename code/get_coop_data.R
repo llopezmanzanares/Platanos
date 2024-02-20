@@ -37,15 +37,15 @@ xtr_num <- function(txt, patron){
   return(numero)
 }
 
+
 read_pdfs <- function(datafiles) {
   ds_coop <- 
-    map(
-      here(dirs$cop, datafiles),
-      pdf_text
-    ) %>% 
-    str_split(pattern = "\\n") %>% 
-    unlist() %>% 
-    as_tibble() %>% 
+    map(here(dirs$cop, datafiles), pdf_text)|> 
+    unlist() |> 
+    str_split(pattern = "\\n")|> 
+    unlist() |> 
+    as_tibble_col() |> 
+    # me quedo con las filas con información relevante
     filter(str_detect(value, pattern = "Fecha|Semana|PREMIUM|P\\. SUPER|SEGUNDA|Total|racimos|medio")) %>% 
     mutate(
       value  = str_to_lower(value),
