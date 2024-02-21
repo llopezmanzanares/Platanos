@@ -110,6 +110,64 @@ coop_ds$mes |>
 ```
 
 ```{r}
+#| label: summary-2
+
+coop_mm_summary <- 
+  coop_ds$mes |> 
+  select(fecha:total_eur) |> 
+  mutate(aa = year(fecha), .keep = "unused") |> 
+  rename_with(.cols = starts_with("total"), .fn = ~str_extract(.x, pattern = "[:lower:]+$")) |> 
+  pivot_longer(cols = !aa) |> 
+  mutate(
+    name = case_when(
+      name == "kg"  ~ "Peso",
+      name == "eur" ~ "Precio",
+      .default =      "Racimos"
+    )
+  ) |> 
+  summarise(
+    .by = c(aa, name),
+    total = sum(value),
+    prom  = mean(value),
+    media = median(value),
+    estdv = sd(value),
+    datos = list(value)
+  )
+
+coop_mm_summary |> 
+  relocate(datos, .after = total) |> 
+  gt(
+    rowname_col = "aa", #groupname_col = "name",
+    locale = "es"
+    ) |> 
+  tab_header(title = "Resumen de valores mensuales") |> 
+  tab_row_group(label = md("**Racimos**"), rows = str_detect(name, "Racimos"), id = "racs") |> 
+  tab_row_group(label = md("**Pesos (Kg)**"), rows = str_detect(name, "Peso"), id = "kg") |> 
+  tab_row_group(label = md("**Facturado (€)**"), rows = str_detect(name, "Precio"), id = "eur") |> 
+  cols_hide(columns = name) |> 
+  gt_theme_538() |>
+  fmt_number(columns = c(total:estdv), decimals = 0) |> 
+  fmt_currency(
+    columns = c(total:estdv), rows = c(3,6,9), #locale = "es", 
+    decimals = 0, placement = "right", incl_space = TRUE
+    ) |> 
+  tab_style(
+    style = cell_text(size = 8), 
+    locations = cells_body(columns = c(total:estdv))
+  ) |>
+  cols_label(
+    total = "Acumulado", datos = "Distribución",
+    prom  = "Media", media = "Mediana", estdv = "Desv. Est."
+  ) |> 
+  gt_plt_dist(
+    column = datos, #type   = "histogram",
+    fill_color = col_pal["mindaro"], line_color = col_pal["ecru"],
+    same_limit = FALSE
+    )
+```
+
+
+```{r}
 #| label: resumen-2
 
 left_join(
