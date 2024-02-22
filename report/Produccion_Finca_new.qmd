@@ -210,15 +210,34 @@ left_join(
 ) |> 
   pivot_longer(cols = racimos:total_eur) |> 
   pivot_wider(names_from = mm, values_from = value) |> 
-  # mutate(name = str_replace(name, "_", " ") |> str_to_sentence()) |> 
+  
+  # espacio para la gráfica, con las variables necesarias 
   mutate(.by = c(name, aa), grafica = list(c(name, aa)), .after = name) |> 
   
   # la tabla
   gt(
     locale = "es",
-    rowname_col = "aa", groupname_col = "name"
+    rowname_col = "aa"#, groupname_col = "name"
   ) |> 
+  gt_theme_538() |>
+  tab_style(cell_text(size = 9), locations = cells_body(columns = c("ene":"dic"))) |> 
   tab_header(title = "Comparativa de valores mensuales") |> 
+  tab_row_group(
+    label = md("**Racimos**"), rows = name == "racimos",
+    id = "racs"
+  ) |> 
+  tab_row_group(
+    label = md("**Pesos (Kg)**"), rows = name == "total_kg",
+    id = "kg"
+  ) |> 
+  tab_row_group(
+    label = md("**Facturado (€)**"), rows = name == "total_eur",
+    id = "eurs"
+  ) |> 
+  
+  cols_hide(name) |> 
+  cols_label(grafica = "") |> 
+  
   # formatos numéricos
   fmt_number(
     columns = c("ene":"dic"),
