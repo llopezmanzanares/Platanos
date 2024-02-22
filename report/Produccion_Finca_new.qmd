@@ -76,6 +76,7 @@ aamm_full <-
       month(label = TRUE)
   )
 
+# para ggplot_col_mm
 coop_mm <- 
    select(coop_ds$mes, fecha:total_eur) |> 
   mutate(aa = year(fecha), mm = month(fecha, label = TRUE), .after = fecha) |> 
@@ -211,19 +212,34 @@ left_join(
   pivot_wider(names_from = mm, values_from = value) |> 
   # mutate(name = str_replace(name, "_", " ") |> str_to_sentence()) |> 
   mutate(.by = c(name, aa), grafica = list(c(name, aa)), .after = name) |> 
+  
+  # la tabla
   gt(
     locale = "es",
     rowname_col = "aa", groupname_col = "name"
   ) |> 
   tab_header(title = "Comparativa de valores mensuales") |> 
+  # formatos numéricos
   fmt_number(
     columns = c("ene":"dic"),
     decimals = 0
   ) |> 
+  
+  #heat map
   data_color(
     columns = c("ene":"dic"), direction = "row",
     palette = col_pal, apply_to = "fill"
-  ) 
+  ) |> 
+  
+  # las gráficas
+  text_transform(
+    locations = cells_body(columns = "grafica"),
+    fn = function(column) {
+      map(column, ~str_split_1(., ", ")) |> 
+        map(~ggplot_cols_mm(.[1], .[2])) |> 
+        ggplot_image(height = px(30), aspect_ratio = 3)
+    }
+  )
 
 ```
 
