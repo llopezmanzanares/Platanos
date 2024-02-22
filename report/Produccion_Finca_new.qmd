@@ -287,8 +287,6 @@ ggplot(ds, aes(x = mm, y = eur_kg, color = as_factor(aa))) +
 
 ```
 
-
-
 ## Distribución semanal del peso (Kg)
 
 ```{r}
@@ -621,11 +619,92 @@ istac_grafs$cons_propio
 
 # En Profundidad (experimental)
 
+<!-- ESTO NO TERMINA DE FUNCIONAR -->
 ```{r}
-#| label: all-ds
+#| label: tabla-semanales
 
 # todas las semanas de todos los años (considero 53)
-tiempo <- 
+aa_sem <- 
+  tibble(
+    aa  = rep(year(coop_rng[1]):year(coop_rng[2]), each = 53),
+    semana = rep(1:53, year(coop_rng[2])-year(coop_rng[1]) + 1)
+    )
+
+coop_semanales <- 
+  coop_ds$sem |> 
+  filter(year(fecha) > 2020) |> 
+  mutate(aa = year(fecha), .before = 1, .keep = "unused") |> 
+  select(!c(racimos, total_fac))
+
+left_join(aa_sem, coop_semanales, join_by(aa, semana)) |>
+  # las semanas sin datos es porque ha sido cero
+  mutate(across(!aa:semana, ~replace_na(.x, replace = 0))) |> 
+  # reagrupo para tener las semanas como columnas
+  pivot_longer(cols = !aa:semana) |> 
+  pivot_wider(names_from = "semana", values_from = "value") |> 
+  # por aquí irían las unidades para la tabla
+  mutate(
+    name_sfx = str_extract(name, pattern = "(?<=_)[:lower:]+$"),
+    .after = name
+    ) |> 
+  gt(locale = "es", rowname_col = "aa") |> 
+  cols_hide(columns = name) |>
+  cols_label(name_sfx = "Unidades") |> 
+  # gt_theme_538() |> 
+  
+  # estrtuctura de la tabla
+  tab_options(table.width = pct(90)) |>
+  tab_header(title = "Comparativa de los valores semanales") |> 
+  
+  # este no funciona...
+  tab_style(cell_text(size = 8), locations = cells_body(columns = !aa)) |>
+  
+  tab_row_group(
+    rows = str_detect(name, "total"), label = md("**Totales**"),
+    id = "tot"
+  ) |> 
+  tab_row_group(
+    rows = str_detect(name, "_med"), label = md("**Medias**"),
+    id = "meds"
+  ) |> 
+  tab_row_group(
+    rows = str_detect(name, "premi"), label = md("**Cat. PREMIUM**"),
+    id = "prem"
+  ) |> 
+  tab_row_group(
+    rows = str_detect(name, "psup"), label = md("**Cat. P. SUPERIOR**"),
+    id = "psup"
+  ) |> 
+  tab_row_group(
+    rows = str_detect(name, "segu"), label = md("**Cat. SEGUNDA**"),
+    id = "seg"
+  ) |> 
+  row_group_order(
+    groups = c("tot", "meds", "prem", "psup", "seg")
+  ) |> 
+  # formatos numéricos
+  fmt_number(columns = "1":"53", decimals = 0) |> 
+  
+  # heat_map
+  data_color(
+    columns = c("1":"53"), direction = "row",
+    palette = col_pal, apply_to = "fill"
+  ) |> 
+    # tab_style(cell_text(size = 8), locations = cells_body(columns = name_sfx)) |> 
+  as_raw_html()
+
+```
+
+
+
+
+
+```{r}
+#| label: all-ds
+#| eval: false
+
+# todas las semanas de todos los años (considero 53)
+aa_sem <- 
   tibble(
     aa  = rep(year(coop_rng[1]):year(coop_rng[2]), each = 53),
     semana = rep(1:53, year(coop_rng[2])-year(coop_rng[1]) + 1)
@@ -640,7 +719,7 @@ coop_sem_small <-
 # agrupo ambos conjuntos de datos  
 ds <-
   left_join(
-    tiempo,
+    aa_sem,
     coop_sem_small,
     join_by(aa, semana)
   ) |> 
@@ -655,6 +734,24 @@ ds <-
     .after = name
   ) |> 
   mutate(name_suf = replace_na(name_suf, "Uds."))
+
+ds |> 
+  gt(locale = "es", rowname_col = "aa") |> 
+  gt_theme_538() |>
+  tab_style(cell_text(size = 9), locations = cells_body(columns = c("1":"53"))) |> 
+  tab_header(title = "Comparativa de valores semanales") |> 
+  tab_row_group(
+    label = md("**Racimos**"), rows = name == "Racimos",
+    id = "racs"
+  ) |> 
+  tab_row_group(
+    label = md("**Pesos (Kg)**"), rows = name == "total_kg",
+    id = "kg"
+  ) |> 
+  tab_row_group(
+    label = md("**Facturado (€)**"), rows = name == "total_eur",
+    id = "eurs"
+  ) |> 
 
 # tbl_racimos 
 filter(ds, name == "Racimos") |> 
