@@ -76,7 +76,35 @@ aamm_full <-
       month(label = TRUE)
   )
 
+coop_mm <- 
+   select(coop_ds$mes, fecha:total_eur) |> 
+  mutate(aa = year(fecha), mm = month(fecha, label = TRUE), .after = fecha) |> 
+  pivot_longer(cols = racimos:total_eur)
 ```
+
+```{r}
+#| label: my-fn
+
+# gráfica de columnas mensuales para los datos de la cooperativa
+ggplot_cols_mm <- function(data_sel, aa_sel){
+  
+  # selecciono los datos
+  coop_mm |> 
+    filter(aa == parse_number(aa_sel), name == data_sel) |> 
+    
+    # genero la gráfica
+    ggplot(aes(x = mm, y = value)) +
+    geom_col(fill = col_pal["ecru"]) +
+    # simplifico la grafica
+    theme_minimal() +
+    scale_x_discrete(breaks = NULL) +
+    scale_y_continuous(breaks = NULL) +
+    labs(x = element_blank(), y = element_blank())
+  
+  
+}
+```
+
 
 # Producción de la Finca
 
@@ -84,6 +112,7 @@ Datos para el periodo `r coop_rng[1]` a `r coop_rng[2]`
 
 ```{r}
 #| label: resumen
+#| eval: false
 
 coop_ds$mes |>  
   select(racimos:total_eur) |>  
@@ -110,7 +139,7 @@ coop_ds$mes |>
 ```
 
 ```{r}
-#| label: summary-2
+#| label: tabla-resumen
 
 coop_mm_summary <- 
   coop_ds$mes |> 
@@ -140,6 +169,7 @@ coop_mm_summary |>
     rowname_col = "aa", #groupname_col = "name",
     locale = "es"
     ) |> 
+  tab_options(table.width = pct(60)) |> 
   tab_header(title = "Resumen de valores mensuales") |> 
   tab_row_group(label = md("**Racimos**"), rows = str_detect(name, "Racimos"), id = "racs") |> 
   tab_row_group(label = md("**Pesos (Kg)**"), rows = str_detect(name, "Peso"), id = "kg") |> 
@@ -168,24 +198,23 @@ coop_mm_summary |>
 
 
 ```{r}
-#| label: resumen-2
+#| label: tabla-resumen-mm
 
 left_join(
   aamm_full,
   coop_ds$mes |> 
-  select(fecha:total_eur) |> 
-  mutate(aa = year(fecha), mm = month(fecha, label = TRUE), .keep = "unused"),
+    select(fecha:total_eur) |> 
+    mutate(aa = year(fecha), mm = month(fecha, label = TRUE), .keep = "unused"),
   join_by(aa, mm)
 ) |> 
   pivot_longer(cols = racimos:total_eur) |> 
   pivot_wider(names_from = mm, values_from = value) |> 
-  mutate(
-    name = str_replace(name, "_", " ") |> str_to_sentence()
-  ) |> 
+  # mutate(name = str_replace(name, "_", " ") |> str_to_sentence()) |> 
+  mutate(.by = c(name, aa), grafica = list(c(name, aa)), .after = name) |> 
   gt(
     locale = "es",
     rowname_col = "aa", groupname_col = "name"
-    ) |> 
+  ) |> 
   tab_header(title = "Comparativa de valores mensuales") |> 
   fmt_number(
     columns = c("ene":"dic"),
@@ -195,7 +224,7 @@ left_join(
     columns = c("ene":"dic"), direction = "row",
     palette = col_pal, apply_to = "fill"
   ) 
-  
+
 ```
 
 ```{r}
