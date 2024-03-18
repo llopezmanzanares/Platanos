@@ -1,7 +1,7 @@
 # Datos de producción proporcionados por la cooperativa
 # Extraigo la información de todos los pdf cada vez
 
-# Versión: 2023-08-31
+# Versión: 2024-03-18
 
 # Packages ------
 
@@ -21,10 +21,13 @@ library(pdftools)
 # )
 
 patrones <- list(
-  kg    = "(\\d\\.)?\\d+",         # los miles con un punto
-  prc   = "\\d{1,2},\\d{1,2}",     # número de 2 decimales
-  eurkg = "\\d,\\d{4}",            # número con 4 decimales
-  eur   = "(\\d\\.)?\\d+,\\d{2}$"  # último número, tiene 2 decimales
+  fecha = "(\\d{2,4}\\.?){3}",        # dd.mm.aa ó dd.mm.aaaa
+  semns = "\\d{1,2}",                 # número de 1 ó 2 dígitos
+  kg    = "(\\d\\.)?\\d+",            # los miles con un punto
+  prc   = "\\d{1,2},\\d{1,2}",        # número de 2 decimales
+  eurkg = "\\d,\\d{4}",               # número con 4 decimales
+  eur   = "(\\d\\.)?\\d{1,3},\\d{2}$", # último número, tiene 2 decimales
+  racms = "\\d{1,2}"
 )
 
 # Funciones ---------------------------------------------------------------
@@ -138,6 +141,68 @@ xtr_sem_data <- function(datos_semanales){
   return(semanales)
 }
 
+### Hay un problema con la liquidación del 2024/02/03
+# varias filas por cada calidad del corte, por lo que la función anterior genera un error
+# Nueva función
+#TODO ver las diferencias con este dataset
+xtr_datos_liquidaciones <- function(liquidaciones){
+  ds <- liquidaciones |> 
+    mutate(
+      fecha = ifelse(medida == "fecha",
+                     str_extract(value, pattern = patrones$fecha),
+                     NA),
+      semana = ifelse(medida == "semana",
+                      xtr_num(value, patron = patrones$semns),
+                      NA),
+      semana = lead(semana),
+      racimos = ifelse(medida == "racimos",
+                       xtr_num(value, patron = patrones$racms),
+                       NA),
+      racimos = lead(racimos, n = 6)
+    ) |> 
+    fill(fecha, semana, racimos) |> 
+    mutate(
+      fecha = dmy(fecha),
+      
+      premium_kg = ifelse(medida == "premium",
+                          xtr_num(value, patron = patrones$kg),
+                          NA),
+      premium_eurkg = ifelse(medida == "premium",
+                             xtr_num(value, patron = patrones$eurkg),
+                             NA),
+      premium_eur = ifelse(medida == "premium",
+                           xtr_num(value, patron = patrones$eur),
+                           NA),
+      psup_kg = ifelse(medida == "psup",
+                       xtr_num(value, patron = patrones$kg),
+                       NA),
+      psup_eurkg = ifelse(medida == "psup",
+                          xtr_num(value, patron = patrones$eurkg),
+                          NA),
+      psup_eur = ifelse(medida == "psup",
+                        xtr_num(value, patron = patrones$eur),
+                        NA),
+      segunda_kg = ifelse(medida == "segunda",
+                          xtr_num(value, patron = patrones$kg),
+                          NA),
+      segunda_eurkg = ifelse(medida == "segunda",
+                             xtr_num(value, patron = patrones$eurkg),
+                             NA),
+      segunda_eur = ifelse(medida == "segunda",
+                           xtr_num(value, patron = patrones$eur),
+                           NA)
+    ) |> 
+    select(!c(value, medida)) |> 
+    pivot_longer(
+      cols = !c(fecha:racimos),
+      names_to = "tipo",
+      values_to = "valor",
+      values_drop_na = TRUE
+    )
+  
+  return(ds)
+}
+
 # Leo y extraigo ----------------------------------------------------------
 
 data_files <- list.files(
@@ -149,6 +214,7 @@ coop_ds$sem <- read_pdfs(data_files) %>% xtr_sem_data()
 
 # Agregados mensuales -----------------------------------------------------
 
+#VER qué pasa con el nuevo conjunto de datos
 # Es más útil trabajar con los datos mensuales
 # solo tengo un dato de 2020, así que lo elimino
 coop_ds$mes <- 
