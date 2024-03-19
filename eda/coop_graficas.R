@@ -157,7 +157,7 @@ coop_grafs$eur_meses <-
   scale_y_continuous(labels = eur)
 
 # evol de la relación de categoría PREMIUM respecto del total
-coop_grafs$prop_premium |> 
+coop_grafs$prop_premium <- 
   coop_ds$mes |> 
   mutate(
     prc_kg = premium_kg / total_kg,
@@ -179,20 +179,40 @@ coop_grafs$prop_premium |>
   theme(plot.title.position = "plot", legend.position = "bottom") +
   scale_y_continuous(labels = scales::label_percent(decimal.mark = ","))
 
-# los totales mensuales comparados
-coop_grafs$kg_mm <-
-  coop_ds$mes_kg %>% 
-  select(fecha:mm, total_kg) %>%
-  my_plot(aes(x = mm, y = total_kg, fill = as_factor(aa))) +
-  geom_col(position = "dodge") +
+
+# Acumulados anuales ------------------------------------------------------
+
+# acumulados anuales de los pesos
+coop_grafs$acum_kg <- 
+  coop_ds$mes_acum |> 
+  select(starts_with(c("fecha", "total"))) |>
+  ggplot(aes(x = fecha_mm, y = total_kg_acum)) +
+  geom_line(aes(group = fecha_aa, color = fecha_aa)) +
   labs(
-    title = "Producción mensual (Kg)",
-    subtitle = "Todas las categorías",
-    x = NULL, y = NULL, fill = "Anualidades"
-  )
+    title = "Acumulados anuales de los pesos (Kg)", 
+    x = element_blank(), y = element_blank(), color = element_blank()
+  ) +
+  theme(plot.title.position = "plot", legend.position = "none") +
+  scale_y_continuous(
+    position = "right",
+    labels = scales::label_number(big.mark = ".", decimal.mark = ",")
+    )
 
-
-
+# acumulados anuales de los ingresos
+coop_grafs$acum_eur <- 
+  coop_ds$mes_acum |> 
+  select(starts_with(c("fecha", "total"))) |>
+  ggplot(aes(x = fecha_mm, y = total_eur_acum)) +
+  geom_line(aes(group = fecha_aa, color = fecha_aa)) +
+  labs(
+    title = "Acumulados anuales de los ingresos (€)", 
+    x = element_blank(), y = element_blank(), color = element_blank()
+  ) +
+  theme(plot.title.position = "plot", legend.position = "none") +
+  scale_y_continuous(
+    position = "right",
+    labels = eur
+    )
 
 # el acumulado de los totales
 coop_grafs$kg_mm_acum <-
