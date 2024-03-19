@@ -630,6 +630,7 @@ istac_grafs$cons_propio
 <!-- ESTO NO TERMINA DE FUNCIONAR -->
 ```{r}
 #| label: tabla-semanales
+#| eval: false
 
 # todas las semanas de todos los años (considero 53)
 aa_sem <- 
