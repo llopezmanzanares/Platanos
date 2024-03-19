@@ -1,7 +1,7 @@
 # Datos de producción proporcionados por la cooperativa
 # Extraigo la información de todos los pdf cada vez
 
-# Versión: 2024-03-18
+# Versión: 2024-03-19
 
 # Packages ------
 
@@ -181,46 +181,42 @@ coop_ds$full <- read_pdfs(data_files) |> xtr_datos_liquidaciones()
 
 # Agregados mensuales -----------------------------------------------------
 
-#VER qué pasa con el nuevo conjunto de datos
 # Es más útil trabajar con los datos mensuales
 # solo tengo un dato de 2020, así que lo elimino
 coop_ds$mes <- 
-  filter(coop_ds$sem, year(fecha) > 2020) %>% 
-  select(
-    !c(semana,             # el dato de la semana no aporta información
-       total_fac,          # el total facturado es muy similar al importe, lo quito
-       ends_with(c("_med", # tampoco las medias y porcentajes
-                   "_pc",
-                   "_eurkg")
-       )
-    )
-  ) %>% 
+  filter(coop_ds$full, year(fecha) > 2020) |> 
+  pivot_wider(names_from = "tipo", values_from = "valor") |> 
   mutate(
     fecha = rollforward(fecha)
-  ) %>% 
-  group_by(fecha) %>% 
+  ) |> 
   summarise(
-    across(everything(), sum),
-    .groups = "drop"
-  ) %>% 
-  mutate(
+    .by = fecha,
+    across(!ends_with("eurkg"), sum),
+    across(ends_with("eurkg"), mean),
     kg_rac = total_kg / racimos
-  )
+  ) |> 
+  mutate(
+    across(fecha,list(
+      aa = \(x) year(x), 
+      mm = \(x) month(x, label = TRUE))
+      ),
+    .after = 1)
+  
 
 # Kg por meses ------------------------------------------------------------
 
-coop_ds$mes_kg <- coop_ds$mes %>% 
-  mutate(
-    aa = year(fecha),
-    mm = month(fecha, label = TRUE),
-    .after = 1
-  ) %>% 
-  select(fecha:mm, ends_with("kg")) %>% 
-  group_by(aa) %>% 
-  mutate(
-    across(ends_with("_kg"), cumsum, .names = "{.col}_acum")
-  ) %>% 
-  ungroup()
+# coop_ds$mes_kg <- coop_ds$mes %>% 
+#   mutate(
+#     aa = year(fecha),
+#     mm = month(fecha, label = TRUE),
+#     .after = 1
+#   ) %>% 
+#   select(fecha:mm, ends_with("kg")) %>% 
+#   group_by(aa) %>% 
+#   mutate(
+#     across(ends_with("_kg"), cumsum, .names = "{.col}_acum")
+#   ) %>% 
+#   ungroup()
 
 # Guardo el conjunto de datos ---------------------------------------------
 
