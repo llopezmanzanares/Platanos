@@ -64,7 +64,7 @@ load(here("data/processed/istac_platanos.RData"))
 load(here("data/processed/istac_graficas.RData"))
 
 # rango de los datos de las gráficas de la cooperativa
-coop_rng <- range(coop_grafs$eur_kg$data$fecha)
+coop_rng <- filter(coop_ds$semanas, year(fecha) > 2020)$fecha |> range()
 # rango de los datos del istac
 istac_rng <- range(istac_grafs$pre_sem$data$aa)
 
@@ -144,30 +144,24 @@ coop_ds$mes |>
 
 coop_mm_summary <- 
   coop_ds$mes |> 
-  select(fecha:total_eur) |> 
-  mutate(aa = year(fecha), .keep = "unused") |> 
-  rename_with(.cols = starts_with("total"), .fn = ~str_extract(.x, pattern = "[:lower:]+$")) |> 
-  pivot_longer(cols = !aa) |> 
-  mutate(
-    name = case_when(
-      name == "kg"  ~ "Peso",
-      name == "eur" ~ "Precio",
-      .default =      "Racimos"
-    )
-  ) |> 
+  select(fecha_aa, total_kg:racimos) |> 
+  pivot_longer(
+    cols = !fecha_aa, names_prefix = "total_", 
+    names_transform = list(name = \(x) case_when(x == "kg" ~ "Peso", 
+                                                 x == "eur" ~"Precio", 
+                                                 .default = "Racimos"))
+    ) |> 
   summarise(
-    .by = c(aa, name),
-    total = sum(value),
-    prom  = mean(value),
-    media = median(value),
-    estdv = sd(value),
-    datos = list(value)
+    .by = c(fecha_aa, name),
+    across(value, 
+           list(total = sum, prom = mean, media = median, estdv = sd, datos = list),
+           .names = "{.fn}")
   )
 
 coop_mm_summary |> 
   relocate(datos, .after = total) |> 
   gt(
-    rowname_col = "aa", #groupname_col = "name",
+    rowname_col = "fecha_aa", #groupname_col = "name",
     locale = "es"
     ) |> 
   tab_options(table.width = pct(60)) |> 
