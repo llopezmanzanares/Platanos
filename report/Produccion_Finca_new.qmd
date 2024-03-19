@@ -301,59 +301,65 @@ coop_grafs$dist_kg / coop_grafs$dist_kg_aa
 ```{r}
 #| label: evol-mm-kg
 
-coop_ds$mes |> 
-  ggplot(aes(x = fecha, y = total_kg)) +
-  geom_point(shape = 21, fill = col_pal["cream"], color = col_pal["wine"]) +
-  geom_smooth(
-    method = "loess", formula = y ~ x,
-    color = col_pal["wine"], fill = col_pal["cream"]
-    ) +
-  labs(
-    title = "Evolución de la producción mensual (Kg)",
-    x = NULL, y = NULL
-  ) +
-  theme(plot.title.position = "plot") +
-  scale_y_continuous(labels = scales::label_number(big.mark = "."))
+coop_grafs$kg_meses
+
+# coop_ds$mes |> 
+#   ggplot(aes(x = fecha, y = total_kg)) +
+#   geom_point(shape = 21, fill = col_pal["cream"], color = col_pal["wine"]) +
+#   geom_smooth(
+#     method = "loess", formula = y ~ x,
+#     color = col_pal["wine"], fill = col_pal["cream"]
+#     ) +
+#   labs(
+#     title = "Evolución de la producción mensual (Kg)",
+#     x = NULL, y = NULL
+#   ) +
+#   theme(plot.title.position = "plot") +
+#   scale_y_continuous(labels = scales::label_number(big.mark = "."))
 ```
 
 ```{r}
 #| label: evol-mm-eur
 
-coop_ds$mes |> 
-  ggplot(aes(x = fecha, y = total_eur)) +
-  geom_point(shape = 21, fill = col_pal["cream"], color = col_pal["wine"]) +
-  geom_smooth(
-    method = "loess", formula = y ~ x,
-    color = col_pal["wine"], fill = col_pal["cream"]
-    ) +
-  labs(
-    title = "Evolución de la producción mensual (€)",
-    x = element_blank(), y = element_blank()
-  ) +
-  theme(plot.title.position = "plot") +
-  scale_y_continuous(labels = eur)
+coop_grafs$eur_meses
+
+# coop_ds$mes |> 
+#   ggplot(aes(x = fecha, y = total_eur)) +
+#   geom_point(shape = 21, fill = col_pal["cream"], color = col_pal["wine"]) +
+#   geom_smooth(
+#     method = "loess", formula = y ~ x,
+#     color = col_pal["wine"], fill = col_pal["cream"]
+#     ) +
+#   labs(
+#     title = "Evolución de la producción mensual (€)",
+#     x = element_blank(), y = element_blank()
+#   ) +
+#   theme(plot.title.position = "plot") +
+#   scale_y_continuous(labels = eur)
 ```
 
 ```{r}
 #| label: premiun-prop
 
-coop_ds$mes |> 
-  select(fecha, matches("total|prem")) |> 
-  mutate(
-    prc_kg  = premium_kg / total_kg,
-    prc_eur = premium_eur / total_eur,
-    .keep   = "unused"
-  ) |> 
-  pivot_longer(cols = !fecha) |> 
-  mutate(name = if_else(str_detect(name, "eur"), "Precio", "Peso")) |> 
-  ggplot(aes(x = fecha, y = value)) +
-  geom_line(aes(color = name), linewidth = 1) +
-  labs(
-    title = "Porcentaje de categoría Premium",
-    x = element_blank(), y = element_blank(), color = element_blank()
-  ) +
-  theme(plot.title.position = "plot", legend.position = "bottom") +
-  scale_y_continuous(labels = scales::label_percent(decimal.mark = ","))
+coop_grafs$prop_premium
+
+# coop_ds$mes |> 
+#   select(fecha, matches("total|prem")) |> 
+#   mutate(
+#     prc_kg  = premium_kg / total_kg,
+#     prc_eur = premium_eur / total_eur,
+#     .keep   = "unused"
+#   ) |> 
+#   pivot_longer(cols = !fecha) |> 
+#   mutate(name = if_else(str_detect(name, "eur"), "Precio", "Peso")) |> 
+#   ggplot(aes(x = fecha, y = value)) +
+#   geom_line(aes(color = name), linewidth = 1) +
+#   labs(
+#     title = "Porcentaje de categoría Premium",
+#     x = element_blank(), y = element_blank(), color = element_blank()
+#   ) +
+#   theme(plot.title.position = "plot", legend.position = "bottom") +
+#   scale_y_continuous(labels = scales::label_percent(decimal.mark = ","))
 ```
 
 
@@ -364,80 +370,87 @@ coop_ds$mes |>
 #| label: acum-kg
 
 
-label_txt <- 
-  filter(coop_ds$mes_kg, fecha == min(fecha), .by = aa) |> 
-  mutate(txt_aa = as_factor(aa))
+label_txt <- filter(coop_ds$mes_acum, fecha == min(fecha), .by = fecha_aa) 
 
-coop_ds$mes_kg |> 
-  mutate(aa_txt = as_factor(aa)) |> 
-  ggplot(aes(x = mm, y = total_kg_acum)) +
-  geom_line(aes(group = aa_txt, color = aa_txt), linewidth = 0.9) +
+coop_grafs$acum_kg +
   ggrepel::geom_text_repel(
     data = label_txt,
-    aes(label = txt_aa, color = txt_aa, x = mm, y = total_kg_acum),
+    aes(label = fecha_aa, color = fecha_aa, x = fecha_mm, y = total_kg_acum),
     size = 4
-    ) +
-  labs(
-    title = "Acumulados anuales de los pesos (Kg)", 
-    x = element_blank(), y = element_blank(), color = element_blank()
-  ) +
-  theme(plot.title.position = "plot", legend.position = "none") +
-  scale_y_continuous(position = "right", labels = scales::label_number(big.mark = "."))
+    )
+
+# coop_ds$mes_kg |> 
+#   mutate(aa_txt = as_factor(aa)) |> 
+#   ggplot(aes(x = mm, y = total_kg_acum)) +
+#   geom_line(aes(group = aa_txt, color = aa_txt), linewidth = 0.9) +
+#   ggrepel::geom_text_repel(
+#     data = label_txt,
+#     aes(label = txt_aa, color = txt_aa, x = mm, y = total_kg_acum),
+#     size = 4
+#     ) +
+#   labs(
+#     title = "Acumulados anuales de los pesos (Kg)", 
+#     x = element_blank(), y = element_blank(), color = element_blank()
+#   ) +
+#   theme(plot.title.position = "plot", legend.position = "none") +
+#   scale_y_continuous(position = "right", labels = scales::label_number(big.mark = "."))
 ```
 
 ```{r}
 #| label: acum-eur
 
-eur_acum <-
-  coop_ds$sem |> 
-  select(fecha, total_eur) |> 
-  mutate(aa = year(fecha), mm = month(fecha, label = TRUE), .after = 1) |> 
-  filter(aa > min(aa)) |> 
-  summarise(.by = c(aa, mm), eur = sum(total_eur)) |> 
-  mutate(.by = aa, eur_cum = cumsum(eur)) |> 
-  mutate(aa_txt = as_factor(aa), .before = 1)
+lbl_txt <- filter(coop_ds$mes_acum, fecha == min(fecha), .by = fecha_aa)
 
-lbl_txt <- filter(eur_acum, mm == min(mm), .by = aa)
-
-eur_acum |> 
-  ggplot(aes(x = mm, y = eur_cum)) +
-  geom_line(aes(group = aa_txt, color = aa_txt), linewidth = 0.9) +
+coop_grafs$acum_eur +
   ggrepel::geom_text_repel(
     data = lbl_txt,
-    aes(label = aa_txt, color = aa_txt, x = mm, y = eur_cum),
+    aes(label = fecha_aa, color = fecha_aa, x = fecha_mm, y = total_eur_acum),
     size = 4
-  ) +
-  labs(
-    title = "Acumulados anuales del precio percibido (€)",
-    x = element_blank(), y = element_blank(), color = element_blank()
-  ) +
-  theme(plot.title.position = "plot", legend.position = "none") +
-  scale_y_continuous(position = "right", labels = eur)
+    )
+
+# eur_acum |> 
+#   ggplot(aes(x = mm, y = eur_cum)) +
+#   geom_line(aes(group = aa_txt, color = aa_txt), linewidth = 0.9) +
+#   ggrepel::geom_text_repel(
+#     data = lbl_txt,
+#     aes(label = aa_txt, color = aa_txt, x = mm, y = eur_cum),
+#     size = 4
+#   ) +
+#   labs(
+#     title = "Acumulados anuales del precio percibido (€)",
+#     x = element_blank(), y = element_blank(), color = element_blank()
+#   ) +
+#   theme(plot.title.position = "plot", legend.position = "none") +
+#   scale_y_continuous(position = "right", labels = eur)
 
 
 ```
 
 ## Precio percibido
 
-Se compara el total de la factura (Cooperativa), con el valor de ISTAC.
+Se compara el total de las liquidaciones (Cooperativa), con el valor de ISTAC.
 
 ```{r}
 #| label: eur-kg
 
-precio_tef <- 
-  filter(istac_ds$precios_sem, territorio == "Tenerife", aa > min(year(coop_ds$sem$fecha))) |> 
-  select(-territorio)
+# hay un problemilla con la semana 53 del año 2022
 
-coop_ds$sem |> 
-  select(fecha, semana, total_kg, total_eur) |> 
-  # tengo un solo valor en 2020
-  filter(fecha > min(fecha)) |> 
-  mutate(aa = year(fecha), precio_coop = total_eur / total_kg) |> 
-  select(aa, sem = semana, precio_coop) |> 
-  full_join(precio_tef) |>  
-  pivot_longer(cols = starts_with("prec")) |> filter(!is.na(value)) |> 
+precio_tef <- 
+  filter(istac_ds$precios_sem, territorio == "Tenerife", aa > min(year(coop_ds$semanas$fecha))) |> 
+  select(-territorio) |> 
+  mutate(aa = as_factor(aa))
+
+coop_ds$semanas |> 
+  filter(str_detect(tipo, "total"), fecha_aa != "2020") |>
+  pivot_wider(names_from = "tipo", values_from = "valor") |>
+  mutate(eur_kg_coop = total_eur / total_kg) |>
+  select(aa = fecha_aa, sem = fecha_sem, precio_coop = eur_kg_coop) |> 
+  full_join(precio_tef, by = join_by(aa, sem)) |>  
+  pivot_longer(
+    cols = starts_with("prec"), values_drop_na = TRUE,
+    names_transform = list(name = \(x) ifelse(x == "precio", "ISTAC", "Cooperativa"))
+      ) |> 
   mutate(
-    name    = if_else(name == "precio", "ISTAC", "Cooperativa"),
     sem_txt = if_else(sem < 10, str_c("0", sem), as.character(sem)),
     fecha   = str_c(aa, sem_txt, "04", sep = " ") |> as.Date(format = "%Y %W %w")
     ) |> 
