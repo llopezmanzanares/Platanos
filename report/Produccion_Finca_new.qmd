@@ -103,8 +103,8 @@ ggplot_cols_mm <- function(data_sel, aa_sel){
     labs(x = element_blank(), y = element_blank()) +
     coord_cartesian(xlim = c(1,12))
   
-  
 }
+
 ```
 
 
@@ -138,6 +138,7 @@ coop_ds$mes |>
     Median = "Mediana",
     SD = "Desv. Est."
   )
+
 ```
 
 ```{r}
@@ -298,19 +299,6 @@ coop_grafs$dist_kg / coop_grafs$dist_kg_aa
 
 coop_grafs$kg_meses
 
-# coop_ds$mes |> 
-#   ggplot(aes(x = fecha, y = total_kg)) +
-#   geom_point(shape = 21, fill = col_pal["cream"], color = col_pal["wine"]) +
-#   geom_smooth(
-#     method = "loess", formula = y ~ x,
-#     color = col_pal["wine"], fill = col_pal["cream"]
-#     ) +
-#   labs(
-#     title = "Evolución de la producción mensual (Kg)",
-#     x = NULL, y = NULL
-#   ) +
-#   theme(plot.title.position = "plot") +
-#   scale_y_continuous(labels = scales::label_number(big.mark = "."))
 ```
 
 ```{r}
@@ -318,19 +306,6 @@ coop_grafs$kg_meses
 
 coop_grafs$eur_meses
 
-# coop_ds$mes |> 
-#   ggplot(aes(x = fecha, y = total_eur)) +
-#   geom_point(shape = 21, fill = col_pal["cream"], color = col_pal["wine"]) +
-#   geom_smooth(
-#     method = "loess", formula = y ~ x,
-#     color = col_pal["wine"], fill = col_pal["cream"]
-#     ) +
-#   labs(
-#     title = "Evolución de la producción mensual (€)",
-#     x = element_blank(), y = element_blank()
-#   ) +
-#   theme(plot.title.position = "plot") +
-#   scale_y_continuous(labels = eur)
 ```
 
 ```{r}
@@ -338,23 +313,6 @@ coop_grafs$eur_meses
 
 coop_grafs$prop_premium
 
-# coop_ds$mes |> 
-#   select(fecha, matches("total|prem")) |> 
-#   mutate(
-#     prc_kg  = premium_kg / total_kg,
-#     prc_eur = premium_eur / total_eur,
-#     .keep   = "unused"
-#   ) |> 
-#   pivot_longer(cols = !fecha) |> 
-#   mutate(name = if_else(str_detect(name, "eur"), "Precio", "Peso")) |> 
-#   ggplot(aes(x = fecha, y = value)) +
-#   geom_line(aes(color = name), linewidth = 1) +
-#   labs(
-#     title = "Porcentaje de categoría Premium",
-#     x = element_blank(), y = element_blank(), color = element_blank()
-#   ) +
-#   theme(plot.title.position = "plot", legend.position = "bottom") +
-#   scale_y_continuous(labels = scales::label_percent(decimal.mark = ","))
 ```
 
 
@@ -374,21 +332,6 @@ coop_grafs$acum_kg +
     size = 4
     )
 
-# coop_ds$mes_kg |> 
-#   mutate(aa_txt = as_factor(aa)) |> 
-#   ggplot(aes(x = mm, y = total_kg_acum)) +
-#   geom_line(aes(group = aa_txt, color = aa_txt), linewidth = 0.9) +
-#   ggrepel::geom_text_repel(
-#     data = label_txt,
-#     aes(label = txt_aa, color = txt_aa, x = mm, y = total_kg_acum),
-#     size = 4
-#     ) +
-#   labs(
-#     title = "Acumulados anuales de los pesos (Kg)", 
-#     x = element_blank(), y = element_blank(), color = element_blank()
-#   ) +
-#   theme(plot.title.position = "plot", legend.position = "none") +
-#   scale_y_continuous(position = "right", labels = scales::label_number(big.mark = "."))
 ```
 
 ```{r}
@@ -402,22 +345,6 @@ coop_grafs$acum_eur +
     aes(label = fecha_aa, color = fecha_aa, x = fecha_mm, y = total_eur_acum),
     size = 4
     )
-
-# eur_acum |> 
-#   ggplot(aes(x = mm, y = eur_cum)) +
-#   geom_line(aes(group = aa_txt, color = aa_txt), linewidth = 0.9) +
-#   ggrepel::geom_text_repel(
-#     data = lbl_txt,
-#     aes(label = aa_txt, color = aa_txt, x = mm, y = eur_cum),
-#     size = 4
-#   ) +
-#   labs(
-#     title = "Acumulados anuales del precio percibido (€)",
-#     x = element_blank(), y = element_blank(), color = element_blank()
-#   ) +
-#   theme(plot.title.position = "plot", legend.position = "none") +
-#   scale_y_continuous(position = "right", labels = eur)
-
 
 ```
 
@@ -624,84 +551,3 @@ Por tanto, suponiendo que lo que no se exporta se destina al mercado interno, la
 istac_grafs$cons_propio
 
 ```
-
-# En Profundidad (experimental)
-
-<!-- ESTO NO TERMINA DE FUNCIONAR -->
-```{r}
-#| label: tabla-semanales
-#| eval: false
-
-# todas las semanas de todos los años (considero 53)
-aa_sem <- 
-  tibble(
-    aa  = rep(year(coop_rng[1]):year(coop_rng[2]), each = 53),
-    semana = rep(1:53, year(coop_rng[2])-year(coop_rng[1]) + 1)
-    )
-
-coop_semanales <- 
-  coop_ds$sem |> 
-  filter(year(fecha) > 2020) |> 
-  mutate(aa = year(fecha), .before = 1, .keep = "unused") |> 
-  select(!c(racimos, total_fac))
-
-left_join(aa_sem, coop_semanales, join_by(aa, semana)) |>
-  # las semanas sin datos es porque ha sido cero
-  mutate(across(!aa:semana, ~replace_na(.x, replace = 0))) |> 
-  # reagrupo para tener las semanas como columnas
-  pivot_longer(cols = !aa:semana) |> 
-  pivot_wider(names_from = "semana", values_from = "value") |> 
-  # por aquí irían las unidades para la tabla
-  mutate(
-    name_sfx = str_extract(name, pattern = "(?<=_)[:lower:]+$"),
-    .after = name
-    ) |> 
-  gt(locale = "es", rowname_col = "aa") |> 
-  cols_hide(columns = name) |>
-  cols_label(name_sfx = "Unidades") |> 
-  # gt_theme_538() |> 
-  
-  # estrtuctura de la tabla
-  tab_options(table.width = pct(90)) |>
-  tab_header(title = "Comparativa de los valores semanales") |> 
-  
-  # este no funciona...
-  tab_style(cell_text(size = 8), locations = cells_body(columns = !aa)) |>
-  
-  tab_row_group(
-    rows = str_detect(name, "total"), label = md("**Totales**"),
-    id = "tot"
-  ) |> 
-  tab_row_group(
-    rows = str_detect(name, "_med"), label = md("**Medias**"),
-    id = "meds"
-  ) |> 
-  tab_row_group(
-    rows = str_detect(name, "premi"), label = md("**Cat. PREMIUM**"),
-    id = "prem"
-  ) |> 
-  tab_row_group(
-    rows = str_detect(name, "psup"), label = md("**Cat. P. SUPERIOR**"),
-    id = "psup"
-  ) |> 
-  tab_row_group(
-    rows = str_detect(name, "segu"), label = md("**Cat. SEGUNDA**"),
-    id = "seg"
-  ) |> 
-  row_group_order(
-    groups = c("tot", "meds", "prem", "psup", "seg")
-  ) |> 
-  # formatos numéricos
-  fmt_number(columns = "1":"53", decimals = 0) |> 
-  
-  # heat_map
-  data_color(
-    columns = c("1":"53"), direction = "row",
-    palette = col_pal, apply_to = "fill"
-  ) |> 
-    # tab_style(cell_text(size = 8), locations = cells_body(columns = name_sfx)) |> 
-  as_raw_html()
-
-```
-
-
