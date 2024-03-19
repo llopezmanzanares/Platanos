@@ -1,13 +1,13 @@
 # Lectura de datos de las diferentes fuentes
 
-# Versión: 2024-02-15
+# Versión: 2024-03-19
 
 
 # Carga de librerías ------------------------------------------------------
 
-library(tidyverse)
-library(here)
-library(lubridate)
+# library(tidyverse)
+# library(here)
+# library(lubridate)
 library(readxl)
 # library(ISOweek)
 
@@ -69,7 +69,7 @@ istac_ds$exportaciones <-
   select(periodo, mes, isla, total, peninsula = `españa (excluida canarias)`, extranjero) |>  
   mutate(
     aa = year(mes),
-    trimestre = quarter(mes, type = "date_last"),
+    trimestre = quarter(mes, type = "date_last"), # para qué?
     .after = 2
   )
 
