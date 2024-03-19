@@ -126,10 +126,12 @@ read_pdfs <- function(datafiles) {
 #   return(semanales)
 # }
 
-### Hay un problema con la liquidación del 2024/02/03
-# varias filas por cada calidad del corte, por lo que la función anterior genera un error
-# Nueva función
-#TODO ver las diferencias con este dataset
+### Extraigo los datos de los pdf de las liquidaciones
+# Inputs : Dataset de las lecturas de los pdf
+# Outputs: Los datos extraídos en una estructura ordenada
+#
+# Version: 2024-03-19 
+###
 xtr_datos_liquidaciones <- function(liquidaciones){
   ds <- liquidaciones |>
     # me quedo con la información relevante
@@ -173,9 +175,6 @@ data_files <- list.files(
   pattern = "^L"
   )
 
-# metodo anterior
-# coop_ds$sem <- read_pdfs(data_files) %>% xtr_sem_data()
-
 coop_ds$semanas <- 
   read_pdfs(data_files) |> 
   xtr_datos_liquidaciones() |> 
@@ -207,28 +206,6 @@ coop_ds$mes <-
   )
 
 
-# Agregados semanales -----------------------------------------------------
-
-coop_ds$semanas <- 
-  filter(coop_ds$full, year(fecha) > 2020) |> 
-  pivot_wider(names_from = "tipo", values_from = "valor") |> 
-  
-
-# Kg por meses ------------------------------------------------------------
-
-# coop_ds$mes_kg <- coop_ds$mes %>% 
-#   mutate(
-#     aa = year(fecha),
-#     mm = month(fecha, label = TRUE),
-#     .after = 1
-#   ) %>% 
-#   select(fecha:mm, ends_with("kg")) %>% 
-#   group_by(aa) %>% 
-#   mutate(
-#     across(ends_with("_kg"), cumsum, .names = "{.col}_acum")
-#   ) %>% 
-#   ungroup()
-
 # Guardo el conjunto de datos ---------------------------------------------
 
 save(coop_ds, file = here(dirs$pro, "datos_finca.RData"))
@@ -238,4 +215,4 @@ save(coop_ds, file = here(dirs$pro, "datos_finca.RData"))
 
 # Limpio la casa ----------------------------------------------------------
 
-rm(xtr_num, read_pdfs, patrones, data_files)
+rm(xtr_num, read_pdfs, xtr_datos_liquidaciones, patrones, data_files)
