@@ -6,7 +6,6 @@
 # Packages ------
 
 # library(tidyverse)
-library(lubridate)
 library(pdftools)
 # library(here)
 
@@ -177,31 +176,42 @@ data_files <- list.files(
 # metodo anterior
 # coop_ds$sem <- read_pdfs(data_files) %>% xtr_sem_data()
 
-coop_ds$full <- read_pdfs(data_files) |> xtr_datos_liquidaciones()
+coop_ds$semanas <- 
+  read_pdfs(data_files) |> 
+  xtr_datos_liquidaciones() |> 
+  mutate(
+    across(fecha, list(
+      aa = \(x) as_factor(year(x)),
+      mm = \(x) month(x, label = TRUE),
+      sem= \(x) week(x)
+    )),
+    .after = 1
+  )
 
 # Agregados mensuales -----------------------------------------------------
 
 # Es más útil trabajar con los datos mensuales
 # solo tengo un dato de 2020, así que lo elimino
 coop_ds$mes <- 
-  filter(coop_ds$full, year(fecha) > 2020) |> 
+  filter(coop_ds$semanas, fecha_aa != 2020) |>
+  select(!fecha_sem) |> 
   pivot_wider(names_from = "tipo", values_from = "valor") |> 
   mutate(
     fecha = rollforward(fecha)
   ) |> 
   summarise(
-    .by = fecha,
+    .by = starts_with("fecha"),
     across(!ends_with("eurkg"), sum),
     across(ends_with("eurkg"), mean),
     kg_rac = total_kg / racimos
-  ) |> 
-  mutate(
-    across(fecha,list(
-      aa  = \(x) as_factor(year(x)), 
-      mm  = \(x) month(x, label = TRUE),
-      sem = \(x) week(x))
-      ),
-    .after = 1)
+  )
+
+
+# Agregados semanales -----------------------------------------------------
+
+coop_ds$semanas <- 
+  filter(coop_ds$full, year(fecha) > 2020) |> 
+  pivot_wider(names_from = "tipo", values_from = "valor") |> 
   
 
 # Kg por meses ------------------------------------------------------------
