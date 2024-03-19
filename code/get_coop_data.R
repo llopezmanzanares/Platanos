@@ -205,6 +205,14 @@ coop_ds$mes <-
     kg_rac = total_kg / racimos
   )
 
+# Acumulados mensulaes de las variables
+coop_ds$mes_acum <- 
+  coop_ds$mes |> 
+  mutate(
+    .by = fecha_aa,
+    across(premium_kg:racimos, cumsum, .names = "{.col}_acum")
+  ) |> 
+  select(starts_with("fecha"), ends_with("acum"))
 
 # Guardo el conjunto de datos ---------------------------------------------
 
