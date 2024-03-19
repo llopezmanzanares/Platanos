@@ -78,9 +78,9 @@ aamm_full <-
 
 # para ggplot_col_mm
 coop_mm <- 
-   select(coop_ds$mes, fecha:total_eur) |> 
+  select(coop_ds$mes, fecha, total_kg:racimos) |> 
   mutate(aa = year(fecha), mm = month(fecha, label = TRUE), .after = fecha) |> 
-  pivot_longer(cols = racimos:total_eur)
+  pivot_longer(cols = total_kg:racimos)
 ```
 
 ```{r}
@@ -100,7 +100,8 @@ ggplot_cols_mm <- function(data_sel, aa_sel){
     theme_minimal() +
     scale_x_discrete(breaks = NULL) +
     scale_y_continuous(breaks = NULL) +
-    labs(x = element_blank(), y = element_blank())
+    labs(x = element_blank(), y = element_blank()) +
+    coord_cartesian(xlim = c(1,12))
   
   
 }
@@ -198,11 +199,11 @@ coop_mm_summary |>
 left_join(
   aamm_full,
   coop_ds$mes |> 
-    select(fecha:total_eur) |> 
-    mutate(aa = year(fecha), mm = month(fecha, label = TRUE), .keep = "unused"),
+    select(fecha, mm = fecha_mm, total_kg, total_eur, racimos) |> 
+    mutate(aa = year(fecha), .keep = "unused"),
   join_by(aa, mm)
 ) |> 
-  pivot_longer(cols = racimos:total_eur) |> 
+  pivot_longer(cols = total_kg:racimos) |> 
   pivot_wider(names_from = mm, values_from = value) |> 
   
   # espacio para la gráfica, con las variables necesarias 
@@ -230,7 +231,7 @@ left_join(
   ) |> 
   
   cols_hide(name) |> 
-  cols_label(grafica = "") |> 
+  # cols_label(grafica = "") |> 
   
   # formatos numéricos
   fmt_number(
