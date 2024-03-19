@@ -121,31 +121,63 @@ coop_grafs$eur_kg <-
     x = NULL, y = NULL
   )
   
-# Kg por meses ------------------------------------------------------------
+
+# Evolucion mensual -------------------------------------------------------
 
 # evolución del total de kg
-coop_grafs$rac_kg_mm <-
-  coop_ds$mes %>% 
-  select(fecha:total_kg) %>% 
-  pivot_longer(
-    cols = -fecha,
-    names_to = "tipo",
-    values_to = "valor"
-  ) %>% 
-  mutate(
-    tipo = case_when(
-      tipo == "racimos" ~  "Número de racimos",
-      tipo == "total_kg" ~ "Kg totales"
-    ) 
-    ) %>% 
-  my_plot(aes(x = fecha, y = valor)) +
-  geom_col(fill = "springgreen4") +
-  facet_wrap(~tipo, ncol = 1, scales = "free_y") +
+coop_grafs$kg_meses <-
+  coop_ds$mes  |>  
+  my_plot(aes(x = fecha, y = total_kg)) +
+  geom_point(shape = 21, fill = col_pal["cream"], color = col_pal["wine"]) +
+  geom_smooth(
+    method = "loess", formula = y ~ x,
+    color = col_pal["wine"], fill = col_pal["cream"]
+  ) +
   labs(
-    title = "Evolución mensual del peso y número de racimos",
+    title = "Evolución de la producción mensual (Kg)",
     x = NULL, y = NULL
-  )
+  ) +
+  theme(plot.title.position = "plot") +
+  scale_y_continuous(labels = scales::label_number(big.mark = ".", decimal.mark = ","))
 
+# evolución del total de EUROS
+coop_grafs$eur_meses <-
+  coop_ds$mes  |>  
+  my_plot(aes(x = fecha, y = total_eur)) +
+  geom_point(shape = 21, fill = col_pal["cream"], color = col_pal["wine"]) +
+  geom_smooth(
+    method = "loess", formula = y ~ x,
+    color = col_pal["wine"], fill = col_pal["cream"]
+  ) +
+  labs(
+    title = "Evolución de la producción mensual (€)",
+    x = NULL, y = NULL
+  ) +
+  theme(plot.title.position = "plot") +
+  scale_y_continuous(labels = eur)
+
+# evol de la relación de categoría PREMIUM respecto del total
+coop_grafs$prop_premium |> 
+  coop_ds$mes |> 
+  mutate(
+    prc_kg = premium_kg / total_kg,
+    prc_eur= premium_eur / total_eur
+  ) |> 
+  select(fecha, starts_with("prc")) |> 
+  pivot_longer(
+    cols = !fecha,
+    names_prefix = "prc_",
+    names_transform = list(name = \(x) ifelse(x == "kg", "Peso", "Precio"))
+    ) |> 
+  ggplot(aes(x = fecha, y = value)) +
+  # probar a meter dos líneas diferentes, así puedo jugar con el alpha
+  geom_line(aes(color = name), linewidth = 1) +
+  labs(
+    title = "Porcentaje de categoría Premium",
+    x = element_blank(), y = element_blank(), color = element_blank()
+  ) +
+  theme(plot.title.position = "plot", legend.position = "bottom") +
+  scale_y_continuous(labels = scales::label_percent(decimal.mark = ","))
 
 # los totales mensuales comparados
 coop_grafs$kg_mm <-
@@ -158,6 +190,8 @@ coop_grafs$kg_mm <-
     subtitle = "Todas las categorías",
     x = NULL, y = NULL, fill = "Anualidades"
   )
+
+
 
 
 # el acumulado de los totales
