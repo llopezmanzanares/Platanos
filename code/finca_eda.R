@@ -3,7 +3,7 @@
 # Cargo los datos de los PDF y genero una serie de gráficas para
 # los informes de evolución
 
-# Versión: 2023-08-31
+# Versión: 2024-03-19
 
 # Packages ------
 
@@ -40,3 +40,11 @@ source(here(dirs$cod, "get_coop_data.R"))
 # se crea el archivo de datos procesados "graficas_finca.RData"
 
 source(here(dirs$eda, "coop_graficas.R"))
+
+# Genero el conjunto de datos descargados de ISTAC
+# Se crea el archivo de datos procesados "istac_platanos.RData"
+source(here(dirs$cod, "get_istac_data.R"))
+
+# Genero el conjunto de datos de las gráficas
+# Se crea el archivo de datos procesados "istac_graficas.RData"
+source(here(dirs$eda, "istac_graficas.R"))
