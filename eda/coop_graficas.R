@@ -1,7 +1,7 @@
 # Generación de las gráficas usadas en el informe Finca.Rmd y en
 # Produccion_Finca.qmd
 
-# Versión: 2024-02-16
+# Versión: 2024-03-19
 
 # Modificaciones a realizar:
 # concordancia de colores en todas las gráficas
@@ -9,9 +9,8 @@
 
 # Carga de datos ----------------------------------------------------------
 
-library(tidyverse)
-library(here)
-library(lubridate)
+# library(tidyverse)
+# library(here)
 library(ggdist)
 
 # mi paleta de colores
@@ -43,12 +42,11 @@ my_plot <- function(...){
 # Resumen gral ------------------------------------------------------------
 
 # Distribución de los racimos, ingresos y pesos mensuales por anualidades
-coop_grafs$summ <-
-  coop_ds$mes %>% 
-  select(fecha, Racimos = racimos, Ingresos = total_eur, Pesos = total_kg) %>% 
-  pivot_longer(-fecha) %>% 
-  mutate(aa = year(fecha) %>% as_factor()) %>% 
-  ggplot(aes(x = aa, y = value)) +
+coop_grafs$mensuales <-
+  coop_ds$mes  |>  
+  select(fecha_aa, Racimos = racimos, Ingresos = total_eur, Pesos = total_kg)  |>  
+  pivot_longer(!fecha_aa) |>  
+  ggplot(aes(x = fecha_aa, y = value)) +
   geom_boxplot(colour = "springgreen4", outlier.shape = NA) +
   geom_jitter(width = 0.1, alpha = 0.5) +
   facet_wrap(~name, ncol = 1, scales = "free_y") +
@@ -59,9 +57,9 @@ coop_grafs$summ <-
 
 # Distribución de los pesos, al detalle
 coop_grafs$dist_kg <- 
-  coop_ds$sem |> 
-  select(fecha, total_kg) |> 
-  ggplot(aes(x = total_kg)) +
+  coop_ds$semanas |> 
+  filter(tipo == "total_kg") |> 
+  ggplot(aes(x = valor)) +
   geom_boxplot(width = 0.1, fill = col_pal["wine"]) +
   geom_dots(
     dotsize = 0.1, height = 0.55, fill = col_pal["wine"],
@@ -80,16 +78,15 @@ coop_grafs$dist_kg <-
     axis.text.y  = element_blank(),
     axis.ticks.y = element_blank()
   ) +
-  scale_x_continuous(labels = scales::label_number(big.mark = "."))
+  scale_x_continuous(labels = scales::label_number(big.mark = ".", decimal.mark = ","))
 
 # Distribución Kg por anualidades
 coop_grafs$dist_kg_aa <- 
-  coop_ds$sem |> 
-  select(fecha, total_kg) |>
-  mutate(aa = as_factor(year(fecha))) |> 
-  filter(aa != "2020") |> 
-  ggplot(aes(y = total_kg, fill = aa)) +
-  geom_boxplot(width = 0.1) +
+  coop_ds$semanas |> 
+  filter(tipo == "total_kg") |>
+  filter(fecha_aa != "2020") |> 
+  ggplot(aes(y = valor, fill = fecha_aa)) +
+  geom_boxplot(width = 0.1, outliers = FALSE) +
   geom_dots(
     dotsize = 0.1, height = 0.55,
     side = "bottom", position = position_nudge(x = -0.075)
@@ -97,7 +94,7 @@ coop_grafs$dist_kg_aa <-
   stat_slab(
     position = position_nudge(x = 0.075), height = 0.75
   ) +
-  facet_wrap(~aa, nrow = 1) +
+  facet_wrap(~fecha_aa, nrow = 1) +
   labs(
     # title = "Distribución de los pesos semanales (Kg)",
     x = element_blank(), y = element_blank()
@@ -108,23 +105,17 @@ coop_grafs$dist_kg_aa <-
     axis.text.x  = element_blank(),
     axis.ticks.x = element_blank()
   ) +
-  scale_y_continuous(labels = scales::label_number(big.mark = "."))
+  scale_y_continuous(labels = scales::label_number(big.mark = ".", decimal.mark = ","))
 
 # Relación euros vs Kg ----------------------------------------------------
 
 coop_grafs$eur_kg <-
-  coop_ds$mes %>% 
-  select(fecha, starts_with("total")) %>% 
-  mutate(
-    eur_kg = total_eur / total_kg,
-  ) %>% 
+  coop_ds$mes |> 
+  select(fecha, starts_with("total")) |>  
+  mutate(eur_kg = total_eur / total_kg, .keep = "unused") |>  
   my_plot(aes(x = fecha, y = eur_kg)) +
   geom_point(alpha = .8, color = "yellow4") +
-  geom_smooth(
-    method = "loess",
-    se = FALSE,
-    color = "springgreen4"
-  ) +
+  geom_smooth(method = "loess", se = FALSE, color = "springgreen4") +
   labs(
     title = "Evolución de la relación € / Kg",
     x = NULL, y = NULL
