@@ -40,8 +40,8 @@ xtr_num <- function(txt, patron){
   return(numero)
 }
 
-
 read_pdfs <- function(datafiles) {
+  
   ds_coop <- 
     map(here(dirs$cop, datafiles), pdf_text)|> 
     unlist() |> 
@@ -49,156 +49,120 @@ read_pdfs <- function(datafiles) {
     unlist() |> 
     as_tibble_col() |> 
     # me quedo con las filas con información relevante
-    filter(str_detect(value, pattern = "Fecha|Semana|PREMIUM|P\\. SUPER|SEGUNDA|Total|racimos|medio")) %>% 
-    mutate(
-      value  = str_to_lower(value),
-      medida = case_when(
-        str_detect(value, "fecha")         ~ "fecha",
-        str_detect(value, "semana")        ~ "semana",
-        str_detect(value, "premium")       ~ "premium",
-        str_detect(value, "p\\. super")    ~ "psup",
-        str_detect(value, "segunda")       ~ "segunda",
-        str_detect(value, "total \\.")     ~ "totales",
-        str_detect(value, "total racimos") ~ "racimos",
-        str_detect(value, "peso medio")    ~ "peso",
-        str_detect(value, "precio medio")  ~ "precio",
-        str_detect(value, "total eu")      ~ "total_euros"
-      )
-    ) 
+    filter(str_detect(value, pattern = "Fecha|Semana|PREMIUM|P\\. SUPER|SEGUNDA|Total|racimos|medio"))
+  
   return(ds_coop)
 }
 
-xtr_sem_data <- function(datos_semanales){
-  # voy extrayendo los subconjuntos de datos
-  fechas <- filter(datos_semanales, medida == "fecha") %>% 
-    mutate(
-      fecha = str_extract(value, pattern = "(\\d{2,4}\\.?){3}") |> 
-        dmy(quiet = TRUE),
-      .keep = "none"
-    ) |> 
-    filter(!is.na(fecha))
-  semanas <- filter(datos_semanales, medida == "semana") %>% 
-    mutate(
-      semana = xtr_num(value, "\\d{1,2}"),
-      .keep = "none"
-    )
-  totales <- filter(datos_semanales, medida == "totales") %>% 
-    mutate(
-      total_kg = xtr_num(value, "(\\d\\.)?\\d+"),
-      total_eur = xtr_num(value, "(\\d\\.)?\\d{1,3},\\d{2}$"),
-      .keep = "none"
-    )
-  total_factura <- filter(datos_semanales, medida == "total_euros") %>% 
-    mutate(
-      total_fac = xtr_num(value, "(\\d\\.)?\\d{1,3},\\d{2}"),
-      .keep = "none"
-    )
-  racimos <- filter(datos_semanales, medida == "racimos") %>% 
-    mutate(
-      racimos = xtr_num(value, "\\d{1,2}"),
-      .keep = "none"
-    )
-  peso_med <- filter(datos_semanales, medida == "peso") %>% 
-    mutate(
-      peso_med = xtr_num(value, "\\d+,\\d{2}"),
-      .keep = "none"
-    )
-  prec_med <- filter(datos_semanales, medida == "precio") %>% 
-    mutate(
-      prec_med = xtr_num(value, "\\d,\\d{1,4}"),
-      .keep = "none"
-    )
-  premium <- filter(datos_semanales, medida == "premium") %>% 
-    mutate(
-      premium_kg =    xtr_num(value, patrones$kg),
-      premium_pc =    xtr_num(value, patrones$prc),
-      premium_eurkg = xtr_num(value, patrones$eurkg),
-      premium_eur =   xtr_num(value, patrones$eur),
-      .keep = "none"
-    )
-  psup <- filter(datos_semanales, medida == "psup") %>% 
-    mutate(
-      psup_kg =    xtr_num(value, patrones$kg),
-      psup_pc =    xtr_num(value, patrones$prc),
-      psup_eurkg = xtr_num(value, patrones$eurkg),
-      psup_eur =   xtr_num(value, patrones$eur),
-      .keep = "none"
-    )
-  segunda <- filter(datos_semanales, medida == "segunda") %>% 
-    mutate(
-      segunda_kg =    xtr_num(value, patrones$kg),
-      segunda_pc =    xtr_num(value, patrones$prc),
-      segunda_eurkg = xtr_num(value, patrones$eurkg),
-      segunda_eur =   xtr_num(value, patrones$eur),
-      .keep = "none"
-    )
-  
-  semanales <- 
-    bind_cols(fechas, semanas, racimos, totales, total_factura, peso_med, prec_med, premium, psup, segunda)
-  
-#  rm(ds, fechas, semanas, racimos, totales, total_factura, peso_med, prec_med, premium, psup, segunda)
-  
-  return(semanales)
-}
+# xtr_sem_data <- function(datos_semanales){
+#   # voy extrayendo los subconjuntos de datos
+#   fechas <- filter(datos_semanales, medida == "fecha") %>% 
+#     mutate(
+#       fecha = str_extract(value, pattern = "(\\d{2,4}\\.?){3}") |> 
+#         dmy(quiet = TRUE),
+#       .keep = "none"
+#     ) |> 
+#     filter(!is.na(fecha))
+#   semanas <- filter(datos_semanales, medida == "semana") %>% 
+#     mutate(
+#       semana = xtr_num(value, "\\d{1,2}"),
+#       .keep = "none"
+#     )
+#   totales <- filter(datos_semanales, medida == "totales") %>% 
+#     mutate(
+#       total_kg = xtr_num(value, "(\\d\\.)?\\d+"),
+#       total_eur = xtr_num(value, "(\\d\\.)?\\d{1,3},\\d{2}$"),
+#       .keep = "none"
+#     )
+#   total_factura <- filter(datos_semanales, medida == "total_euros") %>% 
+#     mutate(
+#       total_fac = xtr_num(value, "(\\d\\.)?\\d{1,3},\\d{2}"),
+#       .keep = "none"
+#     )
+#   racimos <- filter(datos_semanales, medida == "racimos") %>% 
+#     mutate(
+#       racimos = xtr_num(value, "\\d{1,2}"),
+#       .keep = "none"
+#     )
+#   peso_med <- filter(datos_semanales, medida == "peso") %>% 
+#     mutate(
+#       peso_med = xtr_num(value, "\\d+,\\d{2}"),
+#       .keep = "none"
+#     )
+#   prec_med <- filter(datos_semanales, medida == "precio") %>% 
+#     mutate(
+#       prec_med = xtr_num(value, "\\d,\\d{1,4}"),
+#       .keep = "none"
+#     )
+#   premium <- filter(datos_semanales, medida == "premium") %>% 
+#     mutate(
+#       premium_kg =    xtr_num(value, patrones$kg),
+#       premium_pc =    xtr_num(value, patrones$prc),
+#       premium_eurkg = xtr_num(value, patrones$eurkg),
+#       premium_eur =   xtr_num(value, patrones$eur),
+#       .keep = "none"
+#     )
+#   psup <- filter(datos_semanales, medida == "psup") %>% 
+#     mutate(
+#       psup_kg =    xtr_num(value, patrones$kg),
+#       psup_pc =    xtr_num(value, patrones$prc),
+#       psup_eurkg = xtr_num(value, patrones$eurkg),
+#       psup_eur =   xtr_num(value, patrones$eur),
+#       .keep = "none"
+#     )
+#   segunda <- filter(datos_semanales, medida == "segunda") %>% 
+#     mutate(
+#       segunda_kg =    xtr_num(value, patrones$kg),
+#       segunda_pc =    xtr_num(value, patrones$prc),
+#       segunda_eurkg = xtr_num(value, patrones$eurkg),
+#       segunda_eur =   xtr_num(value, patrones$eur),
+#       .keep = "none"
+#     )
+#   
+#   semanales <- 
+#     bind_cols(fechas, semanas, racimos, totales, total_factura, peso_med, prec_med, premium, psup, segunda)
+#   
+# #  rm(ds, fechas, semanas, racimos, totales, total_factura, peso_med, prec_med, premium, psup, segunda)
+#   
+#   return(semanales)
+# }
 
 ### Hay un problema con la liquidación del 2024/02/03
 # varias filas por cada calidad del corte, por lo que la función anterior genera un error
 # Nueva función
 #TODO ver las diferencias con este dataset
 xtr_datos_liquidaciones <- function(liquidaciones){
-  ds <- liquidaciones |> 
+  ds <- liquidaciones |>
+    # me quedo con la información relevante
+    # las que tienen un solo valor por fila
     mutate(
-      fecha = ifelse(medida == "fecha",
-                     str_extract(value, pattern = patrones$fecha),
-                     NA),
-      semana = ifelse(medida == "semana",
-                      xtr_num(value, patron = patrones$semns),
-                      NA),
-      semana = lead(semana),
-      racimos = ifelse(medida == "racimos",
-                       xtr_num(value, patron = patrones$racms),
-                       NA),
-      racimos = lead(racimos, n = 6)
+      fecha   = ifelse(str_detect(value, "Fecha"),   str_extract(value, patrones$fecha),NA),
+      racimos = ifelse(str_detect(value, "racimos"), xtr_num(value, patrones$racms),    NA)
     ) |> 
-    fill(fecha, semana, racimos) |> 
+    fill(fecha) |> 
+
+    # varios valores por fila
     mutate(
       fecha = dmy(fecha),
       
-      premium_kg = ifelse(medida == "premium",
-                          xtr_num(value, patron = patrones$kg),
-                          NA),
-      premium_eurkg = ifelse(medida == "premium",
-                             xtr_num(value, patron = patrones$eurkg),
-                             NA),
-      premium_eur = ifelse(medida == "premium",
-                           xtr_num(value, patron = patrones$eur),
-                           NA),
-      psup_kg = ifelse(medida == "psup",
-                       xtr_num(value, patron = patrones$kg),
-                       NA),
-      psup_eurkg = ifelse(medida == "psup",
-                          xtr_num(value, patron = patrones$eurkg),
-                          NA),
-      psup_eur = ifelse(medida == "psup",
-                        xtr_num(value, patron = patrones$eur),
-                        NA),
-      segunda_kg = ifelse(medida == "segunda",
-                          xtr_num(value, patron = patrones$kg),
-                          NA),
-      segunda_eurkg = ifelse(medida == "segunda",
-                             xtr_num(value, patron = patrones$eurkg),
-                             NA),
-      segunda_eur = ifelse(medida == "segunda",
-                           xtr_num(value, patron = patrones$eur),
-                           NA)
+      total_kg      = ifelse(str_detect(value, "Total \\."), xtr_num(value, patrones$kg),   NA),
+      total_eur     = ifelse(str_detect(value, "Total \\."), xtr_num(value, patrones$eur),  NA),
+      premium_kg    = ifelse(str_detect(value, "PREMIUM"),   xtr_num(value, patrones$kg),   NA),
+      premium_eurkg = ifelse(str_detect(value, "PREMIUM"),   xtr_num(value, patrones$eurkg),NA),
+      premium_eur   = ifelse(str_detect(value, "PREMIUM"),   xtr_num(value, patrones$eur),  NA),
+      psup_kg       = ifelse(str_detect(value, "P\\. SUPER"),xtr_num(value, patrones$kg),   NA),
+      psup_eurkg    = ifelse(str_detect(value, "P\\. SUPER"),xtr_num(value, patrones$eurkg),NA),
+      psup_eur      = ifelse(str_detect(value, "P\\. SUPER"),xtr_num(value, patrones$eur),  NA),
+      segunda_kg    = ifelse(str_detect(value, "SEGUNDA"),   xtr_num(value, patrones$kg),   NA),
+      segunda_eurkg = ifelse(str_detect(value, "SEGUNDA"),   xtr_num(value, patrones$eurkg),NA),
+      segunda_eur   = ifelse(str_detect(value, "SEGUNDA"),   xtr_num(value, patrones$eur),  NA)
     ) |> 
-    select(!c(value, medida)) |> 
-    pivot_longer(
-      cols = !c(fecha:racimos),
-      names_to = "tipo",
-      values_to = "valor",
-      values_drop_na = TRUE
-    )
+    
+    # reestructuro el dataset
+    select(!value) |> 
+    pivot_longer(cols = !fecha, names_to = "tipo", values_to = "valor", values_drop_na = TRUE) |> 
+    distinct() |> 
+    summarise(.by = c(fecha, tipo), valor = sum(valor))
   
   return(ds)
 }
@@ -210,7 +174,10 @@ data_files <- list.files(
   pattern = "^L"
   )
 
-coop_ds$sem <- read_pdfs(data_files) %>% xtr_sem_data()
+# metodo anterior
+# coop_ds$sem <- read_pdfs(data_files) %>% xtr_sem_data()
+
+coop_ds$full <- read_pdfs(data_files) |> xtr_datos_liquidaciones()
 
 # Agregados mensuales -----------------------------------------------------
 
