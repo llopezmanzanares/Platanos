@@ -197,8 +197,9 @@ coop_ds$mes <-
   ) |> 
   mutate(
     across(fecha,list(
-      aa = \(x) year(x), 
-      mm = \(x) month(x, label = TRUE))
+      aa  = \(x) as_factor(year(x)), 
+      mm  = \(x) month(x, label = TRUE),
+      sem = \(x) week(x))
       ),
     .after = 1)
   
@@ -227,4 +228,4 @@ save(coop_ds, file = here(dirs$pro, "datos_finca.RData"))
 
 # Limpio la casa ----------------------------------------------------------
 
-rm(xtr_num, xtr_sem_data, read_pdfs, patrones, data_files)
+rm(xtr_num, read_pdfs, patrones, data_files)
