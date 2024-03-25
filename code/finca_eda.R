@@ -3,7 +3,7 @@
 # Cargo los datos de los PDF y genero una serie de gráficas para
 # los informes de evolución
 
-# Versión: 2024-03-19
+# Versión: 2024-03-25
 
 # Packages ------
 
@@ -16,10 +16,12 @@ library(here)
 
 coop_ds    <- list()
 coop_grafs <- list()
+balten_ds  <- list()
 
 dirs <- list(
   raw = "data/raw",
   cop = "data/raw/coop",
+  bal = "data/raw/balten",
   pro = "data/processed",
   cod = "code",
   eda = "eda"
@@ -32,8 +34,10 @@ dirs <- list(
 # Acciones ----------------------------------------------------------------
 
 # Genero el conjunto de datos con las lecturas semanales y acumulados mensuales.
-# Se crea el archivo de datos procesados "datos_finca.RData"
 
+# Se crea el archido de datos procesados "datos_balten.RData" con los consumos de agua
+source(here(dirs$cod, "get_balten_data.R"))
+# Se crea el archivo de datos procesados "datos_finca.RData" con los datos de la cooperativa
 source(here(dirs$cod, "get_coop_data.R"))
 
 # Genero el conjunto de datos con las gráficas
