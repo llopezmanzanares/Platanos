@@ -5,6 +5,7 @@ lang: es
 execute: 
   echo: false
   warning: false
+  cache: true
 crossref: 
   fig-title: "Figura"
   fig-prefix: "Figura"
@@ -33,6 +34,7 @@ knitr:
 ```{r}
 #| label: set-up
 #| include: false
+#| cache: false
 
 library(tidyverse)
 library(ggdist)
@@ -45,6 +47,10 @@ theme_set(
   # theme_minimal()
   theme_light(base_size = 14)
 )
+```
+
+```{r}
+#| label: helpers
 
 eur <- scales::label_currency(suffix = "€", prefix = NULL,
                               big.mark = ".", decimal.mark = ",")
@@ -55,10 +61,12 @@ col_pal <- c("blanco" = "white", "cream" = "#f4f7be", "mindaro" = "#e5f77d", "ec
 
 ```
 
+
 ```{r}
 #| label: data-load
 
 load(here("data/processed/datos_finca.RData"))
+load(here("data/processed/datos_balten.RData"))
 load(here("data/processed/graficas_finca.RData"))
 load(here("data/processed/istac_platanos.RData"))
 load(here("data/processed/istac_graficas.RData"))
@@ -105,6 +113,49 @@ ggplot_cols_mm <- function(data_sel, aa_sel){
   
 }
 
+```
+
+::: {.callout-note}
+
+# Última actualización
+
+La última actualización de los datos ha sido `r stamp("Lunes, 1 de Enero de 1999")(coop_rng[2])`
+
+:::
+
+# Ingresos y Gastos
+
+```{r}
+#| label: ingresos-gastos
+
+# gastos de agua, anuales (año 2020 incompleto)
+balten_totales <-
+  balten_ds$bimensuales |> 
+  mutate(aa = year(fecha)) |> 
+  summarise(.by = aa, gastos = sum(total_eur)/2) |> 
+  filter(aa > 2020)
+
+produccion_totales_eur <- 
+  coop_ds$mes |> 
+  mutate(aa = year(fecha)) |> 
+  summarise(.by = aa, ingresos = sum(total_eur))
+
+left_join(produccion_totales_eur, balten_totales, by = join_by(aa)) |> 
+  replace_na(list(gastos = 0)) |> 
+  mutate(
+    dif   = ingresos - gastos,
+    d_dif = dif / ingresos 
+    ) |> 
+  gt() |> 
+  gt_theme_538() |> 
+  fmt_integer(columns = !aa, sep_mark = ".") |> 
+  fmt_percent(columns = d_dif, dec_mark = ",", decimals = 1) |> 
+  cols_label(
+    aa = "", d_dif = "",
+    dif = "Ganancias",
+    ingresos = "Cortes",
+    gastos = "Agua"
+  )
 ```
 
 
@@ -387,6 +438,15 @@ coop_ds$semanas |>
   scale_y_continuous(position = "right", labels = eur)
 ```
 
+# Gastos
+
+## Consumo de agua
+
+```{r}
+#| label: agua
+
+
+```
 
 
 # Producción de plátano en Canarias
