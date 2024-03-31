@@ -1,7 +1,7 @@
 # Generación de las gráficas usadas en el informe Finca.Rmd y en
 # Produccion_Finca.qmd
 
-# Versión: 2024-03-19
+# Versión: 2024-03-31
 
 # Modificaciones a realizar:
 # concordancia de colores en todas las gráficas
@@ -213,88 +213,88 @@ coop_grafs$acum_eur <-
     position = "right",
     labels = eur
     )
-
+  
 # el acumulado de los totales
-coop_grafs$kg_mm_acum <-
-  coop_ds$mes_kg %>% 
-  select(fecha:mm, total_kg_acum) %>% 
-  my_plot(aes(x= mm, y = total_kg_acum, color = as_factor(aa))) +
-  geom_line(aes(group = aa), linewidth = 1.1) +
-  geom_point() +
-  # valores del último mes y comparativa con años anteriores
-  geom_point(
-    data = coop_ds$mes_kg %>% filter(month(fecha) == month(max(fecha))),
-    aes(x = mm, y = total_kg_acum), color = "black", shape = 1,
-    show.legend = FALSE
-  ) +
-  geom_text(
-    data = coop_ds$mes_kg %>% filter(month(fecha) == month(max(fecha))),
-    aes(
-      label = format(total_kg_acum, big.mark=".", decimal.mark = ",") %>%
-        str_c(.,"kg", sep=" ")
-    ),
-    nudge_x = .8, size = 3,
-    show.legend = FALSE
-  ) +
-  labs(
-    title = "Acumulados mensuales de la producción total (Kg)",
-    x = NULL, y = NULL, color = "Anualidades"
-  ) + 
-  scale_y_continuous(labels = eur, position = "right")
+# coop_grafs$kg_mm_acum <-
+#   coop_ds$mes_kg %>% 
+#   select(fecha:mm, total_kg_acum) %>% 
+#   my_plot(aes(x= mm, y = total_kg_acum, color = as_factor(aa))) +
+#   geom_line(aes(group = aa), linewidth = 1.1) +
+#   geom_point() +
+#   # valores del último mes y comparativa con años anteriores
+#   geom_point(
+#     data = coop_ds$mes_kg %>% filter(month(fecha) == month(max(fecha))),
+#     aes(x = mm, y = total_kg_acum), color = "black", shape = 1,
+#     show.legend = FALSE
+#   ) +
+#   geom_text(
+#     data = coop_ds$mes_kg %>% filter(month(fecha) == month(max(fecha))),
+#     aes(
+#       label = format(total_kg_acum, big.mark=".", decimal.mark = ",") %>%
+#         str_c(.,"kg", sep=" ")
+#     ),
+#     nudge_x = .8, size = 3,
+#     show.legend = FALSE
+#   ) +
+#   labs(
+#     title = "Acumulados mensuales de la producción total (Kg)",
+#     x = NULL, y = NULL, color = "Anualidades"
+#   ) + 
+#   scale_y_continuous(labels = eur, position = "right")
 
 # los kg por categorías, comparados
-coop_grafs$kg_cat <-
-  coop_ds$mes_kg %>% 
-  select(!c(total_kg, ends_with("acum"))) %>% 
-  pivot_longer(
-    cols = !c(fecha, aa, mm),
-    names_to  = "cat",
-    values_to = "peso"
-  ) %>% 
-  mutate(
-    cat = case_when(
-      str_detect(cat, "psup") ~ "Psup",
-      str_detect(cat, "segu") ~ "Segunda",
-      TRUE                    ~ "Premium"
-    )
-  ) %>% 
-  my_plot(aes(x = mm, y = peso, fill = as_factor(aa))) +
-  geom_col(position = "dodge", color = "#333333") +
-  facet_wrap(~cat, ncol = 1) +
-  labs(
-    title = "Comparativa de la producción mensual (Kg)",
-    subtitle = "Producción de cada una de las categorías",
-    x = NULL, y = NULL, fill = "Anualidades"
-  )
+# coop_grafs$kg_cat <-
+#   coop_ds$mes_kg %>% 
+#   select(!c(total_kg, ends_with("acum"))) %>% 
+#   pivot_longer(
+#     cols = !c(fecha, aa, mm),
+#     names_to  = "cat",
+#     values_to = "peso"
+#   ) %>% 
+#   mutate(
+#     cat = case_when(
+#       str_detect(cat, "psup") ~ "Psup",
+#       str_detect(cat, "segu") ~ "Segunda",
+#       TRUE                    ~ "Premium"
+#     )
+#   ) %>% 
+#   my_plot(aes(x = mm, y = peso, fill = as_factor(aa))) +
+#   geom_col(position = "dodge", color = "#333333") +
+#   facet_wrap(~cat, ncol = 1) +
+#   labs(
+#     title = "Comparativa de la producción mensual (Kg)",
+#     subtitle = "Producción de cada una de las categorías",
+#     x = NULL, y = NULL, fill = "Anualidades"
+#   )
 
 
 # acumulados de los kg por categorías
-coop_grafs$kg_cat_acum <-
-  coop_ds$mes_kg %>% 
-  select(!c(ends_with("kg"), total_kg_acum)) %>% 
-  pivot_longer(
-    cols = !c(fecha, aa, mm),
-    names_to = "cat",
-    values_to = "peso"
-  ) %>% 
-  mutate(
-    cat = case_when(
-      str_detect(cat, "psup") ~ "Psup",
-      str_detect(cat, "segu") ~ "Segunda",
-      TRUE                    ~ "Premium"
-    )
-  ) %>% 
-  my_plot(aes(x = mm, y = peso, color = as_factor(aa))) +
-  geom_point() +
-  geom_line(aes(group = aa)) +
-  facet_wrap(~cat, ncol = 1) +
-  labs(
-    title = "Acumulados de la producción mensual (Kg)",
-    subtitle = "Producción de cada una de las categorías",
-    x = NULL, y = NULL, color = "Anualidades"
-  ) 
+# coop_grafs$kg_cat_acum <-
+#   coop_ds$mes_kg %>% 
+#   select(!c(ends_with("kg"), total_kg_acum)) %>% 
+#   pivot_longer(
+#     cols = !c(fecha, aa, mm),
+#     names_to = "cat",
+#     values_to = "peso"
+#   ) %>% 
+#   mutate(
+#     cat = case_when(
+#       str_detect(cat, "psup") ~ "Psup",
+#       str_detect(cat, "segu") ~ "Segunda",
+#       TRUE                    ~ "Premium"
+#     )
+#   ) %>% 
+#   my_plot(aes(x = mm, y = peso, color = as_factor(aa))) +
+#   geom_point() +
+#   geom_line(aes(group = aa)) +
+#   facet_wrap(~cat, ncol = 1) +
+#   labs(
+#     title = "Acumulados de la producción mensual (Kg)",
+#     subtitle = "Producción de cada una de las categorías",
+#     x = NULL, y = NULL, color = "Anualidades"
+#   ) 
 
-# relación entre racimos y kg
+  # relación entre racimos y kg
 # coop_ds$mes %>% 
 #   select(fecha, kg_rac) %>% 
 #   my_plot(aes(x = fecha, y = kg_rac)) +
@@ -306,33 +306,33 @@ coop_grafs$kg_cat_acum <-
 #   )
 
 # puedo hacer la relación entre racimos y kg en base semanal
-coop_grafs$rac_kg_sem <-
-  coop_ds$sem %>% 
-  select(fecha, semana, racimos, peso_med) %>% 
-  filter(year(fecha) > 2020) %>% 
-  pivot_longer(
-    !c(fecha, semana),
-    names_to = "medida",
-    values_to = "valor"
-  ) %>% 
-  mutate(
-    aa = year(fecha),
-    medida = case_when(
-      medida == "racimos"  ~ "Racimos",
-      medida == "peso_med" ~ "Kg (media)"
-    )
-  ) %>% 
-  my_plot(aes(x = semana, y = valor, color = as_factor(aa))) +
-  geom_point(alpha = .5) +
-  geom_smooth(se = FALSE) +
-  geom_vline(xintercept = 34, color = "grey75") +
-  facet_wrap(~medida, ncol = 1, scales = "free_y") +
-  labs(
-    title    = "Comparativa de la media de Kg y número de racimos",
-    subtitle = "Semanas de cada anualidad",
-    caption  = "Marcada la semana 34",
-    x = "Semanas", y = NULL, color = "Anualidades"
-  )
+# coop_grafs$rac_kg_sem <-
+#   coop_ds$sem %>% 
+#   select(fecha, semana, racimos, peso_med) %>% 
+#   filter(year(fecha) > 2020) %>% 
+#   pivot_longer(
+#     !c(fecha, semana),
+#     names_to = "medida",
+#     values_to = "valor"
+#   ) %>% 
+#   mutate(
+#     aa = year(fecha),
+#     medida = case_when(
+#       medida == "racimos"  ~ "Racimos",
+#       medida == "peso_med" ~ "Kg (media)"
+#     )
+#   ) %>% 
+#   my_plot(aes(x = semana, y = valor, color = as_factor(aa))) +
+#   geom_point(alpha = .5) +
+#   geom_smooth(se = FALSE) +
+#   geom_vline(xintercept = 34, color = "grey75") +
+#   facet_wrap(~medida, ncol = 1, scales = "free_y") +
+#   labs(
+#     title    = "Comparativa de la media de Kg y número de racimos",
+#     subtitle = "Semanas de cada anualidad",
+#     caption  = "Marcada la semana 34",
+#     x = "Semanas", y = NULL, color = "Anualidades"
+#   )
 
 
 # Importes ----------------------------------------------------------------
