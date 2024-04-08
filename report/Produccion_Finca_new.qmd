@@ -89,6 +89,14 @@ coop_mm <-
   select(coop_ds$mes, fecha, total_kg:racimos) |> 
   mutate(aa = year(fecha), mm = month(fecha, label = TRUE), .after = fecha) |> 
   pivot_longer(cols = total_kg:racimos)
+
+# consumo agua
+balten_m3 <- 
+  balten_ds$bimensuales |> 
+  mutate(aa = year(fecha)) |> 
+  filter(aa > 2020) |> 
+  select(aa, fecha, consumo_m3)
+
 ```
 
 ```{r}
@@ -445,7 +453,10 @@ coop_ds$semanas |>
 ```{r}
 #| label: agua
 
-
+balten_m3 |> 
+  ggplot(aes(x = fecha, y = consumo_m3)) +
+  geom_point(aes(color = as_factor(aa))) +
+  geom_line(aes(color = as_factor(aa))) 
 ```
 
 
@@ -483,7 +494,7 @@ istac_grafs$pre_sem +
 
 ds <- 
   readxl::read_xlsx(
-    path  = here::here("data/raw/bananas_wholesale-proces_feb24.xlsx"),
+    path  = here::here("data/raw/bananas_wholesale-proces_mar24.xlsx"),
     sheet = "data EU",
     skip  = 2
   ) |> 
