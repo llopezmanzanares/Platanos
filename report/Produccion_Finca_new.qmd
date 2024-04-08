@@ -456,7 +456,13 @@ coop_ds$semanas |>
 balten_m3 |> 
   ggplot(aes(x = fecha, y = consumo_m3)) +
   geom_point(aes(color = as_factor(aa))) +
-  geom_line(aes(color = as_factor(aa))) 
+  geom_line(aes(color = as_factor(aa))) +
+  labs(
+    title = "Consumo de agua (m3)",
+    x = "Anualidades", y = NULL, color = NULL 
+  ) +
+  theme(plot.title.position = "plot", legend.position = "bottom") +
+  scale_y_continuous(position = "right", scales::label_number(big.mark = "."))
 ```
 
 
