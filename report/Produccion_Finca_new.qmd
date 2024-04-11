@@ -5,7 +5,7 @@ lang: es
 execute: 
   echo: false
   warning: false
-  cache: true
+  # cache: true
 crossref: 
   fig-title: "Figura"
   fig-prefix: "Figura"
@@ -158,6 +158,11 @@ left_join(produccion_totales_eur, balten_totales, by = join_by(aa)) |>
   gt_theme_538() |> 
   fmt_integer(columns = !aa, sep_mark = ".") |> 
   fmt_percent(columns = d_dif, dec_mark = ",", decimals = 1) |> 
+  tab_style(style = cell_text(weight = "bold"), locations = cells_body(columns = aa)) |> 
+  cols_width(
+    aa ~ px(50), d_dif ~ px(75),
+    everything() ~ px(150) 
+    ) |> 
   cols_label(
     aa = "", d_dif = "",
     dif = "Ganancias",
@@ -234,7 +239,7 @@ coop_mm_summary |>
   gt_theme_538() |>
   fmt_number(columns = c(total:estdv), decimals = 0) |> 
   fmt_currency(
-    columns = c(total:estdv), rows = c(3,6,9), #locale = "es", 
+    columns = c(total:estdv), rows = c(2,5,8,11), #locale = "es", 
     decimals = 0, placement = "right", incl_space = TRUE
     ) |> 
   tab_style(
@@ -275,7 +280,7 @@ left_join(
     rowname_col = "aa"#, groupname_col = "name"
   ) |> 
   gt_theme_538() |>
-  tab_style(cell_text(size = 9), locations = cells_body(columns = c("ene":"dic"))) |> 
+  tab_style(style = cell_text(size = "small"), locations = cells_body(columns = c("ene":"dic"))) |> 
   tab_header(title = "Comparativa de valores mensuales") |> 
   tab_row_group(
     label = md("**Racimos**"), rows = name == "racimos",
@@ -291,7 +296,7 @@ left_join(
   ) |> 
   
   cols_hide(name) |> 
-  # cols_label(grafica = "") |> 
+  cols_label(grafica = "Anualidad") |>
   
   # formatos numéricos
   fmt_number(
@@ -459,10 +464,10 @@ balten_m3 |>
   geom_line(aes(color = as_factor(aa))) +
   labs(
     title = "Consumo de agua (m3)",
-    x = "Anualidades", y = NULL, color = NULL 
+    x = "Anualidades", y = NULL, color = NULL
   ) +
   theme(plot.title.position = "plot", legend.position = "bottom") +
-  scale_y_continuous(position = "right", scales::label_number(big.mark = "."))
+  scale_y_continuous(position = "right", labels = scales::label_number(big.mark = "."))
 ```
 
 
