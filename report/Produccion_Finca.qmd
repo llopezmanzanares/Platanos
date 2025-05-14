@@ -1,9 +1,11 @@
 ---
 title: "Producción de plátanos"
-date: "2023-04-17"
+date: "`r Sys.Date()`"
+lang: es
 execute: 
   echo: false
   warning: false
+  # cache: true
 crossref: 
   fig-title: "Figura"
   fig-prefix: "Figura"
@@ -11,101 +13,172 @@ crossref:
   tbl-prefix: "Tabla"
 format: 
   html:
-    theme: yeti
+    theme: lux
     toc: true
     toc-depth: 2
     number-sections: true
     embed-resources: true
+    fig-width: 10
+    page-layout: full
     grid:
       sidebar-width: 50px
-      body-width: 1050px
+      body-width: 1200px
       margin-width: 200px
 knitr: 
   opts_chunk:
     echo: false
     warning: false
     message: false
-params:
-  new_coop: false
-  new_istac: true
 ---
 
 ```{r}
 #| label: set-up
 #| include: false
+#| cache: false
 
 library(tidyverse)
 library(ggdist)
-# library(lubridate)
+library(patchwork)
 library(here)
 library(gt)
 library(gtExtras)
-library(kableExtra)
 
 theme_set(
   # theme_minimal()
-  theme_light()
+  theme_light(base_size = 14)
 )
+```
+
+```{r}
+#| label: helpers
 
 eur <- scales::label_currency(suffix = "€", prefix = NULL,
                               big.mark = ".", decimal.mark = ",")
 
 # mi paleta de colores
-col_pal <- c("cream" = "#f4f7be", "mindaro" = "#e5f77d", "ecru" = "#deba6f",
+col_pal <- c("blanco" = "white", "cream" = "#f4f7be", "mindaro" = "#e5f77d", "ecru" = "#deba6f",
              "wine"  = "#823038", "licoire" = "#1e000e")
 
 ```
 
-```{r}
-#| label: coop-data-load
 
-if (isTRUE(params$new_coop)){
-  # cargo nuevos datos
-  source(file = here("code", "get_coop_data.R"))
-  # genero las gráficas
-  source(file = here("eda", "coop_graficas.R"))
-} else {
-  # solamente cargo el objeto con las gráficas
-  load(here("data/processed", "graficas_finca.RData"))
-}
+```{r}
+#| label: data-load
 
 load(here("data/processed/datos_finca.RData"))
+load(here("data/processed/datos_balten.RData"))
+load(here("data/processed/graficas_finca.RData"))
+load(here("data/processed/istac_platanos.RData"))
+load(here("data/processed/istac_graficas.RData"))
+
 # rango de los datos de las gráficas de la cooperativa
-fechas_rng <- range(coop_grafs$eur_kg$data$fecha)
+coop_rng <- filter(coop_ds$semanas, year(fecha) > 2020)$fecha |> range()
+# rango de los datos del istac
+istac_rng <- range(istac_grafs$pre_sem$data$aa)
+
+# anualidades completas
+aamm_full <-
+  tibble(
+    aa = rep(year(coop_rng[1]):year(coop_rng[2]), each = 12),
+    mm = rep(1:12, year(coop_rng[2])-year(coop_rng[1]) + 1) |> 
+      month(label = TRUE)
+  )
+
+# para ggplot_col_mm
+coop_mm <- 
+  select(coop_ds$mes, fecha, total_kg:racimos) |> 
+  mutate(aa = year(fecha), mm = month(fecha, label = TRUE), .after = fecha) |> 
+  pivot_longer(cols = total_kg:racimos)
+
+# consumo agua
+balten_m3 <- 
+  balten_ds$bimensuales |> 
+  mutate(aa = year(fecha)) |> 
+  filter(aa > 2020) |> 
+  select(aa, fecha, consumo_m3)
+
 ```
 
 ```{r}
-#| label: istac-data-load
+#| label: my-fn
 
-if (isTRUE(params$new_istac)){
-  # cargo nuevos datos
-  source(file = here("code", "get_istac_data.R"))
-  # genero las gráficas
-  source(file = here("eda", "istac_graficas.R"))
-} else {
-  # solamente cargo el objeto con las gráficas
-  load(here("data/processed", "istac_platanos.RData"))
-  load(here("data/processed", "istac_graficas.RData"))
+# gráfica de columnas mensuales para los datos de la cooperativa
+ggplot_cols_mm <- function(data_sel, aa_sel){
+  
+  # selecciono los datos
+  coop_mm |> 
+    filter(aa == parse_number(aa_sel), name == data_sel) |> 
+    
+    # genero la gráfica
+    ggplot(aes(x = mm, y = value)) +
+    geom_col(fill = col_pal["ecru"]) +
+    # simplifico la grafica
+    theme_minimal() +
+    scale_x_discrete(breaks = NULL) +
+    scale_y_continuous(breaks = NULL) +
+    labs(x = element_blank(), y = element_blank()) +
+    coord_cartesian(xlim = c(1,12))
+  
 }
 
 ```
 
-# Introducción
+::: {.callout-note}
 
-Análisis de la evolución de la producción de plátanos para el periodo:
+# Última actualización
 
-desde `r fechas_rng[1]`
+La última actualización de los datos ha sido `r stamp("Lunes, 1 de Enero de 1999")(coop_rng[2])`
 
-hasta `r fechas_rng[2]`
+:::
 
-Para la evolución mensual se han agregado los datos en función de la fecha correspondiente a la semana del corte, según aparece en el documento de liquidación.
-
-Además, se ofrece información sobre el contexto de la producción en el archipiélago.
-
-# Evolución de la producción
+# Ingresos y Gastos
 
 ```{r}
-#| label: summary-table
+#| label: ingresos-gastos
+
+# gastos de agua, anuales (año 2020 incompleto)
+balten_totales <-
+  balten_ds$bimensuales |> 
+  mutate(aa = year(fecha)) |> 
+  summarise(.by = aa, gastos = sum(total_eur)/2) |> 
+  filter(aa > 2020)
+
+produccion_totales_eur <- 
+  coop_ds$mes |> 
+  mutate(aa = year(fecha)) |> 
+  summarise(.by = aa, ingresos = sum(total_eur))
+
+left_join(produccion_totales_eur, balten_totales, by = join_by(aa)) |> 
+  replace_na(list(gastos = 0)) |> 
+  mutate(
+    dif   = ingresos - gastos,
+    d_dif = dif / ingresos 
+    ) |> 
+  gt() |> 
+  gt_theme_538() |> 
+  fmt_integer(columns = !aa, sep_mark = ".") |> 
+  fmt_percent(columns = d_dif, dec_mark = ",", decimals = 1) |> 
+  tab_style(style = cell_text(weight = "bold"), locations = cells_body(columns = aa)) |> 
+  cols_width(
+    aa ~ px(50), d_dif ~ px(75),
+    everything() ~ px(150) 
+    ) |> 
+  cols_label(
+    aa = "", d_dif = "",
+    dif = "Ganancias",
+    ingresos = "Cortes",
+    gastos = "Agua"
+  )
+```
+
+
+# Producción de la Finca
+
+Datos para el periodo `r coop_rng[1]` a `r coop_rng[2]`
+
+```{r}
+#| label: resumen
+#| eval: false
 
 coop_ds$mes |>  
   select(racimos:total_eur) |>  
@@ -113,14 +186,15 @@ coop_ds$mes |>
     Racimos  = racimos,
     Peso     = total_kg,
     Ingresos = total_eur
-  )  |>  
-  gt_plt_summary(title = NULL) |> 
+  ) |>  
+  gt_plt_summary() |> 
+  tab_options(table.width = pct(60)) |> 
   tab_header(
-    title = "Valores principales",
+    title    = "Resumen de valores mensuales",
     subtitle = "Desde 2021"
   )  |>  
-  cols_hide(columns = c(n_missing))  |> 
-  fmt_integer(columns = c(Mean:SD), sep_mark = ".")  |>  
+  cols_hide(columns = c(n_missing)) |> 
+  fmt_integer(columns = c(Mean:SD), sep_mark = ".") |>  
   cols_label(
     name = "COLUMN", value = NULL,
     name = "Column", value="Histograma",
@@ -128,115 +202,285 @@ coop_ds$mes |>
     Median = "Mediana",
     SD = "Desv. Est."
   )
-```
-
-## Producción mensual en kg
-
-```{r}
-#| label: densidad-kg
-
-coop_grafs$dist_kg
-coop_grafs$dist_kg_aa
-
-```
-
-
-
-```{r}
-#| label: fig-kg-mes
-#| fig-cap: "Análisis de la producción mensual"
-#| fig-subcap: 
-#|   - "Comparativa de la producción"
-#|   - "Acumulado de la producción"
-#| layout-ncol: 2
-
-# comparativa de la producción mensual
-coop_grafs$kg_mm
-
-# comparativa del acumulado anual
-coop_grafs$kg_mm_acum
-```
-
-Atendiendo a las diferentes categorías, el desglose es el siguiente:
-
-```{r}
-#| label: fig-kg-mes-cat
-#| fig-cap: "Desglose de la producción (Kg) por categorías"
-#| fig-subcap: 
-#|   - "Comparativa mensual"
-#|   - "Detalle de los acumulados mensuales"
-#| layout-ncol: 1
-
-# kg por categorías
-coop_grafs$kg_cat
-
-# el acumulado de lo anterior
-coop_grafs$kg_cat_acum
-```
-
-## Racimos
-
-```{r}
-#| label: racimos
-
-# racimos mensuales
-coop_grafs$rac_kg_mm
-
-# comparativa semanal de la media en kg y el número de racimos
-coop_grafs$rac_kg_sem
-```
-
-## Importes
-
-```{r}
-#| label: coop-importes-acum
-
-coop_grafs$eur_mm_acum
 
 ```
 
 ```{r}
-#| label: coop-imps-cat
-#| fig-height: 9
+#| label: tabla-resumen
 
-coop_grafs$eur_cat
+coop_mm_summary <- 
+  coop_ds$mes |> 
+  select(fecha_aa, total_kg:racimos) |> 
+  pivot_longer(
+    cols = !fecha_aa, names_prefix = "total_", 
+    names_transform = list(name = \(x) case_when(x == "kg" ~ "Peso", 
+                                                 x == "eur" ~"Precio", 
+                                                 .default = "Racimos"))
+    ) |> 
+  summarise(
+    .by = c(fecha_aa, name),
+    across(value, 
+           list(total = sum, prom = mean, media = median, estdv = sd, datos = list),
+           .names = "{.fn}")
+  )
+
+coop_mm_summary |> 
+  relocate(datos, .after = total) |> 
+  gt(
+    rowname_col = "fecha_aa", #groupname_col = "name",
+    locale = "es"
+    ) |> 
+  tab_options(table.width = pct(60)) |> 
+  tab_header(title = "Resumen de valores mensuales") |> 
+  tab_row_group(label = md("**Racimos**"), rows = str_detect(name, "Racimos"), id = "racs") |> 
+  tab_row_group(label = md("**Pesos (Kg)**"), rows = str_detect(name, "Peso"), id = "kg") |> 
+  tab_row_group(label = md("**Facturado (€)**"), rows = str_detect(name, "Precio"), id = "eur") |> 
+  cols_hide(columns = name) |> 
+  gt_theme_538() |>
+  fmt_number(columns = c(total:estdv), decimals = 0) |> 
+  fmt_currency(
+    columns = c(total:estdv), rows = c(2,5,8,11), #locale = "es", 
+    decimals = 0, placement = "right", incl_space = TRUE
+    ) |> 
+  tab_style(
+    style = cell_text(size = 8), 
+    locations = cells_body(columns = c(total:estdv))
+  ) |>
+  cols_label(
+    total = "Acumulado", datos = "Distribución",
+    prom  = "Media", media = "Mediana", estdv = "Desv. Est."
+  ) |> 
+  gt_plt_dist(
+    column = datos, #type   = "histogram",
+    fill_color = col_pal["mindaro"], line_color = col_pal["ecru"],
+    same_limit = FALSE
+    )
+```
+
+
+```{r}
+#| label: tabla-resumen-mm
+
+left_join(
+  aamm_full,
+  coop_ds$mes |> 
+    select(fecha, mm = fecha_mm, total_kg, total_eur, racimos) |> 
+    mutate(aa = year(fecha), .keep = "unused"),
+  join_by(aa, mm)
+) |> 
+  pivot_longer(cols = total_kg:racimos) |> 
+  pivot_wider(names_from = mm, values_from = value) |> 
+  
+  # espacio para la gráfica, con las variables necesarias 
+  mutate(.by = c(name, aa), grafica = list(c(name, aa)), .after = name) |> 
+  
+  # la tabla
+  gt(
+    locale = "es",
+    rowname_col = "aa"#, groupname_col = "name"
+  ) |> 
+  gt_theme_538() |>
+  tab_style(style = cell_text(size = "small"), locations = cells_body(columns = c("ene":"dic"))) |> 
+  tab_header(title = "Comparativa de valores mensuales") |> 
+  tab_row_group(
+    label = md("**Racimos**"), rows = name == "racimos",
+    id = "racs"
+  ) |> 
+  tab_row_group(
+    label = md("**Pesos (Kg)**"), rows = name == "total_kg",
+    id = "kg"
+  ) |> 
+  tab_row_group(
+    label = md("**Facturado (€)**"), rows = name == "total_eur",
+    id = "eurs"
+  ) |> 
+  
+  cols_hide(name) |> 
+  cols_label(grafica = "Anualidad") |>
+  
+  # formatos numéricos
+  fmt_number(
+    columns = c("ene":"dic"),
+    decimals = 0
+  ) |> 
+  
+  #heat map
+  data_color(
+    columns = c("ene":"dic"), direction = "row",
+    palette = col_pal, apply_to = "fill"
+  ) |> 
+  
+  # las gráficas
+  text_transform(
+    locations = cells_body(columns = "grafica"),
+    fn = function(column) {
+      map(column, ~str_split_1(., ", ")) |> 
+        map(~ggplot_cols_mm(.[1], .[2])) |> 
+        ggplot_image(height = px(30), aspect_ratio = 3)
+    }
+  )
 
 ```
 
-## Rendimiento
-
-El rendimiento del mes en curso se muestra en la @tbl-kgmes, en la que se muestran los principales valores para el periodo de tiempo del que se dispone de datos.
-
 ```{r}
-#| label: tbl-kgmes
-#| tbl-cap: "Comparativa de los datos para el mes en curso"
+#| label: indicadores
 
-coop_grafs$eur_kg$data %>% 
-  # select(fecha:total_eur) %>% 
+ds <- 
+  coop_ds$mes |> 
+  select(fecha, total_kg, total_eur) |> 
   mutate(
-    eur_kg = round(eur_kg, 2)
-    ) %>%
-  filter(month(fecha) == month(last(fecha))) %>% 
-  kbl(
-    col.names   = c("Mensualidad", "Peso (kg)", "Importe (€)", "€ / Kg"),
-    format.args = list(big.mark = ".", decimal.mark = ",")
-  ) %>% 
-  kable_styling(bootstrap_options = "striped", full_width = TRUE)
+    aa = year(fecha), mm = month(fecha, label = TRUE),
+    eur_kg = round(total_eur / total_kg, 2)
+  )
 
+ds_aa <- filter(ds, mm == min(mm)) |> select(aa:eur_kg)
+
+ggplot(ds, aes(x = mm, y = eur_kg, color = as_factor(aa))) +
+  geom_line(aes(group = aa), linewidth = 1) +
+  ggrepel::geom_text_repel(data = ds_aa, aes(label = aa, x = mm, y = eur_kg)) +
+  labs(
+    title = "Relación entre el precio y el peso de la producción (€ vs Kg)",
+subtitle = "Total facturado en relación con el total producido",
+    x = element_blank(), y = element_blank()
+  ) +
+  theme(plot.title.position = "plot", legend.position = "none") +
+  scale_y_continuous(labels = scales::label_number(position = "right", decimal.mark = ","))
 
 ```
 
-# Evolución en Canarias
+## Distribución semanal del peso (Kg)
 
-En este apartado se presentan los datos más relevantes de la evolución del cultivo del plátano en Canarias.
+```{r}
+#| label: kg-vs-aa
+#| fig-height: 8
+
+coop_grafs$dist_kg / coop_grafs$dist_kg_aa
+```
+
+## Evolución mensual
+
+```{r}
+#| label: evol-mm-kg
+
+coop_grafs$kg_meses
+
+```
+
+```{r}
+#| label: evol-mm-eur
+
+coop_grafs$eur_meses
+
+```
+
+```{r}
+#| label: premiun-prop
+
+coop_grafs$prop_premium
+
+```
+
+
+
+## Acumulados anuales
+
+```{r}
+#| label: acum-kg
+
+
+label_txt <- filter(coop_ds$mes_acum, fecha == min(fecha), .by = fecha_aa) 
+
+coop_grafs$acum_kg +
+  ggrepel::geom_text_repel(
+    data = label_txt,
+    aes(label = fecha_aa, color = fecha_aa, x = fecha_mm, y = total_kg_acum),
+    size = 4
+    )
+
+```
+
+```{r}
+#| label: acum-eur
+
+lbl_txt <- filter(coop_ds$mes_acum, fecha == min(fecha), .by = fecha_aa)
+
+coop_grafs$acum_eur +
+  ggrepel::geom_text_repel(
+    data = lbl_txt,
+    aes(label = fecha_aa, color = fecha_aa, x = fecha_mm, y = total_eur_acum),
+    size = 4
+    )
+
+```
+
+## Precio percibido
+
+Se compara el total de las liquidaciones (Cooperativa), con el valor de ISTAC.
+
+```{r}
+#| label: eur-kg
+
+# hay un problemilla con la semana 53 del año 2022
+
+precio_tef <- 
+  filter(istac_ds$precios_sem, territorio == "Tenerife", aa > min(year(coop_ds$semanas$fecha))) |> 
+  select(-territorio) |> 
+  mutate(aa = as_factor(aa))
+
+coop_ds$semanas |> 
+  filter(str_detect(tipo, "total"), fecha_aa != "2020") |>
+  pivot_wider(names_from = "tipo", values_from = "valor") |>
+  mutate(eur_kg_coop = total_eur / total_kg) |>
+  select(aa = fecha_aa, sem = fecha_sem, precio_coop = eur_kg_coop) |> 
+  full_join(precio_tef, by = join_by(aa, sem)) |>  
+  pivot_longer(
+    cols = starts_with("prec"), values_drop_na = TRUE,
+    names_transform = list(name = \(x) ifelse(x == "precio", "ISTAC", "Cooperativa"))
+      ) |> 
+  mutate(
+    sem_txt = if_else(sem < 10, str_c("0", sem), as.character(sem)),
+    fecha   = str_c(aa, sem_txt, "04", sep = " ") |> as.Date(format = "%Y %W %w")
+    ) |> 
+  select(fecha, name, value) |> 
+  ggplot(aes(x = fecha, y = value)) +
+  geom_line(aes(group = name, color = name), linewidth = 1) +
+  labs(
+    title = "Comparativa de valor percibido (€/Kg)",
+    x = element_blank(), y = element_blank(), color = element_blank()
+  ) +
+  theme(plot.title.position = "plot", legend.position = "bottom") +
+  scale_y_continuous(position = "right", labels = eur)
+```
+
+# Gastos
+
+## Consumo de agua
+
+```{r}
+#| label: agua
+
+balten_m3 |> 
+  ggplot(aes(x = fecha, y = consumo_m3)) +
+  geom_point(aes(color = as_factor(aa))) +
+  geom_line(aes(color = as_factor(aa))) +
+  labs(
+    title = "Consumo de agua (m3)",
+    x = "Anualidades", y = NULL, color = NULL
+  ) +
+  theme(plot.title.position = "plot", legend.position = "bottom") +
+  scale_y_continuous(position = "right", labels = scales::label_number(big.mark = "."))
+```
+
+
+# Producción de plátano en Canarias
 
 ## Precios percibidos por el agricultor
+
+Datos para el periodo `r istac_rng[1]` a `r istac_rng[2]`
 
 ```{r}
 #| label: istac-precios-sem
 #| fig-height: 7
-
-# indicar periodo de datos?
 
 istac_grafs$pre_sem +
   labs(
@@ -248,11 +492,69 @@ istac_grafs$pre_sem +
     )
   ) +
   theme(
-    plot.subtitle = ggtext::element_markdown(),
+    plot.subtitle   = ggtext::element_markdown(),
     legend.position = "none"
-  )
+  ) +
+  scale_y_continuous(labels = eur)
 
 ```
+
+```{r}
+#| label: eu-precios
+
+# cambiar fecha 01-01-17 a 31-12-16
+
+ds <- 
+  readxl::read_xlsx(
+    path  = here::here("data/raw/bananas_wholesale-prices.xlsx"),
+    sheet = "data EU",
+    skip  = 2
+  ) |> 
+  select(week, `ending on`, ES) |> 
+  # hay un problema con como cuentan las semanas
+  mutate(
+    aa = year(`ending on`),
+    wk = week(`ending on`),
+    # precio de 100 Kg, lo paso a Kg
+    pr = ES / 100,
+    .keep = "none"
+    ) |> 
+  mutate(
+    mx_pr = max(pr, na.rm = TRUE),
+    mn_pr = min(pr, na.rm = TRUE),
+    md_pr = median(pr, na.rm = TRUE),
+    .by   = wk
+  )
+
+ds_lastaa <- filter(ds, aa == max(aa)) |> select(aa:pr)
+
+ds |> 
+  ggplot(aes(x = wk)) +
+  geom_ribbon(aes(ymin = mn_pr, ymax = mx_pr), fill = "#e5f77d", color = "#DEBA6F") +
+  geom_line(aes(y = md_pr), color = "#DEBA6F", linewidth = 0.9) +
+  geom_line(data = ds_lastaa, aes(x = wk, y = pr), color = "#823038", linewidth = 0.9) +
+  geom_vline(xintercept = 34, color = "#333333") +
+  labs(
+    title = "Evolución del rango de precios (€/Kg)",
+    subtitle = glue::glue(
+      'Valores máximos y mínimos, ',
+      '<span style=color:{col_pal["ecru"]}>media</span>, ',
+      '<span style=color:{col_pal["wine"]}>última anualidad</span> y ',
+      '<span style=color:{"#333333"}>semana 34</span>'
+    ),
+    caption = "Fuente: Members States and UK notifications pursuant to Art 1 and Annex I (5) of Commission Regulation (EU) 2017/1185",
+    x = "Semana", y = element_blank()
+  ) +
+  theme(
+    plot.subtitle = ggtext::element_markdown(),
+    plot.caption = element_text(size = 10),
+    legend.position = "none"
+  ) +
+  scale_y_continuous(labels = eur)
+
+  
+```
+
 
 ## Evolución de la producción
 
@@ -267,6 +569,11 @@ istac_grafs$tn_canarias
 #| label: istac-produccion
 
 istac_grafs$tn
+```
+
+```{r}
+#| label: istac-exports
+#| fig-height: 7
 
 istac_grafs$exp_tot +
   labs(
@@ -279,7 +586,8 @@ istac_grafs$exp_tot +
   theme(
     plot.subtitle = ggtext::element_markdown(),
     legend.position = "none"
-  )
+  ) +
+  scale_y_continuous(labels = scales::label_number(big.mark = "."))
 ```
 
 ## Evolución de la superficie cultivada
@@ -296,61 +604,27 @@ istac_grafs$sup
 ```{r}
 #| label: istac-prod-vs-exp
 
+col_pe <- c("Producción" = "#e69f00", "Exportación" = "#009e73")
+
+
+
 # cambiar colores en el título y quitar leyenda
 istac_grafs$prodvsexps +
-  # labs(
-  #   title = glue::glue(
-  #     'Comparativa de la ',
-  #     '<span style=color:{}>Producción</span> y ',
-  #     '<span style=color:{}>Exportación</span> anual (Tn)'
-  #   )
-  # ) +
-  theme(title = ggtext::element_markdown(), legend.position = "none")
+  labs(
+    title = glue::glue(
+      'Comparativa de la ',
+      '<span style=color:{col_pe["Producción"]}>Producción</span> y ',
+      '<span style=color:{col_pe["Exportación"]}>Exportación</span> anual (Tn)'
+    )
+  ) +
+  theme(plot.title = ggtext::element_markdown(), legend.position = "none") +
+  scale_color_manual(values = col_pe)
 
 ```
 
 Las exportaciones incluyen tanto a península como al extranjero, por lo que podemos ver en qué mercado se ha producido la disminución.
 
-```{r}
-#| label: tabla-istac-exports
-#| eval: false
 
-istac_ds$exportaciones %>% 
-  select(mes, peninsula, extranjero) %>% 
-  mutate(
-    aa = lubridate::year(mes),
-  ) %>%
-  group_by(aa) %>% 
-  summarise(
-    across(c("peninsula", "extranjero"), sum),
-    .groups = "drop"
-  ) %>%
-  filter(
-    !is.na(peninsula),
-    aa < max(aa)
-    ) %>%
-  mutate(
-    across(
-      peninsula:extranjero,
-      ~ round((.x / lag(.x, default = .x[1]) - 1) * 100, 2), .names = "roc_{.col}")
-  ) %>% 
-  select(aa, ends_with(c("sula", "jero"))) %>% 
-  kbl(
-    col.names = c(" ", "Nacional (Tn)", "RoC (%)", "Internacional (Tn)", "RoC (%)"),
-    format.args = list(big.mark = ".", decimal.mark = ",")
-  ) %>% 
-  kable_styling(
-    bootstrap_options = "striped", 
-    full_width = TRUE
-  )
-  
-  # my_plot(aes(x = aa, y = Tn, fill = as_factor(aa))) +
-  # geom_col(position = "dodge") +
-  # # geom_point(alpha = .4) +
-  # # geom_smooth(aes(group = aa), se = FALSE) + 
-  # facet_wrap(~destino, ncol = 1, scales = "free_y")
-
-```
 
 Por tanto, suponiendo que lo que no se exporta se destina al mercado interno, la evolución de este indicador es la siguiente
 

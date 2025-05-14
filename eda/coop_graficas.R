@@ -12,13 +12,14 @@
 # library(tidyverse)
 # library(here)
 library(ggdist)
+library(scales)
 
 # mi paleta de colores
-col_pal <- c("cream" = "#f4f7be", "mindaro" = "#e5f77d", "ecru" = "#deba6f",
-             "wine"  = "#823038", "licoire" = "#1e000e")
+# col_pal <- c("cream" = "#f4f7be", "mindaro" = "#e5f77d", "ecru" = "#deba6f",
+#              "wine"  = "#823038", "licoire" = "#1e000e")
 
-eur <- scales::label_currency(suffix = "€", prefix = NULL,
-                              big.mark = ".", decimal.mark = ",")
+eur <- label_currency(suffix = " €", prefix = NULL,
+                      big.mark = ".", decimal.mark = ",")
 
 # datos de la cooperativa (semana, mes y kg mensuales)
 load(here("data/processed/datos_finca.RData"))
@@ -31,7 +32,7 @@ my_plot <- function(...){
       plot.title.position = "plot",
       legend.position = "bottom"
     ) +
-    scale_y_continuous(position = "right") +
+    # scale_y_continuous(position = "right") +
     scale_color_brewer(
       palette = "YlGn", 
       aesthetics = c("colour", "fill") # ambas al mismo tiempo
@@ -42,31 +43,31 @@ my_plot <- function(...){
 # Resumen gral ------------------------------------------------------------
 
 # Distribución de los racimos, ingresos y pesos mensuales por anualidades
-coop_grafs$mensuales <-
-  coop_ds$mes  |>  
-  select(fecha_aa, Racimos = racimos, Ingresos = total_eur, Pesos = total_kg)  |>  
-  pivot_longer(!fecha_aa) |>  
-  ggplot(aes(x = fecha_aa, y = value)) +
-  geom_boxplot(colour = "springgreen4", outlier.shape = NA) +
-  geom_jitter(width = 0.1, alpha = 0.5) +
-  facet_wrap(~name, ncol = 1, scales = "free_y") +
-  labs(
-    title = "Evolución de la distribución anual de los valores mensuales de\nIngresos, Pesos y número de Racimos",
-    x = NULL, y = NULL
-  )
+# coop_grafs$mensuales <-
+#   coop_ds$mes  |>  
+#   select(fecha_aa, Racimos = racimos, Ingresos = total_eur, Pesos = total_kg)  |>  
+#   pivot_longer(!fecha_aa) |>  
+#   ggplot(aes(x = fecha_aa, y = value)) +
+#   geom_boxplot(colour = "springgreen4", outlier.shape = NA) +
+#   geom_jitter(width = 0.1, alpha = 0.5) +
+#   facet_wrap(~name, ncol = 1, scales = "free_y") +
+#   labs(
+#     title = "Evolución de la distribución anual de los valores mensuales de\nIngresos, Pesos y número de Racimos",
+#     x = NULL, y = NULL
+#   )
 
 # Distribución de los pesos, al detalle
 coop_grafs$dist_kg <- 
   coop_ds$semanas |> 
   filter(tipo == "total_kg") |> 
   ggplot(aes(x = valor)) +
-  geom_boxplot(width = 0.1, fill = col_pal["wine"]) +
+  geom_boxplot(width = 0.1, fill = "#823038") +
   geom_dots(
-    dotsize = 0.1, height = 0.55, fill = col_pal["wine"],
+    dotsize = 0.1, height = 0.55, fill = "#823038",
     side = "bottom", position = position_nudge(y = -0.075)
     ) +
   stat_slab(
-    fill = col_pal["wine"],
+    fill = "#823038",
     position = position_nudge(y = 0.075), height = 0.75
     ) +
   labs(
@@ -78,7 +79,7 @@ coop_grafs$dist_kg <-
     axis.text.y  = element_blank(),
     axis.ticks.y = element_blank()
   ) +
-  scale_x_continuous(labels = scales::label_number(big.mark = ".", decimal.mark = ","))
+  scale_x_continuous(labels = label_number(big.mark = ".", decimal.mark = ","))
 
 # Distribución Kg por anualidades
 coop_grafs$dist_kg_aa <- 
@@ -97,7 +98,7 @@ coop_grafs$dist_kg_aa <-
   facet_wrap(~fecha_aa, nrow = 1) +
   labs(
     # title = "Distribución de los pesos semanales (Kg)",
-    x = element_blank(), y = element_blank()
+    x = element_blank(), y = "Kg"
   ) +
   theme(
     plot.title.position = "plot",
@@ -105,21 +106,23 @@ coop_grafs$dist_kg_aa <-
     axis.text.x  = element_blank(),
     axis.ticks.x = element_blank()
   ) +
-  scale_y_continuous(labels = scales::label_number(big.mark = ".", decimal.mark = ","))
+  scale_y_continuous(position = "right", 
+                     labels = label_number(big.mark = ".", decimal.mark = ","))
 
 # Relación euros vs Kg ----------------------------------------------------
 
-coop_grafs$eur_kg <-
-  coop_ds$mes |> 
-  select(fecha, starts_with("total")) |>  
-  mutate(eur_kg = total_eur / total_kg, .keep = "unused") |>  
-  my_plot(aes(x = fecha, y = eur_kg)) +
-  geom_point(alpha = .8, color = "yellow4") +
-  geom_smooth(method = "loess", se = FALSE, color = "springgreen4") +
-  labs(
-    title = "Evolución de la relación € / Kg",
-    x = NULL, y = NULL
-  )
+# coop_grafs$eur_kg <-
+#   coop_ds$mes |> 
+#   select(fecha, starts_with("total")) |>  
+#   mutate(eur_kg = total_eur / total_kg, .keep = "unused") |>  
+#   my_plot(aes(x = fecha, y = eur_kg)) +
+#   geom_point(alpha = .8, color = "yellow4") +
+#   geom_smooth(method = "loess", se = FALSE, color = "springgreen4") +
+#   labs(
+#     title = "Evolución de la relación € / Kg",
+#     x = NULL, y = NULL
+#   ) +
+#   scale_y_continuous(position = "right")
   
 
 # Evolucion mensual -------------------------------------------------------
@@ -128,33 +131,34 @@ coop_grafs$eur_kg <-
 coop_grafs$kg_meses <-
   coop_ds$mes  |>  
   my_plot(aes(x = fecha, y = total_kg)) +
-  geom_point(shape = 21, fill = col_pal["cream"], color = col_pal["wine"]) +
+  geom_point(shape = 21, fill = "#f4f7be", color = "#823038") +
   geom_smooth(
     method = "loess", formula = y ~ x,
-    color = col_pal["wine"], fill = col_pal["cream"]
+    color = "#823038", fill = "#f4f7be"
   ) +
   labs(
     title = "Evolución de la producción mensual (Kg)",
     x = NULL, y = NULL
   ) +
   theme(plot.title.position = "plot") +
-  scale_y_continuous(labels = scales::label_number(big.mark = ".", decimal.mark = ","))
+  scale_y_continuous(position = "right", 
+                     labels = label_number(big.mark = ".", decimal.mark = ","))
 
 # evolución del total de EUROS
 coop_grafs$eur_meses <-
   coop_ds$mes  |>  
   my_plot(aes(x = fecha, y = total_eur)) +
-  geom_point(shape = 21, fill = col_pal["cream"], color = col_pal["wine"]) +
+  geom_point(shape = 21, fill = "#f4f7be", color = "#823038") +
   geom_smooth(
     method = "loess", formula = y ~ x,
-    color = col_pal["wine"], fill = col_pal["cream"]
+    color = "#823038", fill = "#f4f7be"
   ) +
   labs(
     title = "Evolución de la producción mensual (€)",
     x = NULL, y = NULL
   ) +
   theme(plot.title.position = "plot") +
-  scale_y_continuous(labels = eur)
+  scale_y_continuous(position = "right", labels = eur)
 
 # evol de la relación de categoría PREMIUM respecto del total
 coop_grafs$prop_premium <- 
@@ -177,7 +181,7 @@ coop_grafs$prop_premium <-
     x = element_blank(), y = element_blank(), color = element_blank()
   ) +
   theme(plot.title.position = "plot", legend.position = "bottom") +
-  scale_y_continuous(labels = scales::label_percent(decimal.mark = ","))
+  scale_y_continuous(position = "right", labels = label_percent(decimal.mark = ","))
 
 
 # Acumulados anuales ------------------------------------------------------
@@ -189,29 +193,49 @@ coop_grafs$acum_kg <-
   ggplot(aes(x = fecha_mm, y = total_kg_acum)) +
   geom_line(aes(group = fecha_aa, color = fecha_aa)) +
   labs(
-    title = "Acumulados anuales de los pesos (Kg)", 
+    title = "Acumulados anuales de los pesos", 
     x = element_blank(), y = element_blank(), color = element_blank()
   ) +
   theme(plot.title.position = "plot", legend.position = "none") +
   scale_y_continuous(
     position = "right",
-    labels = scales::label_number(big.mark = ".", decimal.mark = ",")
+    labels = label_number(big.mark = ".", decimal.mark = ",", scale_cut = cut_si("Kg"), scale = 1e3)
     )
 
 # acumulados anuales de los ingresos
 coop_grafs$acum_eur <- 
   coop_ds$mes_acum |> 
   select(starts_with(c("fecha", "total"))) |>
+  mutate(mes = month(fecha, label = TRUE)) |> 
   ggplot(aes(x = fecha_mm, y = total_eur_acum)) +
   geom_line(aes(group = fecha_aa, color = fecha_aa)) +
+  
+  # último valor del último año, comparado con los anteriores
+  geom_point(
+    data = . %>% filter(month(fecha) == month(max(fecha))),
+    aes(x = mes, y = total_eur_acum), color = "black", shape = 1,
+    show.legend = FALSE
+  ) +
+  ggrepel::geom_text_repel(
+    data = . %>% filter(month(fecha) == month(max(fecha))),
+    aes(
+      label = format(total_eur_acum, big.mark=".", decimal.mark = ",", digits = 1) %>%
+        str_c(.,"€", sep=" ")
+    ),
+    nudge_x = .9, size = 3,
+    show.legend = FALSE
+  ) +
+  
   labs(
-    title = "Acumulados anuales de los ingresos (€)", 
+    title = "Acumulados anuales de los ingresos", 
     x = element_blank(), y = element_blank(), color = element_blank()
   ) +
   theme(plot.title.position = "plot", legend.position = "none") +
   scale_y_continuous(
     position = "right",
-    labels = eur
+    labels = label_currency(suffix = " €", prefix = NULL,
+                            big.mark = ".", decimal.mark = ",",
+                            scale_cut = cut_short_scale())
     )
   
 # el acumulado de los totales
@@ -337,69 +361,69 @@ coop_grafs$acum_eur <-
 
 # Importes ----------------------------------------------------------------
 
-coop_grafs$eur_mm_acum <- 
-  coop_ds$mes %>% 
-  select(fecha, total_eur) %>% 
-  group_by(anualidad = year(fecha)) %>% 
-  mutate(
-    eur_acum = cumsum(total_eur)
-  ) %>% 
-  ungroup() %>% 
-  mutate(
-    mes = month(fecha, label = TRUE)
-  ) %>% 
-  my_plot(aes(x = mes, y = eur_acum, color = as_factor(anualidad))) +
-  geom_point(alpha = .5) +
-  geom_line(aes(group = anualidad), linewidth = 1.2) +
-  # último valor del último año, comparado con los anteriores
-  geom_point(
-    data = . %>% filter(month(fecha) == month(max(fecha))),
-    aes(x = mes, y = eur_acum), color = "black", shape = 1,
-    show.legend = FALSE
-  ) +
-  geom_text(
-    data = . %>% filter(month(fecha) == month(max(fecha))),
-    aes(
-      label = format(eur_acum, big.mark=".", decimal.mark = ",", digits = 1) %>%
-        str_c(.,"eur", sep=" ")
-    ),
-    nudge_x = .9, size = 3,
-    show.legend = FALSE
-  ) +
-  labs(
-    title = "Acumulados mensuales de los importes (€)",
-    x = NULL, y = NULL, color = "Anualidades"
-  ) +
-  scale_y_continuous(labels = eur, position = "right")
+# coop_grafs$eur_mm_acum <- 
+#   coop_ds$mes %>% 
+#   select(fecha, total_eur) %>% 
+#   group_by(anualidad = year(fecha)) %>% 
+#   mutate(
+#     eur_acum = cumsum(total_eur)
+#   ) %>% 
+#   ungroup() %>% 
+#   mutate(
+#     mes = month(fecha, label = TRUE)
+#   ) %>% 
+#   my_plot(aes(x = mes, y = eur_acum, color = as_factor(anualidad))) +
+#   geom_point(alpha = .5) +
+#   geom_line(aes(group = anualidad), linewidth = 1.2) +
+#   # último valor del último año, comparado con los anteriores
+#   geom_point(
+#     data = . %>% filter(month(fecha) == month(max(fecha))),
+#     aes(x = mes, y = eur_acum), color = "black", shape = 1,
+#     show.legend = FALSE
+#   ) +
+#   geom_text(
+#     data = . %>% filter(month(fecha) == month(max(fecha))),
+#     aes(
+#       label = format(eur_acum, big.mark=".", decimal.mark = ",", digits = 1) %>%
+#         str_c(.,"eur", sep=" ")
+#     ),
+#     nudge_x = .9, size = 3,
+#     show.legend = FALSE
+#   ) +
+#   labs(
+#     title = "Acumulados mensuales de los importes (€)",
+#     x = NULL, y = NULL, color = "Anualidades"
+#   ) +
+#   scale_y_continuous(labels = eur, position = "right")
 
 # comparo los importes por categorías
 
-coop_grafs$eur_cat <- 
-  coop_ds$mes %>% 
-  select(fecha, ends_with("eur"), -total_eur) %>% 
-  pivot_longer(
-    cols = -fecha,
-    names_to = "cat",
-    values_to = "eur"
-  ) %>% 
-  mutate(
-    mes = month(fecha, label = TRUE),
-    anualidad = as_factor(year(fecha)),
-    cat = case_when(
-      str_detect(cat, "prem") ~ "Premium",
-      str_detect(cat, "psup") ~ "Psup",
-      TRUE                    ~ "Segunda"
-    )
-  ) %>% 
-  my_plot(aes(x = mes, y = eur, color = anualidad)) +
-  geom_point(alpha = .5) +
-  geom_line(aes(group = anualidad), linewidth = 1) +
-  facet_wrap(~cat, ncol = 1, scales = "free_y") +
-  labs(
-    title = "Comparativa de la evolución de los importes por categoría",
-    subtitle = "Valores en €",
-    x = NULL, y = NULL, color = NULL
-  )
+# coop_grafs$eur_cat <- 
+#   coop_ds$mes %>% 
+#   select(fecha, ends_with("eur"), -total_eur) %>% 
+#   pivot_longer(
+#     cols = -fecha,
+#     names_to = "cat",
+#     values_to = "eur"
+#   ) %>% 
+#   mutate(
+#     mes = month(fecha, label = TRUE),
+#     anualidad = as_factor(year(fecha)),
+#     cat = case_when(
+#       str_detect(cat, "prem") ~ "Premium",
+#       str_detect(cat, "psup") ~ "Psup",
+#       TRUE                    ~ "Segunda"
+#     )
+#   ) %>% 
+#   my_plot(aes(x = mes, y = eur, color = anualidad)) +
+#   geom_point(alpha = .5) +
+#   geom_line(aes(group = anualidad), linewidth = 1) +
+#   facet_wrap(~cat, ncol = 1, scales = "free_y") +
+#   labs(
+#     title = "Comparativa de la evolución de los importes por categoría",
+#     subtitle = "Valores en €",
+#     x = NULL, y = NULL, color = NULL
+#   )
 
 # Guardo las gráficas -----------------------------------------------------
 

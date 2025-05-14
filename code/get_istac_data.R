@@ -1,6 +1,6 @@
 # Lectura de datos de las diferentes fuentes
 
-# Versión: 2024-03-19
+# Versión: 2025-04-03
 
 
 # Carga de librerías ------------------------------------------------------
@@ -35,7 +35,7 @@ istac_ds$precios_sem <-
 
 istac_ds$toneladas <- 
   read_xlsx(
-    here("data/raw", "toneladas_anuales_islas.xlsx"),
+    here::here("data/raw", "toneladas_anuales_islas.xlsx"),
     skip = 10,
     col_names = c("tipo","aa", "Canarias", "Lanzarote", "Fuerteventura", "Gran Canaria",
                   "Tenerife", "La Gomera", "La Palma", "El Hierro")
@@ -53,7 +53,7 @@ istac_ds$toneladas <-
 
 istac_ds$exportaciones <- 
   read_xlsx(
-    here("data/raw", "exportaciones_mensuales.xlsx"),
+    here::here("data/raw", "exportaciones_mensuales.xlsx"),
     skip = 10,
     col_names = c("isla", "periodo", "total", "españa (excluida canarias)", "extranjero")
   )  |>  
@@ -104,15 +104,14 @@ istac_ds$prodvsexps <-
 
 istac_ds$superficie <- 
   read_xlsx(
-    path = here("data/raw/superficie_cultivada_islas.xlsx"),
+    path = here::here("data/raw/superficie_cultivada_islas.xlsx"),
     skip = 10,
     col_names = c("territorio", "aa", "ha")
   )|> 
-  filter(!is.na(ha)) %>%
+  filter(!is.na(ha)) |> 
   fill(territorio) |> 
   mutate(aa = as.numeric(aa))
 
 # Guardo los datos --------------------------------------------------------
 
-save(istac_ds,
-     file = here("data/processed", "istac_platanos.RData"))
+save(istac_ds, file = here::here("data/processed", "istac_platanos.RData"))

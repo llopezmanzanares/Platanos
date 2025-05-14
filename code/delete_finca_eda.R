@@ -3,7 +3,7 @@
 # Cargo los datos de los PDF y genero una serie de gráficas para
 # los informes de evolución
 
-# Versión: 2024-03-25
+# Versión: 2025-04-03
 
 # Packages ------
 
@@ -14,9 +14,8 @@ library(here)
 
 # Constantes --------------------------------------------------------------
 
-coop_ds    <- list()
 coop_grafs <- list()
-balten_ds  <- list()
+
 
 dirs <- list(
   raw = "data/raw",
@@ -33,7 +32,7 @@ dirs <- list(
 
 # Acciones ----------------------------------------------------------------
 
-# Genero el conjunto de datos con las lecturas semanales y acumulados mensuales.
+## Cooperativa y BALTEN ----
 
 # Se crea el archido de datos procesados "datos_balten.RData" con los consumos de agua
 source(here(dirs$cod, "get_balten_data.R"))
@@ -45,7 +44,7 @@ source(here(dirs$cod, "get_coop_data.R"))
 
 source(here(dirs$eda, "coop_graficas.R"))
 
-# Genero el conjunto de datos descargados de ISTAC
+## ISTAC - datos descargados ----
 # Se crea el archivo de datos procesados "istac_platanos.RData"
 source(here(dirs$cod, "get_istac_data.R"))
 

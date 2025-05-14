@@ -1,19 +1,21 @@
 # Lectura de los datos de las facturas del consumo de agua
 
-# Versión: 2024-03-25
+# Versión: 2025-04-03
 
 
 # Set-up ------------------------------------------------------------------
 
 library(pdftools)
 
+balten_ds  <- list()
+
 # Funciones ---------------------------------------------------------------
 
-# Extraigo un número no entero y lo trnaformo de cadena de texto a número
+# Extraigo un número no entero y lo transformo de cadena de texto a número
 xtr_cifra <- function(txt, patron){
   numero <- str_extract(txt, patron) %>% 
-    str_replace("\\.", "") %>%   # en el caso de que sea > 1000 tiene un punto
-    str_replace(",", ".") %>% 
+    str_replace("\\.", "") |>    # en el caso de que sea > 1000 tiene un punto
+    str_replace(",", ".") |>  
     as.numeric()
   
   return(numero)
@@ -56,4 +58,4 @@ save(balten_ds, file = here(dirs$pro, "datos_balten.RData"))
 
 # Limpio ------------------------------------------------------------------
 
-rm(xtr_cifra, balten_files)
+rm(xtr_cifra, balten_files, balten)
