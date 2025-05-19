@@ -166,7 +166,7 @@ produccion_totales_eur <-
 
 left_join(produccion_totales_eur, balten_totales_eur, by = "aa") |>
   left_join(
-    # otros_ingresos 
+    # otros_ingresos
     coop_ds$oo_ii |>
       mutate(aa = year(fecha)) |>
       summarise(.by = aa, otros_ingresos = sum(importe)),
@@ -448,7 +448,7 @@ graf_mes_acum_eur <-
   ) +
   labs(
     title = "Ingresos por producción",
-    subtitle = "La tabla muestra los valores acumulados hasta el mes en curso",
+    caption = "La tabla muestra los valores acumulados hasta el mes en curso",
     x = element_blank(), y = element_blank(), color = element_blank()
   ) +
   theme(plot.title.position = "plot", legend.position = "none") +
@@ -680,8 +680,8 @@ balten_m3 |>
   geom_point(aes(color = as_factor(aa))) +
   geom_line(aes(color = as_factor(aa))) +
   labs(
-    title = "Consumo de agua (m3)",
-    x = "Anualidades", y = NULL, color = NULL
+    title = "Distribución del consumo de agua (m3)",
+    x = NULL, y = NULL, color = NULL
   ) +
   theme(plot.title.position = "plot", legend.position = "none") +
   scale_y_continuous(position = "right", labels = label_number(big.mark = "."))
@@ -693,5 +693,15 @@ balten_m3 |>
 balten_m3 |>
   mutate(mes = as_factor(month(fecha))) |>
   ggplot(aes(as_factor(aa))) +
-  geom_bar(aes(weight = consumo_m3, fill = mes))
+  geom_bar(aes(weight = consumo_m3, fill = mes)) +
+  labs(
+    title = "Acumulado anual del consumo de agua (m3)",
+    subtitle = "Contribución de cada bimestre",
+    x = NULL, y = NULL, fill = "Bimestre"
+  ) +
+  theme(
+    plot.title.position = "plot",
+    legend.position = "bottom"
+  ) +
+  scale_y_continuous(position = "right", labels = label_number(big.mark = "."))
 ```
