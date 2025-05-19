@@ -166,13 +166,15 @@ produccion_totales_eur <-
 
 left_join(produccion_totales_eur, balten_totales_eur, by = "aa") |>
   left_join(
-    otros_ingresos |>
+    # otros_ingresos 
+    coop_ds$oo_ii |>
       mutate(aa = year(fecha)) |>
       summarise(.by = aa, otros_ingresos = sum(importe)),
     by = "aa"
   ) |>
   left_join(
-    otros_gastos |>
+    # otros_gastos
+    coop_ds$oo_gg |>
       mutate(aa = year(fecha)) |>
       summarise(.by = aa, otros_gastos = sum(total)),
     by = "aa"
