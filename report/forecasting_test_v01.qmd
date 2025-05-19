@@ -13,12 +13,12 @@ library(here)
 library(gt)
 library(patchwork)
 library(scales)
+library(feasts)
 
 theme_set(
   # theme_minimal()
   theme_light(base_size = 14)
 )
-
 ```
 
 ```{r}
@@ -27,27 +27,26 @@ theme_set(
 load(here("data/processed/datos_coop_liq.RData"))
 
 kg_mm <- select(coop_ds$mes, starts_with("fecha"), total_kg)
-
 ```
 
 ```{r}
 #| label: minigraficas
 
 # total pesos anuales
-gg_kg_anuales <- 
-  coop_ds$mes |> 
-  select(fecha_aa, total_kg) |> 
-  summarise(.by = fecha_aa, kg = sum(total_kg)) |> 
-  
+gg_kg_anuales <-
+  coop_ds$mes |>
+  select(fecha_aa, total_kg) |>
+  summarise(.by = fecha_aa, kg = sum(total_kg)) |>
   ggplot(aes(x = kg, y = fecha_aa)) +
   geom_col(fill = "#deba6f", color = "gray25") +
   labs(x = NULL, y = NULL) +
   theme_minimal() +
   scale_x_continuous(
-    labels = label_number(big.mark = ".", decimal.mark = ",",
-                          scale_cut = cut_short_scale())
+    labels = label_number(
+      big.mark = ".", decimal.mark = ",",
+      scale_cut = cut_short_scale()
     )
-
+  )
 ```
 
 # Pesos
@@ -55,23 +54,22 @@ gg_kg_anuales <-
 ```{r}
 #| label: grafica-evol-pesos
 
-kg_mm |> 
+kg_mm |>
   ggplot(aes(x = fecha, y = total_kg)) +
   geom_line() +
-  geom_smooth(method = 'loess', formula = 'y ~ x') +
+  geom_smooth(method = "loess", formula = "y ~ x") +
   labs(
     title = "Evolución de los pesos para todo el periodo de datos",
     x = NULL, y = NULL
-    ) +
+  ) +
   theme(plot.title.position = "plot") +
   scale_y_continuous(labels = label_number(scale_cut = cut_short_scale()))
-
 ```
 
 ```{r}
 #| label: graf-comp-anualidades
 
-kg_mm |> 
+kg_mm |>
   ggplot(aes(x = fecha_mm, y = total_kg, color = fecha_aa)) +
   geom_line(aes(group = fecha_aa)) +
   labs(
@@ -82,19 +80,17 @@ kg_mm |>
     plot.title.position = "plot",
     legend.position = "bottom"
   )
-
 ```
 
 ```{r}
 #| label: kg-serie-temporal
 
-kg_mm |> 
-  select(fecha, total_kg) |> 
-  mutate(fecha = tsibble::yearmonth(fecha)) |> 
-  as_tsibble(index = fecha) |> 
+kg_mm |>
+  select(fecha, total_kg) |>
+  mutate(fecha = tsibble::yearmonth(fecha)) |>
+  tsibble::as_tsibble(index = fecha) |>
   tsibble::fill_gaps(total_kg = 0) |>
-  fabletools::model(stl = STL(total_kg))
-  components() |> 
+  fabletools::model(stl = STL(total_kg)) |>
+  components() |>
   autoplot()
-
 ```
