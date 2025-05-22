@@ -207,8 +207,8 @@ left_join(produccion_totales_eur, balten_totales_eur, by = "aa") |>
   ) |>
   cols_label(
     aa = "", d_dif = "",
-    dif = "Ganancias",
-    ingresos = "Beneficios",
+    dif = "Beneficios",
+    ingresos = "Ingresos",
     gastos = "Gastos",
     coste = "€ / Kg"
   ) |>
@@ -691,9 +691,10 @@ balten_m3 |>
 #| label: agua-anual
 
 balten_m3 |>
-  mutate(mes = as_factor(month(fecha))) |>
+  # mutate(mes = as_factor(month(fecha))) |>
+  mutate(mes = month(fecha, label = TRUE)) |> 
   ggplot(aes(as_factor(aa))) +
-  geom_bar(aes(weight = consumo_m3, fill = mes)) +
+  geom_bar(aes(weight = consumo_m3, fill = lvls_reorder(mes, 12:1))) +
   labs(
     title = "Acumulado anual del consumo de agua (m3)",
     subtitle = "Contribución de cada bimestre",
