@@ -677,10 +677,8 @@ coop_ds$semanas |>
 
 balten_m3 |>
   ggplot(aes(x = fecha, y = consumo_m3)) +
-  geom_point(data = transform(balten_m3, mes = NULL), color = "grey85") +
-  # geom_line(data = transform(balten_m3, mes = NULL), color = "grey85") +
-  geom_point(color = "#7777DD") +
-  geom_line(color = "#7777DD") +
+  geom_line(data = balten_m3 |> rename(m = mes), aes(group = m), color = "grey85", linewidth = 1) +
+  geom_line(color = "#7777DD", linewidth = 1) +
   facet_wrap(vars(mes)) +
   labs(
     title = "Distribución del consumo de agua (m3 x bimestre)",
