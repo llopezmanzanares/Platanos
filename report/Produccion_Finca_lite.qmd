@@ -679,15 +679,15 @@ balten_m3 |>
   ggplot(aes(x = fecha, y = consumo_m3)) +
   geom_point(data = transform(balten_m3, mes = NULL), color = "grey85") +
   # geom_line(data = transform(balten_m3, mes = NULL), color = "grey85") +
-  geom_point() +
-  geom_line() +
+  geom_point(color = "#7777DD") +
+  geom_line(color = "#7777DD") +
   facet_wrap(vars(mes)) +
   labs(
     title = "Distribución del consumo de agua (m3 x bimestre)",
     x = NULL, y = NULL, color = NULL
   ) +
   theme(plot.title.position = "plot", legend.position = "bottom") +
-  scale_y_continuous(labels = label_number(big.mark = "."))
+  scale_y_continuous(labels = label_number(big.mark = ".", decimal.mark = ","))
 ```
 
 ```{r}
