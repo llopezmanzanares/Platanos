@@ -73,9 +73,9 @@ aamm_full <-
 # consumo agua
 balten_m3 <-
   balten_ds$bimensuales |>
-  mutate(aa = year(fecha)) |>
+  mutate(aa = year(fecha), mes = month(fecha, label = TRUE)) |>
   filter(aa > 2020) |>
-  select(aa, fecha, consumo_m3)
+  select(aa, mes, fecha, consumo_m3)
 
 #--- otros
 eur_label <- label_currency(
@@ -673,18 +673,21 @@ coop_ds$semanas |>
 ## Consumo de agua
 
 ```{r}
-#| label: agua
+#| label: agua-bimensual
 
 balten_m3 |>
   ggplot(aes(x = fecha, y = consumo_m3)) +
-  geom_point(aes(color = as_factor(aa))) +
-  geom_line(aes(color = as_factor(aa))) +
+  geom_point(data = transform(balten_m3, mes = NULL), color = "grey85") +
+  # geom_line(data = transform(balten_m3, mes = NULL), color = "grey85") +
+  geom_point() +
+  geom_line() +
+  facet_wrap(vars(mes)) +
   labs(
-    title = "Distribución del consumo de agua (m3)",
+    title = "Distribución del consumo de agua (m3 x bimestre)",
     x = NULL, y = NULL, color = NULL
   ) +
-  theme(plot.title.position = "plot", legend.position = "none") +
-  scale_y_continuous(position = "right", labels = label_number(big.mark = "."))
+  theme(plot.title.position = "plot", legend.position = "bottom") +
+  scale_y_continuous(labels = label_number(big.mark = "."))
 ```
 
 ```{r}
@@ -692,7 +695,7 @@ balten_m3 |>
 
 balten_m3 |>
   # mutate(mes = as_factor(month(fecha))) |>
-  mutate(mes = month(fecha, label = TRUE)) |> 
+  # mutate(mes = month(fecha, label = TRUE)) |>
   ggplot(aes(as_factor(aa))) +
   geom_bar(aes(weight = consumo_m3, fill = lvls_reorder(mes, 12:1))) +
   labs(
