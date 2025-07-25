@@ -673,6 +673,37 @@ coop_ds$semanas |>
 ## Consumo de agua
 
 ```{r}
+#| label: agua-consumo
+
+# mes actual
+mes_actual <- filter(balten_m3, mes == last(balten_m3$mes))
+
+balten_m3 |> 
+  ggplot(aes(x = fecha, y = consumo_m3)) +
+  geom_line(color = "steelblue") +
+  geom_point(color = "gray50") +
+  
+  geom_point(
+    data = mes_actual,
+    aes(x = fecha, y = consumo_m3),
+    color = "steelblue",
+    size = 3
+  ) +
+  
+  labs(
+    title = "Consumo de agua (m<sup>3</sup>)",
+    subtitle = "Remarcada la evolución del último bimestre",
+    x = NULL, y = NULL
+  ) +
+  theme(
+    panel.grid.major.x = element_line(colour = "gray50"),
+    plot.title.position = "plot",
+    plot.title = ggtext::element_markdown()
+  )
+
+```
+
+```{r}
 #| label: agua-bimensual
 
 balten_m3 |>
@@ -681,10 +712,14 @@ balten_m3 |>
   geom_line(color = "#7777DD", linewidth = 1) +
   facet_wrap(vars(mes)) +
   labs(
-    title = "Distribución del consumo de agua (m3 x bimestre)",
+    title = "Distribución del consumo de agua (m<sup>3</sup> x bimestre)",
     x = NULL, y = NULL, color = NULL
   ) +
-  theme(plot.title.position = "plot", legend.position = "bottom") +
+  theme(
+    plot.title.position = "plot", 
+    plot.title = ggtext::element_markdown(),
+    legend.position = "bottom"
+    ) +
   scale_y_continuous(labels = label_number(big.mark = ".", decimal.mark = ","))
 ```
 
@@ -697,12 +732,13 @@ balten_m3 |>
   ggplot(aes(as_factor(aa))) +
   geom_bar(aes(weight = consumo_m3, fill = lvls_reorder(mes, 12:1))) +
   labs(
-    title = "Acumulado anual del consumo de agua (m3)",
+    title = "Acumulado anual del consumo de agua (m<sup>3</sup>)",
     subtitle = "Contribución de cada bimestre",
     x = NULL, y = NULL, fill = "Bimestre"
   ) +
   theme(
     plot.title.position = "plot",
+    plot.title = ggtext::element_markdown(),
     legend.position = "bottom"
   ) +
   scale_y_continuous(position = "right", labels = label_number(big.mark = "."))
