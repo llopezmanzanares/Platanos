@@ -1,34 +1,30 @@
-# History files, Session Data files and User-specific files
-.Rhistory
+# --- Archivos de sistema y RStudio ---
+.Rhistory        # Historial de comandos
+.RData           # Datos de la sesión actual
+.Ruserdata       # Configuraciones de usuario
+.Rproj.user/     # Archivos temporales de RStudio
+.Renviron        # Variables de entorno (¡CUIDADO! Puede tener contraseñas)
 .Rapp.history
-.RData
-.Ruserdata
 
-# RStudio files
+# --- RStudio files ---
 .Rproj.user/
 
-# knitr and R markdown default cache directories
-*_cache/
-/cache/
+# --- Datos pesados o sensibles ---
+# Es mejor no subir datos crudos si son muy grandes (>50MB)
+data/raw/*.csv
+data/raw/*.xls*
+data/processed/*.xls*
+data/processed/*.rds
+data/processed/*.RData
+*.html
+*.pdf
 
+# --- Salidas y reportes temporales ---
+*.utf8.md        # Archivos intermedios de RMarkdown
+*.knit.md
+# Caché de knitr y R Markdown
+*_cache/         
+/cache/
 # quarto outputs
 /.quarto/
 /_site/
-
-# Temporary files created by R markdown
-*.utf8.md
-*.knit.md
-
-# all pdf files
-*.pdf
-
-# all csv/tsv files
-*.csv
-*.tsv
-
-# all html files
-*.html
-
-# all excel files
-*.xls*
-~$*.xls*
