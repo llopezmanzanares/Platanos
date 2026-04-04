@@ -26,14 +26,14 @@ patrones <- list(
   prc   = "\\d{1,2},\\d{1,2}", # número de 2 decimales
   eurkg = "\\d,\\d{4}", # número con 4 decimales
   eur   = "(\\d\\.)?\\d{1,3},\\d{2}$", # último número, tiene 2 decimales
-  racms = "\\d{1,2}"
+  racms = "\\d{1,2}" # "(?<=racimos\\s)\\d{1,3}"  buscar la palabra racimos
 )
 
 # Funciones ---------------------------------------------------------------
 xtr_num <- function(txt, patron) {
   numero <- str_extract(txt, patron) %>%
-    str_replace("\\.", "") %>% # en el caso de que sea > 1000 tiene un punto
-    str_replace(",", ".") %>%
+    str_remove("\\.") |> # en el caso de que sea > 1000 tiene un punto
+    str_replace(",", ".") |> # normaliza decimal
     as.numeric()
 
   return(numero)
