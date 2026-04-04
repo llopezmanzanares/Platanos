@@ -726,20 +726,49 @@ balten_m3 |>
 ```{r}
 #| label: agua-anual
 
-balten_m3 |>
-  # mutate(mes = as_factor(month(fecha))) |>
-  # mutate(mes = month(fecha, label = TRUE)) |>
-  ggplot(aes(as_factor(aa))) +
-  geom_bar(aes(weight = consumo_m3, fill = lvls_reorder(mes, 12:1))) +
+# consumos por bimestre
+bimestres_m3 <- 
+  balten_ds$bimensuales |> 
+  filter(year(fecha) > 2020) |> 
+  select(fecha, consumo_m3) |> 
+  mutate(
+    aa = as_factor(year(fecha)),
+    mm = month(fecha, label = TRUE),
+    # mm_txt = as_factor(mm),
+    m_act = month(today(), label = TRUE),
+    transparencia = if_else(m_act > mm, .9, 0)
+  ) 
+
+# media del consumo hasta el bimestre en curso
+media_bimestre <- 
+  bimestres_m3 |> 
+  filter(mm <= m_act) |> 
+  select(aa, mm, consumo_m3) |> 
+  summarise(.by = aa, cons = sum(consumo_m3))
+
+bimestres_m3 |>  
+  ggplot(aes(aa)) +
+  geom_bar(
+    aes(
+      weight = consumo_m3, 
+      fill = lvls_reorder(mm, 12:1), 
+      alpha = transparencia
+      )
+    ) +
+  geom_hline(data = media_bimestre, aes(yintercept = median(cons))) +
   labs(
-    title = "Acumulado anual del consumo de agua (m<sup>3</sup>)",
+    title = "Acumulado anual del consumo de agua y media del <br>acumulado hasta el bimestre actual (m<sup>3</sup>)",
     subtitle = "Contribución de cada bimestre",
-    x = NULL, y = NULL, fill = "Bimestre"
+    x = NULL, y = NULL,
+    fill = "Bimestre"
   ) +
   theme(
     plot.title.position = "plot",
     plot.title = ggtext::element_markdown(),
     legend.position = "bottom"
   ) +
-  scale_y_continuous(position = "right", labels = label_number(big.mark = "."))
+  scale_alpha(guide = "none") +
+  scale_y_continuous(position = "right", labels = label_number(big.mark = ".", decimal.mark = ","))
+
+
 ```
