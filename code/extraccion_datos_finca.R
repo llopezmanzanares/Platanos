@@ -41,7 +41,7 @@ source(here(dirs$cod, "get_coop_data.R"))
 # istac_platanos ----------------------------------------------------------
 
 # TODO revisar el script
-source(here(dirs$cod, "get_istac_data.R"))
+# source(here(dirs$cod, "get_istac_data.R"))
 
 
 # Otras acciones ----------------------------------------------------------
