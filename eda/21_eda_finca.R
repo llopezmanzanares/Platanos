@@ -40,8 +40,10 @@ cargar_rds_si_no_existe(
   "gastos_otrosingresos", "data/processed/gastos_otros-ingresos.rds",
   solucion = "Verifica integridad del archivo o ejecuta 03_ingest_otros.R"
 )
-
-# TODO: Incluir los datos de BALTEN
+cargar_rds_si_no_existe(
+  "balten_ds", "data/processed/balten_raw.rds",
+  solución "Verifica integridad del archivo o ejecuta 02_ingest_balten.R"
+)
 
 # 4. EJECUCION ------------------------------------------------------------
 
