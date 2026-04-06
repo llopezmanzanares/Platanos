@@ -41,23 +41,32 @@ patrones_coop <- list(
   racms = "\\d{1,2}" # número de racimos
 )
 
+# Categorías de producto y patrones asociados
+categorias <- list(
+  total   = list(patron = "Total \\.", campos = c("kg", "eur")),
+  premium = list(patron = "PREMIUM", campos = c("kg", "eurkg", "eur")),
+  psup    = list(patron = "P\\. SUPER", campos = c("kg", "eurkg", "eur")),
+  segunda = list(patron = "SEGUNDA", campos = c("kg", "eurkg", "eur"))
+)
+
 # 2 FUNCIONES -------------------------------------------------------------
 
 #' Lee los PDFs de liquidaciones y filtra las líneas con datos relevantes
 #' @param  datafiles Vector de nombres de archivo (sin ruta)
 #' @return tibble con columnas: archivo, value
 read_pdfs <- function(datafiles) {
-  map(here(dirs$cop, datafiles), pdf_text) |>
-    set_names(datafiles) |>
-    map(\(x) unlist(str_split(x, "\\n"))) |>
-    enframe(name = "archivo", value = "lineas") |>
-    unnest(lineas) |>
-    rename(value = lineas) |>
-    filter(str_detect(
-      value,
-      "Fecha|PREMIUM|P\\. SUPER|SEGUNDA|Total|racimos"
-    ))
+  map_df(
+    here(dirs$cop, datafiles),
+    \(f) {
+      data.frame(
+        archivo = basename(f),
+        value = unlist(str_split(pdf_text(f), "\\n"))
+      )
+    }
+  ) |>
+    filter(str_detect(value, "Fecha|PREMIUM|P\\. SUPER|SEGUNDA|Total|racimos"))
 }
+
 
 #' Extrae y estructura los datos de las liquidaciones semanales
 #' @param liquidaciones tibble con columnas: archivo, value
