@@ -32,15 +32,16 @@ suppressPackageStartupMessages(
 # Patrones regex para extraer valores de las facturas BALTEN
 patrones_balten <- list(
   n_factura = "AG\\s\\d+/\\d{4}", # Ejemplo AG 10316/2023
-  f_emision = "(?<=FECHA: )(\\d{2}/){2}\\d{4}", # Fecha de emisión de la factura
-  periodo   = "\\dº\\sBIMESTRE\\s\\d{4}", # Ejemplo: 4º BIMESTRE 2024
-  l_ant     = "(?<=Lectura Anterior: )\\d+", # lectura anterior contador
-  f_ant     = "(?<=Fecha: )(\\d{2}/){2}\\d{4}", # fecha lectura anterior
-  l_act     = "(?<=Lectura Actual: )\\d+", # lectura actual contador
-  f_act     = "(\\d{2}/){2}\\d{4}(?=\\s+Consumo)", # fecha lectura actual, antes de "Consumo"
-  consumo   = "(?<=Consumo \\(m³\\): )\\d+", # consumo en m³
-  precio    = "(?<=precio\\s{1,10})\\d,\\d+", # precio unitario €/m³
-  total     = "(?<=TOTAL )(\\d\\.)?\\d{1,3},\\d{2}" # importe total factura
+  todas_fechas = "(\\d{2}/){2}\\d{4}", # Todas las fechas para procesarlas luego
+  f_emision = "(?<=FECHA:\\n)\\d{2}/\\d{2}/\\d{4}", # Fecha de emisión de la factura
+  periodo = "(?i)\\dº\\sBIMESTRE\\s\\d{4}", # Ejemplo: 4º BIMESTRE 2024
+  l_ant = "(?<=Lectura Anterior: )\\d+", # lectura anterior contador
+  f_ant = "(?<=Fecha: )(\\d{2}/){2}\\d{4}", # fecha lectura anterior
+  l_act = "(?<=Lectura Actual: )\\d+", # lectura actual contador
+  f_act = "(\\d{2}/){2}\\d{4}(?=\\s+Consumo)", # fecha lectura actual, antes de "Consumo"
+  consumo = "(?<=Consumo \\(m³\\): )\\d+", # consumo en m³
+  precio = "(?<=precio\\s{1,10})\\d,\\d+", # precio unitario €/m³
+  total = "(?<=TOTAL )(\\d\\.)?\\d{1,3},\\d{2}" # importe total factura
 )
 
 # 2. FUNCIONES ------------------------------------------------------------
@@ -57,36 +58,54 @@ if (length(balten_files) == 0) {
 
 message("Cargando facturas de BALTEN, ", length(balten_files), " archivos PDF...")
 
+## 3.1 Lectura de los archivos --------------------------------------------
+
+message("\n[1/2] Cargando datos de las facturas...")
 
 balten_raw <-
   map(balten_files, pdf_text) |>
   set_names(basename(balten_files)) |>
   enframe(name = "archivo", value = "contenido")
 
+## 3.2 Transformación de los datos ----------------------------------------
+
+message("\n[2/2] Transformando los datos...")
+
 balten_ds$todos <-
   balten_raw |>
   mutate(
-    l_ant      = as.numeric(str_extract(lineas, pattern = patrones_balten$l_ant)),
-    f_ant      = dmy(str_extract(lineas, pattern = patrones_balten$f_ant)),
-    l_act      = as.numeric(str_extract(lineas, pattern = patrones_balten$l_act)),
-    f_act      = dmy(str_extract(lineas, pattern = patrones_balten$f_act)),
-    consumo_m3 = xtr_num(txt = lineas, patron = patrones_balten$consumo),
-    precio     = xtr_num(txt = lineas, patron = patrones_balten$precio),
-    total      = xtr_num(txt = lineas, patron = patrones_balten$total)
+    # --- Extraigo todas las fechas detectadas en el documento
+    fechas_det = map(contenido, ~ str_extract_all(.x, patrones_balten$todas_fechas)[[1]]),
+
+    # --- Metadatos de las Facturas
+    factura_n = str_extract(contenido, patrones_balten$n_factura),
+    fecha_fact = dmy(map_chr(fechas_det, ~ .x[1])), # PRIMERA fecha que aparece en el documento
+    periodo = str_to_upper(str_extract(contenido, patrones_balten$periodo)),
+
+    # --- Datos lectura y Consumo
+    lectura_ant = str_extract(contenido, patrones_balten$l_ant),
+    fecha_ant = dmy(map_chr(fechas_det, ~ .x[2])), # SEGUNDA fecha detectada
+    lectura_act = str_extract(contenido, patrones_balten$l_act),
+    fecha_act = dmy(map_chr(fechas_det, ~ .x[3])), # TERCERA fecha detectada
+    consumo_m3 = str_extract(contenido, patrones_balten$consumo),
+
+    # --- Importes
+    precio = xtr_num(contenido, patrones_balten$precio),
+    total_eur = xtr_num(contenido, patrones_balten$total)
   ) |>
-  fill(precio, total, .direction = "up") |>
-  drop_na(f_act) |>
-  select(-contenido, -lineas, -archivo) |>
-  arrange(f_act)
+  select(!c(archivo, contenido, fechas_det)) |>
+  arrange(fecha_fact)
 
 balten_ds$bimensuales <-
   balten_ds$todos |>
-  select(fecha = f_act, consumo_m3, precio, total_eur = total)
+  select(fecha_fact, fecha_act, consumo_m3, precio, total_eur)
 
 
 message("\n ✓ Extracción completada: ", nrow(balten_raw), " observaciones.\n")
 
 # 4. GUARDAR --------------------------------------------------------------
+
+message("Guardando datos limpios...")
 
 guardar_con_backup(balten_ds, "data/processed/balten_raw.rds")
 
