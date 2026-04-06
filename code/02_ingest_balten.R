@@ -98,7 +98,8 @@ balten_ds$todos <-
 
 balten_ds$bimensuales <-
   balten_ds$todos |>
-  select(fecha_fact, fecha_act, consumo_m3, precio, total_eur)
+  select(fecha_fact, fecha_act, consumo_m3, precio, total_eur) |>
+  mutate(aa_act = year(fecha_act), mm_act = month(fecha_act, label = TRUE), .after = 1)
 
 
 message("\n ✓ Extracción completada: ", nrow(balten_raw), " observaciones.\n")
