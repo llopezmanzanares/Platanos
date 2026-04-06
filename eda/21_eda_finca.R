@@ -22,6 +22,12 @@
 
 # ******************************************************************************
 
+message("\n════════════════════════════════════════════════════════════════")
+message("  INICIO: Análisis Exploratorio de Datos")
+message("════════════════════════════════════════════════════════════════\n")
+
+
+
 # 1. LIBRERIAS ------------------------------------------------------------
 
 # 2. CONSTANTES -----------------------------------------------------------
@@ -30,6 +36,8 @@
 QUITO_2020 <- 2020
 
 # 3. VARIABLES ------------------------------------------------------------
+
+message("\n[1/] Cargando datos...")
 
 ## 3.1. Vars Globales -----------------------------------------------------
 cargar_rds_si_no_existe(
@@ -42,7 +50,7 @@ cargar_rds_si_no_existe(
 )
 cargar_rds_si_no_existe(
   "balten_ds", "data/processed/balten_raw.rds",
-  solución "Verifica integridad del archivo o ejecuta 02_ingest_balten.R"
+  solución = "Verifica integridad del archivo o ejecuta 02_ingest_balten.R"
 )
 
 # 4. EJECUCION ------------------------------------------------------------
@@ -50,6 +58,8 @@ cargar_rds_si_no_existe(
 finca_eda <- list()
 
 # 4.1 Calcular agregados mensuales ----------------------------------------
+
+message("\n[2/] Calculando datos mensuales...")
 
 # --- Liquidaciones
 finca_eda$liq_mes <-
@@ -75,6 +85,8 @@ finca_eda$oogg_mes <-
 
 # 4.2 Calcular acumulados anuales -----------------------------------------
 
+message("\n[3/] Calculando acumulados anuales...")
+
 # --- Liquidaciones
 finca_eda$liq_aa_acum <-
   finca_eda$liq_mes |>
@@ -95,6 +107,8 @@ finca_eda$oogg_aa_acum <-
 #       acumular mensualmente
 
 # 4.3 Calcular totales anuales --------------------------------------------
+
+message("\n[3/] Calculando totales anuales...")
 
 # --- Liquidaciones
 finca_eda$liq_total_aa <-
