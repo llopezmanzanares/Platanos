@@ -87,7 +87,7 @@ balten_ds$todos <-
     fecha_ant = dmy(map_chr(fechas_det, ~ .x[2])), # SEGUNDA fecha detectada
     lectura_act = str_extract(contenido, patrones_balten$l_act),
     fecha_act = dmy(map_chr(fechas_det, ~ .x[3])), # TERCERA fecha detectada
-    consumo_m3 = str_extract(contenido, patrones_balten$consumo),
+    consumo_m3 = xtr_num(contenido, patrones_balten$consumo),
 
     # --- Importes
     precio = xtr_num(contenido, patrones_balten$precio),
