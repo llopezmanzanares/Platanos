@@ -41,6 +41,8 @@ cargar_rds_si_no_existe(
   solucion = "Verifica integridad del archivo o ejecuta 03_ingest_otros.R"
 )
 
+# TODO: Incluir los datos de BALTEN
+
 # 4. EJECUCION ------------------------------------------------------------
 
 finca_eda <- list()
@@ -66,6 +68,9 @@ finca_eda$oogg_mes <-
   mutate(fecha = as.Date(rollforward(fecha))) |>
   summarise(.by = fecha, neto = sum(total))
 
+# Nota: Actualmente los Otros Ingresos son esporádicos. No tiene sentido
+#       agregar mensualmente
+
 # 4.2 Calcular acumulados anuales -----------------------------------------
 
 # --- Liquidaciones
@@ -78,7 +83,14 @@ finca_eda$liq_aa_acum <-
   ) |>
   select(starts_with("fecha"), ends_with("acum"))
 
-# --- Otros
+# --- Otros gastos
+finca_eda$oogg_aa_acum <-
+  finca_eda$oogg_mes |>
+  mutate(aa = year(fecha)) |>
+  mutate(.by = aa, neto_acum = cumsum(neto))
+
+# Nota: Actualmente los Otros Ingresos son esporádicos. No tiene sentido
+#       acumular mensualmente
 
 # 4.3 Calcular totales anuales --------------------------------------------
 
@@ -96,5 +108,11 @@ finca_eda$ooii_total_aa <-
     aa    = year(fecha)
   ) |>
   summarise(.by = c(aa, organismo), otros_ingresos = sum(neto))
+
+# --- Otros Gastos
+finca_eda$oogg_total_aa <-
+  finca_eda$oogg_aa_acum |>
+  filter(.by = aa, fecha == max(fecha))
+
 
 # 5. GUARDAR --------------------------------------------------------------
