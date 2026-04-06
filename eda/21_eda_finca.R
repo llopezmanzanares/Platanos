@@ -50,7 +50,7 @@ cargar_rds_si_no_existe(
 )
 cargar_rds_si_no_existe(
   "balten_ds", "data/processed/balten_raw.rds",
-  solución = "Verifica integridad del archivo o ejecuta 02_ingest_balten.R"
+  solucion = "Verifica integridad del archivo o ejecuta 02_ingest_balten.R"
 )
 
 # 4. EJECUCION ------------------------------------------------------------
