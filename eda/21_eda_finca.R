@@ -147,3 +147,9 @@ finca_eda$oogg_total_aa <-
 
 
 # 5. GUARDAR --------------------------------------------------------------
+
+message("\nGuardando cálculos...\n")
+
+guardar_con_backup(finca_eda, "data/processed/finca_eda.rds")
+
+message("✓ Script 21_eda_finca.R finalizado correctamente.\n")
