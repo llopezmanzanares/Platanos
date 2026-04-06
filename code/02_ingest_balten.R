@@ -31,13 +31,16 @@ suppressPackageStartupMessages(
 
 # Patrones regex para extraer valores de las facturas BALTEN
 patrones_balten <- list(
-  l_ant   = "(?<=Lectura Anterior: )\\d+", # lectura anterior contador
-  f_ant   = "(?<=Fecha: )(\\d{2}/){2}\\d{4}", # fecha lectura anterior
-  l_act   = "(?<=Lectura Actual: )\\d+", # lectura actual contador
-  f_act   = "(\\d{2}/){2}\\d{4}(?=\\s+Con)", # fecha lectura actual
-  consumo = "\\d+,\\d+(?=\\s*m)", # consumo en m³
-  precio  = "(?<=precio\\s{1,10})\\d,\\d+", # precio unitario €/m³
-  total   = "(?<=Total )(\\d\\.)?\\d{1,3},\\d{2}" # importe total factura
+  n_factura = "AG\\s\\d+/\\d{4}", # Ejemplo AG 10316/2023
+  f_emision = "(?<=FECHA: )(\\d{2}/){2}\\d{4}", # Fecha de emisión de la factura
+  periodo   = "\\dº\\sBIMESTRE\\s\\d{4}", # Ejemplo: 4º BIMESTRE 2024
+  l_ant     = "(?<=Lectura Anterior: )\\d+", # lectura anterior contador
+  f_ant     = "(?<=Fecha: )(\\d{2}/){2}\\d{4}", # fecha lectura anterior
+  l_act     = "(?<=Lectura Actual: )\\d+", # lectura actual contador
+  f_act     = "(\\d{2}/){2}\\d{4}(?=\\s+Consumo)", # fecha lectura actual, antes de "Consumo"
+  consumo   = "(?<=Consumo \\(m³\\): )\\d+", # consumo en m³
+  precio    = "(?<=precio\\s{1,10})\\d,\\d+", # precio unitario €/m³
+  total     = "(?<=TOTAL )(\\d\\.)?\\d{1,3},\\d{2}" # importe total factura
 )
 
 # 2. FUNCIONES ------------------------------------------------------------
@@ -58,10 +61,7 @@ message("Cargando facturas de BALTEN, ", length(balten_files), " archivos PDF...
 balten_raw <-
   map(balten_files, pdf_text) |>
   set_names(basename(balten_files)) |>
-  enframe(name = "archivo", value = "contenido") |>
-  mutate(lineas = map(contenido, ~ str_split(.x, "\\n")[[1]])) |>
-  unnest(lineas) |>
-  filter(str_detect(lineas, "Lectura Ant|Agua Re"))
+  enframe(name = "archivo", value = "contenido")
 
 balten_ds$todos <-
   balten_raw |>
@@ -88,6 +88,6 @@ message("\n ✓ Extracción completada: ", nrow(balten_raw), " observaciones.\n"
 
 # 4. GUARDAR --------------------------------------------------------------
 
-guardar_con_backup(coop_raw, "data/processed/balten_raw.rds")
+guardar_con_backup(balten_ds, "data/processed/balten_raw.rds")
 
 message("✓ Script 02_ingest_balten.R finalizado correctamente.\n")
