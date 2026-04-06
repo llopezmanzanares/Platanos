@@ -87,6 +87,15 @@ finca_eda$oogg_mes <-
 
 message("\n[3/] Calculando acumulados anuales...")
 
+# --- BALTEN
+finca_eda$balten_aa_acum <-
+  balten_ds$bimensuales |>
+  filter(aa_act > QUITO_2020) |>
+  mutate(
+    .by = aa_act,
+    across(where(is.numeric), cumsum, .names = "{.col}_acum")
+  )
+
 # --- Liquidaciones
 finca_eda$liq_aa_acum <-
   finca_eda$liq_mes |>
@@ -109,6 +118,12 @@ finca_eda$oogg_aa_acum <-
 # 4.3 Calcular totales anuales --------------------------------------------
 
 message("\n[3/] Calculando totales anuales...")
+
+# --- BALTEN
+finca_eda$balten_total_aa <-
+  finca_eda$balten_aa_acum |>
+  filter(.by = aa_act, fecha_act == max(fecha_act)) |>
+  select(fecha_act, consumo_m3_acum, total_eur_acum)
 
 # --- Liquidaciones
 finca_eda$liq_total_aa <-
