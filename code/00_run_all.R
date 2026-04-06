@@ -55,15 +55,12 @@ source(here(dirs$cod, "01_ingest_coop.R")) # guarda coop_raw.rds
 source(here(dirs$cod, "02_ingest_balten.R")) # guarda balten_raw.rds
 
 # Lee Excel de Otros ingresos y gastos
-source(here(dirs$cod, "03_ingest_otros.R"))
+source(here(dirs$cod, "03_ingest_otros.R")) # guarda gastos_otros-ingresos.rds
 
 # source(here("code", "03_ingest_istac.R"))  # TODO: pendiente
 
 # 2. Procesado ---------------------------------------------------------------
 
-# Agrega semanas / mes / acum → guarda coop_ds.RData
-
 # 3. EDA ---------------------------------------------------------------------
 
-# source(here("eda", "21_eda_coop.R"))
-# source(here("eda", "22_eda_istac.R"))
+source(here("eda", "21_eda_finca.R")) # guarda finca_eda.rds
