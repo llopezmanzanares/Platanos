@@ -67,42 +67,53 @@ read_pdfs <- function(datafiles) {
     filter(str_detect(value, "Fecha|PREMIUM|P\\. SUPER|SEGUNDA|Total|racimos"))
 }
 
+#' Extrae número usando patrón, retorna NA si no coincide
+#' @param txt texto a procesar
+#' @param patron patrón regex para extraer
+#' @return número extraído o NA_real_
+xtr_num_safe <- function(txt, patron) {
+  suppressWarnings(
+    as.numeric(str_replace(str_extract(txt, patron), ",", "."))
+  )
+}
 
 #' Extrae y estructura los datos de las liquidaciones semanales
 #' @param liquidaciones tibble con columnas: archivo, value
 #' @return tibble tidy con columnas: fecha, tipo, valor
 xtr_datos_liquidaciones <- function(liquidaciones) {
-  # Extraer valores para cada categoría y campo
-  valores_categorias <-
-    imap(categorias, \(cat, nom_cat){
-      map_dfc(cat$campos, \(campo){
-        tibble(
-          !!paste0(nom_cat, "_", campo) := if_else(
-            str_detect(liquidaciones$value, cat$patron),
-            xtr_num(liquidaciones$value, patrones_coop[[campo]]),
-            NA_real_
-          )
-        )
-      })
-    }) |>
-    list_cbind()
-
-  liquidaciones |>
+  resultado <- liquidaciones |>
     mutate(
       fecha = if_else(
         str_detect(value, "Fecha"),
-        xtr_num(value, patrones_coop$fecha),
+        str_extract(value, patrones_coop$fecha),
         NA_character_
       ),
       racimos = if_else(
         str_detect(value, "racimos"),
-        xtr_num(value, patrones_coop$racms),
+        xtr_num_safe(value, patrones_coop$racms),
         NA_real_
       )
     ) |>
     fill(fecha) |>
-    mutate(fecha = dmy(fecha)) |>
-    bind_cols(valores_categorias) |>
+    mutate(fecha = dmy(fecha))
+
+  # Extraer valores para cada categoría y campo de forma plana
+  for (nom_cat in names(categorias)) {
+    cat <- categorias[[nom_cat]]
+    for (campo in cat$campos) {
+      col_name <- paste0(nom_cat, "_", campo)
+      resultado <- resultado |>
+        mutate(
+          !!col_name := if_else(
+            str_detect(value, cat$patron),
+            xtr_num_safe(value, patrones_coop[[campo]]),
+            NA_real_
+          )
+        )
+    }
+  }
+
+  resultado |>
     select(!c(value, archivo)) |>
     pivot_longer(
       cols = !fecha,
