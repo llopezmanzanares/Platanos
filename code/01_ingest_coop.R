@@ -72,46 +72,45 @@ read_pdfs <- function(datafiles) {
 #' @param liquidaciones tibble con columnas: archivo, value
 #' @return tibble tidy con columnas: fecha, tipo, valor
 xtr_datos_liquidaciones <- function(liquidaciones) {
-  # Helper: extrae número solo si la línea contiene el patrón de detección
-  xtr_si <- function(txt, patron_det, patron_xtr) {
-    if_else(str_detect(txt, patron_det), xtr_num(txt, patron_xtr), NA_real_)
-  }
+  # Extraer valores para cada categoría y campo
+  valores_categorias <-
+    imap(categorias, \(cat, nom_cat){
+      map_dfc(cat$campos, \(campo){
+        tibble(
+          !!paste0(nom_cat, "_", campo) := if_else(
+            str_detect(liquidaciones$value, cat$patron),
+            xtr_num(liquidaciones$value, patrones_coop[[campo]]),
+            NA_real_
+          )
+        )
+      })
+    }) |>
+    list_cbind()
 
   liquidaciones |>
     mutate(
-      # --- Valores únicos por línea ---
       fecha = if_else(
         str_detect(value, "Fecha"),
-        str_extract(value, patrones_coop$fecha),
+        xtr_num(value, patrones_coop$fecha),
         NA_character_
       ),
-      racimos = xtr_si(value, "racimos", patrones_coop$racms)
+      racimos = if_else(
+        str_detect(value, "racimos"),
+        xtr_num(value, patrones_coop$racms),
+        NA_real_
+      )
     ) |>
     fill(fecha) |>
-    mutate(
-      # --- Múltiples valores por línea ---
-      fecha         = dmy(fecha),
-      total_kg      = xtr_si(value, "Total \\.", patrones_coop$kg),
-      total_eur     = xtr_si(value, "Total \\.", patrones_coop$eur),
-      premium_kg    = xtr_si(value, "PREMIUM", patrones_coop$kg),
-      premium_eurkg = xtr_si(value, "PREMIUM", patrones_coop$eurkg),
-      premium_eur   = xtr_si(value, "PREMIUM", patrones_coop$eur),
-      psup_kg       = xtr_si(value, "P\\. SUPER", patrones_coop$kg),
-      psup_eurkg    = xtr_si(value, "P\\. SUPER", patrones_coop$eurkg),
-      psup_eur      = xtr_si(value, "P\\. SUPER", patrones_coop$eur),
-      segunda_kg    = xtr_si(value, "SEGUNDA", patrones_coop$kg),
-      segunda_eurkg = xtr_si(value, "SEGUNDA", patrones_coop$eurkg),
-      segunda_eur   = xtr_si(value, "SEGUNDA", patrones_coop$eur)
-    ) |>
+    mutate(fecha = dmy(fecha)) |>
+    bind_cols(valores_categorias) |>
     select(!c(value, archivo)) |>
     pivot_longer(
-      cols           = !fecha,
-      names_to       = "tipo",
-      values_to      = "valor",
+      cols = !fecha,
+      names_to = "tipo",
+      values_to = "valor",
       values_drop_na = TRUE
     ) |>
-    distinct() |>
-    summarise(.by = c(fecha, tipo), valor = sum(valor))
+    summarise(.by = c(fecha, tipo), valor = sum(valor, na.rm = TRUE))
 }
 
 # 3. EJECUCION ------------------------------------------------------------
