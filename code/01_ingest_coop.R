@@ -127,12 +127,10 @@ coop_raw <-
   read_pdfs(data_files) |>
   xtr_datos_liquidaciones() |>
   mutate(
-    across(fecha, list(
-      aa  = \(x) as_factor(year(x)),
-      mm  = \(x) month(x, label = TRUE),
-      sem = \(x) week(x)
-    )),
-    .after = 1
+    fecha_aa = as_factor(year(fecha)),
+    fecha_mm = month(fecha, label = TRUE),
+    fecha_sem = week(fecha),
+    .after = fecha
   )
 
 message("\n ✓ Extracción completada: ", nrow(coop_raw), " observaciones.\n")
