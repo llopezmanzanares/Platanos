@@ -1,0 +1,44 @@
+/*-- scss:defaults --*/
+$font-family-sans-serif: "Inter", sans-serif;
+$body-color: #5d6d7e;
+$body-bg: #f8f9fa;
+$headings-color: #2c3e50;
+$link-color: #62bba5;
+
+/*-- scss:rules --*/
+
+/* Encabezado del documento */
+.quarto-title-block .title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #2c3e50;
+  border-left: 5px solid #62bba5;
+  padding-left: 0.8rem;
+}
+
+/* Secciones */
+h1, h2, h3 {
+  color: #2c3e50;
+  margin-top: 1.8rem;
+}
+h1 { border-bottom: 2px solid #62bba5; padding-bottom: 0.4rem; }
+h2 { border-left: 3px solid #62bba5; padding-left: 0.6rem; }
+
+/* Callout personalizado */
+.callout-note {
+  background-color: #eaf6f2;
+  border-left-color: #62bba5 !important;
+}
+
+/* TOC */
+#quarto-sidebar { background-color: #ffffff; border-right: 1px solid #e0e0e0; }
+.sidebar-navigation a { color: #34495e; font-size: 0.88rem; }
+.sidebar-navigation a:hover { color: #62bba5; }
+
+/* Gráficas: padding y sombra sutil */
+.cell-output-display img,
+.cell-output-display canvas {
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  margin: 0.5rem 0;
+}
