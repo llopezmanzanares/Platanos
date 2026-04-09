@@ -1,0 +1,57 @@
+---
+title: "Produccion Finca"
+lang: es
+subtitle: "Evolución y Rendimiento"
+execute: 
+  echo: false
+  warning: false
+  message: false
+format: 
+  html:
+    html-table-processing: none
+    theme: [flatly, custom.scss]
+    toc: true
+    toc-depth: 3
+    toc-title: "📋 Contenido"
+    toc-location: left
+    fig-width: 10
+    fig-height: 6
+    number-sections: true
+    embed-resources: true
+    page-layout: full
+    mainfont: "Inter"
+    monofont: "Fira Code"
+    google-fonts: true
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+# 1. --- Librerías -----------------
+
+library(tidyverse)
+library(here)
+library(glue)
+library(gt)
+library(gtExtras)
+library(scales)
+
+# 2. --- Formato regional ----------
+
+## Opciones globales de números/monedas
+scales::number_options(
+  decimal.mark          = ",",
+  big.mark              = ".",
+  currency.prefix       = "",
+  currency.suffix       = " €",
+  currency.decimal.mark = ",",
+  currency.big.mark     = "."
+)
+
+# 3. --- Helpers externos ---------
+source(here::here("report/utils_plot.R"))
+source(here::here("report/utils_gt.R"))
+
+
+```
