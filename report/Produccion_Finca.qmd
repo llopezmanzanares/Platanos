@@ -50,8 +50,18 @@ scales::number_options(
 )
 
 # 3. --- Helpers externos ---------
-source(here::here("report/utils_plot.R"))
-source(here::here("report/utils_gt.R"))
+source(here("report/utils_plot.R"))
+source(here("report/utils_gt.R"))
 
+
+```
+
+```{r}
+#| label: data-load
+
+# Ejecutar (opcional) el pipeline previo
+# source(here("code/00_run_all.R"))
+
+source(here("data/processed/finca_eda.rds"))
 
 ```
