@@ -11,6 +11,7 @@
 # ENTRADAS:
 #   - data/processed/coop_raw.rds
 #   - data/processed/gastos_otros-ingresos.rds
+#   - data/processed/balten_raw.rds
 
 # SALIDAS:
 #   - Objetos: finca_eda
