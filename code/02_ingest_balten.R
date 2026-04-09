@@ -33,12 +33,12 @@ suppressPackageStartupMessages(
 patrones_balten <- list(
   n_factura = "AG\\s\\d+/\\d{4}", # Ejemplo AG 10316/2023
   todas_fechas = "(\\d{2}/){2}\\d{4}", # Todas las fechas para procesarlas luego
-  f_emision = "(?<=FECHA:\\n)\\d{2}/\\d{2}/\\d{4}", # Fecha de emisión de la factura
+  # f_emision = "(?<=FECHA:\\n)\\d{2}/\\d{2}/\\d{4}", # Fecha de emisión de la factura
   periodo = "(?i)\\dº\\sBIMESTRE\\s\\d{4}", # Ejemplo: 4º BIMESTRE 2024
   l_ant = "(?<=Lectura Anterior: )\\d+", # lectura anterior contador
-  f_ant = "(?<=Fecha: )(\\d{2}/){2}\\d{4}", # fecha lectura anterior
+  # f_ant = "(?<=Fecha: )(\\d{2}/){2}\\d{4}", # fecha lectura anterior
   l_act = "(?<=Lectura Actual: )\\d+", # lectura actual contador
-  f_act = "(\\d{2}/){2}\\d{4}(?=\\s+Consumo)", # fecha lectura actual, antes de "Consumo"
+  # f_act = "(\\d{2}/){2}\\d{4}(?=\\s+Consumo)", # fecha lectura actual, antes de "Consumo"
   consumo = "(?<=Consumo \\(m³\\): )\\d+", # consumo en m³
   precio = "(?<=precio\\s{1,10})\\d,\\d+", # precio unitario €/m³
   total = "(?<=TOTAL )(\\d\\.)?\\d{1,3},\\d{2}" # importe total factura
@@ -75,6 +75,7 @@ balten_ds$todos <-
   balten_raw |>
   mutate(
     # --- Extraigo todas las fechas detectadas en el documento
+    # En BALTEN: [[1]] es emisión, [[2]] anterior y [[3]] actual
     fechas_det = map(contenido, ~ str_extract_all(.x, patrones_balten$todas_fechas)[[1]]),
 
     # --- Metadatos de las Facturas
