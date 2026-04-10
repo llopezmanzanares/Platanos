@@ -65,3 +65,12 @@ source(here("report/utils_gt.R"))
 finca_eda <- read_rds(here("data/processed/finca_eda.rds"))
 
 ```
+
+# Ingresos y Gastos
+
+```{r}
+#| label: tabla-ingresos-gastos
+
+
+
+```
