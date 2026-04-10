@@ -62,6 +62,6 @@ source(here("report/utils_gt.R"))
 # Ejecutar (opcional) el pipeline previo
 # source(here("code/00_run_all.R"))
 
-source(here("data/processed/finca_eda.rds"))
+finca_eda <- read_rds(here("data/processed/finca_eda.rds"))
 
 ```
