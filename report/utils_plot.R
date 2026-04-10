@@ -1,5 +1,7 @@
 # report/utils_plot.R
 
+theme_set(theme_minimal(base_size = 13))
+
 ## Función auxiliar para eje Y en euros
 eje_y_eur <- function(position = "right") {
   scale_y_continuous(
