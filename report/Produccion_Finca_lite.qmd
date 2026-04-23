@@ -549,6 +549,8 @@ coop_ds$mes |>
 #| label: kgrac-estacional
 #| eval: false
 
+# TODO: considerar la estacionalidad de la siguiente manera, 100% la media de cada anaulidad, y hacer los porcentajes de variación respecto a ese valor, idea sacada de estas gráficas https://thecrudechronicles.substack.com/p/seasonal-ceasfire
+
 select(coop_ds$mes, fecha_aa, fecha_mm, kg_rac) |>
   mutate(txt_mm = fct(x = str_to_title(fecha_mm))) |>
   ggplot(aes(x = txt_mm, y = kg_rac, color = fecha_aa)) +
