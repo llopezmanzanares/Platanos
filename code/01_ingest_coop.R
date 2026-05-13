@@ -31,6 +31,8 @@ suppressPackageStartupMessages(
 
 # 1. CONSTANTES -----------------------------------------------------------
 
+# TODO: eur_brutos (antes de impuestos) y eur_netos (después de impuestos)
+
 # Patrones regex para extraer valores numéricos del texto de los PDFs
 patrones_coop <- list(
   fecha = "(\\d{2,4}\\.?){3}", # dd.mm.aa ó dd.mm.aaaa
@@ -43,10 +45,11 @@ patrones_coop <- list(
 
 # Categorías de producto y patrones asociados
 categorias <- list(
-  total   = list(patron = "Total \\.", campos = c("kg", "eur")),
-  premium = list(patron = "PREMIUM", campos = c("kg", "eurkg", "eur")),
-  psup    = list(patron = "P\\. SUPER", campos = c("kg", "eurkg", "eur")),
-  segunda = list(patron = "SEGUNDA", campos = c("kg", "eurkg", "eur"))
+  total     = list(patron = "Total \\.", campos = c("kg", "eur")),
+  premium   = list(patron = "PREMIUM", campos = c("kg", "eurkg", "eur")),
+  psup      = list(patron = "P\\. SUPER", campos = c("kg", "eurkg", "eur")),
+  segunda   = list(patron = "SEGUNDA", campos = c("kg", "eurkg", "eur"))
+  # total_eur = list(patron = "Total Euros", campos = "eur")
 )
 
 # 2 FUNCIONES -------------------------------------------------------------
