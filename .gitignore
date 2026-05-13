@@ -28,3 +28,4 @@ data/processed/*.RData
 # quarto outputs
 /.quarto/
 /_site/
+.positai
