@@ -64,6 +64,8 @@ source(here("report/utils_gt.R"))
 
 finca_eda <- read_rds(here("data/processed/finca_eda.rds"))
 
+# --- métricas para tablas y gráficos ---
+source(here("report/utils_metricas.R"))
 ```
 
 # Ingresos y Gastos
