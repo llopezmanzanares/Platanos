@@ -34,7 +34,7 @@ message("═══════════════════════�
 # 2. CONSTANTES -----------------------------------------------------------
 
 # Solo tengo un dato de 2020, quito esta anualidad
-QUITO_2020 <- 2020
+QUITO_2020 <- "2020"
 
 # 3. VARIABLES ------------------------------------------------------------
 
@@ -64,7 +64,7 @@ message("\n[2/] Calculando datos mensuales...")
 
 # --- Liquidaciones
 finca_eda$liq_mes <-
-  filter(coop_raw, year(fecha) > QUITO_2020) |>
+  filter(coop_raw, fecha_aa != QUITO_2020) |>
   select(-fecha_sem) |>
   pivot_wider(names_from = "tipo", values_from = "valor") |>
   mutate(fecha = rollforward(fecha)) |>
@@ -72,7 +72,7 @@ finca_eda$liq_mes <-
     .by = starts_with("fecha"),
     across(!ends_with("eurkg"), sum),
     across(ends_with("eurkg"), mean),
-    kg_rac = total_kg / racimos
+    kg_rac = total_bruto_kg / total_racimos
   )
 
 # --- Otros gastos
