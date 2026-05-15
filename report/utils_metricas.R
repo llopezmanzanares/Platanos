@@ -1,12 +1,12 @@
 # report/utils_metricas.R
 
-# --- Ingresos y Gastos anuales
+# --- Ingresos y Gastos anuales -------------------------------------------
 
 ing_gas <-
   left_join(
     finca_eda$liq_total_aa |>
-      select(fecha, liquidaciones = total_eur_acum, kg = total_kg_acum) |>
-      mutate(aa = year(fecha), .keep = "unused"),
+      select(fecha, liquidaciones = total_neto_eur_acum, kg = total_bruto_kg_acum) |> 
+      mutate(aa = year(fecha)),
     finca_eda$ooii_total_aa |>
       select(aa, otros_ingresos),
     by = "aa"
@@ -31,4 +31,5 @@ ing_gas <-
     d_benef = beneficios / ingresos,
     eur_kg = gastos / kg
   ) |>
-  select(aa, ingresos, gastos, beneficios, d_benef, eur_kg)
+  select(aa, ingresos, gastos, beneficios, d_benef, eur_kg) |> 
+  arrange(desc(aa))
