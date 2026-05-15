@@ -73,6 +73,38 @@ source(here("report/utils_metricas.R"))
 ```{r}
 #| label: tabla-ingresos-gastos
 
+gt(data = ing_gas) |> 
+  gt_tema(ancho = 60) |> 
+  tab_options(footnotes.padding = px(2)) |> 
+  tab_header(title = "Resumen de ingresos y gastos") |> 
+  # --- Formatos numéricos
+  fmt_percent(columns = d_benef, decimals = 1) |> 
+  fmt_integer(columns = c(ingresos, gastos, beneficios)) |> 
+  fmt_number(columns = eur_kg, decimals = 2) |> 
+  # --- Etiquetas
+  cols_label(
+    aa = "", d_benef = "",
+    ingresos   = "Ingresos (€)",
+    gastos     = "Gastos (€)",
+    beneficios = "Beneficios (€)",
+    eur_kg     = "€ / Kg"
+  ) |> 
+  # --- Notas
+  tab_footnote(
+    footnote = "Cortes, Subvenciones y Devoluciones",
+    locations = cells_column_labels(columns = ingresos)
+  ) |> 
+  tab_footnote(
+    footnote = "Agua, Abonos y Otros",
+    locations = cells_column_labels(columns = gastos)
+  ) |> 
+  tab_footnote(
+    footnote = "Costes de Producción",
+    cells_column_labels(columns = eur_kg)
+  ) |> 
+  tab_source_note(
+    source_note = "Datos de Subvenciones, Devoluciones, Abonos y Otros desde 2024"
+  )
 
 
 ```
