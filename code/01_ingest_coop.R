@@ -76,7 +76,12 @@ procesar_liquidacion <- function(ruta_pdf) {
     extraer_filas("P\\. SUPER", "p_super"),
     extraer_filas("SEGUNDA", "segunda")
   ) |> 
-    summarise(.by = c(fecha, tipo), kg = sum(kg, na.rm = T), eur = sum(eur, na.rm = T))
+    summarise(
+      .by   = c(fecha, tipo),
+      kg    = sum(kg, na.rm = T),
+      eur   = sum(eur, na.rm = T),
+      eurkg = eur / kg 
+      )
 
   # 3. Extraer Totales, bruto y neto
   # Bruto, de la tabla de Calidades
@@ -97,7 +102,7 @@ procesar_liquidacion <- function(ruta_pdf) {
 
   # 4. Unificar todo, formato largo
   df_metricas <- bind_rows(datos_categorias, bruto_df, neto_df) |> 
-    pivot_longer(cols = c(kg, eur), names_to = "metrica", values_to = "valor") |> 
+    pivot_longer(cols = c(kg, eur, eurkg), names_to = "metrica", values_to = "valor") |> 
     mutate(tipo = paste0(tipo, "_", metrica)) |> 
     select(fecha, tipo, valor)
   
