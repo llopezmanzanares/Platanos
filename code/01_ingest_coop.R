@@ -2,155 +2,136 @@
 # SCRIPT: 01_ingest_coop.R
 # PROYECTO: Control y análisis financiero de la finca de plátanos
 # FECHA DE CREACIÓN:   25/03/2026
-# ÚLTIMA MODIFICACIÓN: 04/04/2026
-# DESCRIPCIÓN:
-#   Importación de datos las liquidaciones de la Cooperativa, archivos PDFs
-#
-#   El script se ejecuta desde 00_run_all.R
-#
-# ENTRADAS:
-#   - data/raw/coop/
-#     * Archivos PDF → "L*.pdf"
-
-# SALIDAS:
-#   - Objetos: coop_raw
-#   - Archivo RDS con los datos data/processed/coop_raw.rds
-#   - Mensajes de progreso y validación en consola
-
-# DEPENDENCIAS:
-#   - tidyverse, here, glue, pdftools
-
+# ÚLTIMA MODIFICACIÓN: 15/05/2026
+# DESCRIPCIÓN: Importación y limpieza de liquidaciones en PDF (COPLACSIL)
 # ******************************************************************************
 
 # 0. LIBRERIAS ------------------------------------------------------------
 
-suppressPackageStartupMessages(
+suppressPackageStartupMessages({
   library(pdftools)
-)
+})
 
-
-# 1. CONSTANTES -----------------------------------------------------------
-
-# TODO: eur_brutos (antes de impuestos) y eur_netos (después de impuestos)
-
-# Patrones regex para extraer valores numéricos del texto de los PDFs
-patrones_coop <- list(
-  fecha = "(\\d{2,4}\\.?){3}", # dd.mm.aa ó dd.mm.aaaa
-  kg    = "(\\d\\.)?\\d+", # kg, miles con punto separador
-  prc   = "\\d{1,2},\\d{1,2}", # porcentaje con 2 decimales
-  eurkg = "\\d,\\d{4}", # precio €/kg con 4 decimales
-  eur   = "(\\d\\.)?\\d{1,3},\\d{2}$", # importe final (2 decimales)
-  racms = "\\d{1,2}" # número de racimos
-)
-
-# Categorías de producto y patrones asociados
-categorias <- list(
-  total     = list(patron = "Total \\.", campos = c("kg", "eur")),
-  premium   = list(patron = "PREMIUM", campos = c("kg", "eurkg", "eur")),
-  psup      = list(patron = "P\\. SUPER", campos = c("kg", "eurkg", "eur")),
-  segunda   = list(patron = "SEGUNDA", campos = c("kg", "eurkg", "eur"))
-  # total_eur = list(patron = "Total Euros", campos = "eur")
-)
-
-# 2 FUNCIONES -------------------------------------------------------------
-
-#' Lee los PDFs de liquidaciones y filtra las líneas con datos relevantes
-#' @param  datafiles Vector de nombres de archivo (sin ruta)
-#' @return tibble con columnas: archivo, value
-read_pdfs <- function(datafiles) {
-  map_df(
-    here(dirs$cop, datafiles),
-    \(f) {
-      data.frame(
-        archivo = basename(f),
-        value = unlist(str_split(pdf_text(f), "\\n"))
-      )
-    }
-  ) |>
-    filter(str_detect(value, "Fecha|PREMIUM|P\\. SUPER|SEGUNDA|Total|racimos"))
+# 1. FUNCIONES DE PROCESAMIENTO -------------------------------------------
+#' Función interna para limpiar formatos numéricos españoles (1.313,89 € -> 1313.89)
+#' Limpieza vectorizada: Maneja correctamente cuando x tiene más de un elemento
+#' por ejemplo 2 filas por categoría, como ocurre en alguna factura
+limpiar_num_es <- function(x) {
+  if (length(x) == 0) return(NA_real_)
+  
+  map_dbl(x, \(val){
+    if(is.na(val) || val == "" || val == ".") return(NA_real_)
+    num <- val |> 
+      str_remove_all("[\\s€\\+]") |> # Quita espacios, € y +
+      str_remove("-$") |>            # Quita el guion final si existe
+      str_replace_all("\\.", "") |>  # Quita puntos de millar
+      str_replace(",", ".") |>       # Cambia coma por punto decimal
+      as.numeric()
+  })
 }
+  
 
-#' Extrae número usando patrón, retorna NA si no coincide
-#' @param txt texto a procesar
-#' @param patron patrón regex para extraer
-#' @return número extraído o NA_real_
-xtr_num_safe <- function(txt, patron) {
-  suppressWarnings(
-    as.numeric(str_replace(str_extract(txt, patron), ",", "."))
+#' Procesa de manera íntegra y segura por líneas
+procesar_liquidacion <- function(ruta_pdf) {
+  # Intenta leer el PDF; si falla, lanza un warning y continúa con el siguiente
+  texto_raw <- tryCatch(
+    {
+      pdf_text(ruta_pdf) |> paste(collapse = "\n")
+    },
+    error = function(e) {
+      warning("⚠️ No se pudo leer el archivo: ", basename(ruta_pdf))
+      return(NULL)
+    }
   )
-}
 
-#' Extrae y estructura los datos de las liquidaciones semanales
-#' @param liquidaciones tibble con columnas: archivo, value
-#' @return tibble tidy con columnas: fecha, tipo, valor
-xtr_datos_liquidaciones <- function(liquidaciones) {
-  resultado <- liquidaciones |>
-    mutate(
-      fecha = if_else(
-        str_detect(value, "Fecha"),
-        str_extract(value, patrones_coop$fecha),
-        NA_character_
-      ),
-      racimos = if_else(
-        str_detect(value, "racimos"),
-        xtr_num_safe(value, patrones_coop$racms),
-        NA_real_
-      )
-    ) |>
-    fill(fecha) |>
-    mutate(fecha = dmy(fecha))
+  if (is.null(texto_raw) || texto_raw == "") {return(NULL)}
+  lineas <- read_lines(texto_raw)
 
-  # Extraer valores para cada categoría y campo de forma plana
-  for (nom_cat in names(categorias)) {
-    cat <- categorias[[nom_cat]]
-    for (campo in cat$campos) {
-      col_name <- paste0(nom_cat, "_", campo)
-      resultado <- resultado |>
-        mutate(
-          !!col_name := if_else(
-            str_detect(value, cat$patron),
-            xtr_num_safe(value, patrones_coop[[campo]]),
-            NA_real_
-          )
-        )
-    }
+  # 1. Extracción de la Fecha y Racimos
+  fecha_val   <- dmy(str_extract(texto_raw, "\\d{2}\\.\\d{2}\\.\\d{2,4}"))
+  racimos_val <- str_subset(lineas, "Total racimos:") |> 
+    str_extract("\\d+") |> as.numeric()
+
+  # 2. Extraer filas de Calidades, aunque sean varias filas por "Calidad"
+  # Regex: busca el primer dígito y captura 4 bloques numéricos (Kilos, %, Precio, Importe)
+  regex_calidad <- "(\\d[0-9.,]*)\\s+([0-9.,]+)\\s+([0-9.,]+)\\s+([0-9.,]+)"
+  
+  extraer_filas <- function(patron, nombre_tipo) {
+    lineas_encontradas <- str_subset(lineas, patron)
+    if (length(lineas_encontradas) == 0) return(NULL)
+    
+    matches <- str_match(lineas_encontradas, regex_calidad)
+    
+    tibble(
+      fecha = fecha_val,
+      tipo  = nombre_tipo,
+      kg    = limpiar_num_es(matches[,2]),
+      eur   = limpiar_num_es(matches[,5])
+    )
   }
+  
+  # Proceso y consolidado de las filas de cada calidad
+  datos_categorias <- bind_rows(
+    extraer_filas("PREMIUM", "premium"),
+    extraer_filas("P\\. SUPER", "p_super"),
+    extraer_filas("SEGUNDA", "segunda")
+  ) |> 
+    summarise(.by = c(fecha, tipo), kg = sum(kg, na.rm = T), eur = sum(eur, na.rm = T))
 
-  resultado |>
-    select(!c(value, archivo)) |>
-    pivot_longer(
-      cols = !fecha,
-      names_to = "tipo",
-      values_to = "valor",
-      values_drop_na = TRUE
-    ) |>
-    summarise(.by = c(fecha, tipo), valor = sum(valor, na.rm = TRUE))
+  # 3. Extraer Totales, bruto y neto
+  # Bruto, de la tabla de Calidades
+  linea_total <- str_subset(lineas, "Total \\. \\. \\.")
+  match_tab <- str_match(linea_total, "(\\d[0-9.,]*)\\s+([0-9.,]+)\\s+([0-9.,]+)")
+  
+  bruto_df <- tibble(
+    fecha = fecha_val,
+    tipo  = "total_bruto",
+    kg    = limpiar_num_es(match_tab[1, 2]),
+    eur   = limpiar_num_es(match_tab[1, 4])
+  )
+  # Neto, final de la liquidación
+  linea_neto <- str_subset(lineas, "Total Euros")
+  neto_eur <- limpiar_num_es(str_extract(linea_neto, "[0-9.,]+(?=€|$)"))
+  
+  neto_df <- tibble(fecha = fecha_val, tipo = "total_neto", kg = NA_real_, eur = neto_eur)
+
+  # 4. Unificar todo, formato largo
+  df_metricas <- bind_rows(datos_categorias, bruto_df, neto_df) |> 
+    pivot_longer(cols = c(kg, eur), names_to = "metrica", values_to = "valor") |> 
+    mutate(tipo = paste0(tipo, "_", metrica)) |> 
+    select(fecha, tipo, valor)
+  
+  df_racimos <- tibble(fecha = fecha_val, tipo = "total_racimos", valor = racimos_val)
+  
+  bind_rows(df_metricas, df_racimos) |> filter(!is.na(valor))
 }
 
-# 3. EJECUCION ------------------------------------------------------------
+# 2. EJECUCION ------------------------------------------------------------
 
-data_files <- list.files(path = here(dirs$cop), pattern = "^L")
+data_files <- list.files(path = here(dirs$cop), pattern = "^L.*\\.pdf$", full.names = TRUE)
 
 if (length(data_files) == 0) {
   stop("✗ ERROR: No se encontraron los archivos PDF en: ", here(dirs$cop))
 }
 
-message("Cargando liquidaciones de la Cooperativa, ", length(data_files), " archivos PDF...")
+message("Cargando y procesando ", length(data_files), " liquidaciones de la Cooperativa...")
 
-coop_raw <-
-  read_pdfs(data_files) |>
-  xtr_datos_liquidaciones() |>
+# Iteración robusta sobre los 112 archivos mapeando la función extractora
+coop_raw <- data_files |>
+  map_df(~ procesar_liquidacion(.x)) |>
+
+  # Enriquecer con dimensiones temporales para informes
   mutate(
-    fecha_aa = as_factor(year(fecha)),
-    fecha_mm = month(fecha, label = TRUE),
+    fecha_aa  = as_factor(year(fecha)),
+    fecha_mm  = month(fecha, label = TRUE),
     fecha_sem = week(fecha),
     .after = fecha
   )
 
-message("\n ✓ Extracción completada: ", nrow(coop_raw), " observaciones.\n")
+message("\n ✓ Extracción completada de forma segura: ", nrow(coop_raw), " métricas consolidadas.\n")
 
-# 4. GUARDAR --------------------------------------------------------------
+# 3. GUARDAR --------------------------------------------------------------
 
-guardar_con_backup(coop_raw, "data/processed/coop_raw.rds")
+guardar_con_backup(coop_raw, here(dirs$pro, "coop_raw.rds"))
 
 message("✓ Script 01_ingest_coop.R finalizado correctamente.\n")
